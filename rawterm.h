@@ -1,11 +1,12 @@
 #ifndef RAWTERM_H
 #define RAWTERM_H
 
-#include <stdlib.h>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include <termios.h>
 #include <unistd.h>
+#include <vector>
 
 int enable_raw_mode();
 
@@ -59,7 +60,29 @@ void exitr_alt_screen() {
 }
 
 
-// Read user input - I want to return a struct that holds the value and any 
-// modifier keys pressed - CTRL/CMD/SHIFT/ALT/SUPER
+// Read user input
+enum Mod { 
+    Control,
+    Shift
+};
+
+struct Key {
+    char code;
+    std::vector<Mod> mod;
+};
+
+Key process_keypress() {
+    char c;
+    std::cin.get(c);
+
+    Key k;
+    k.code = c;
+
+    if (std::iscntrl(c)) k.mod.push_back(Mod::Control);
+    if (65 <= static_cast<int>(c) && static_cast<int>(c) <= 90) k.mod.push_back(Mod::Shift);
+
+    return k;
+}
+
 
 #endif // RAWTERM_IMPLEMENTATION

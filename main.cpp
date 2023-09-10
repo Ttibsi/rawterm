@@ -8,6 +8,7 @@
 
 int main() {
     enable_raw_mode();
+    enter_alt_screen();
 
     char c;
 
@@ -18,6 +19,8 @@ int main() {
             std::cout << static_cast<int>(c) << " ('" << c << "')\r\n";
         }
     }
+
+    exitr_alt_screen();
 
     return 0;
 }

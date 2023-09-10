@@ -46,11 +46,18 @@ int enable_raw_mode() {
     return 0;
 }
 
-
-
 // Enter/leave alternate screen
 // https://stackoverflow.com/a/12920036
 // Will need to find another solution for windows (#ifdef WIN32)
+void enter_alt_screen() {
+    std::cout << "\0337\033[?47h\033[H";
+}
+
+void exitr_alt_screen() {
+    std::cout << "\033[2J\033[?47l\0338";
+
+}
+
 
 // Read user input - I want to return a struct that holds the value and any 
 // modifier keys pressed - CTRL/CMD/SHIFT/ALT/SUPER

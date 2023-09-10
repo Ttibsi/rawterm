@@ -13,9 +13,9 @@ int main() {
 
     while (std::cin.get(c) && c != 'q') {
         if (std::iscntrl(c)) {
-            std::cout << static_cast<int>(c) << std::endl;
+            std::cout << static_cast<int>(c) << "\r\n";
         } else {
-            std::cout << static_cast<int>(c) << " ('" << c << "')\n";
+            std::cout << static_cast<int>(c) << " ('" << c << "')\r\n";
         }
     }
 

@@ -140,8 +140,10 @@ Key process_keypress() {
     }
 
 
-    // TODO: numbers, fnums, enter, escape, arrows, alt?
+    // TODO: fnums, enter, escape, arrows, alt?, symbols
     // https://www.rapidtables.com/code/text/ascii-table.html
+
+    // UPPERCASE LETTERS
     if (substrings[0] == "\\x65") {
         k.code = 'A';
         k.mod.push_back(Mod::Shift);
@@ -220,8 +222,8 @@ Key process_keypress() {
     }else if (substrings[0] == "\\x90") {
         k.code = 'Z';
         k.mod.push_back(Mod::Shift);
-    // LOWERCASE LETTERS
-}else if (substrings[0] == "\\x97") {
+        // LOWERCASE LETTERS
+    }else if (substrings[0] == "\\x97") {
         k.code = 'a';
     }else if (substrings[0] == "\\x98") {
         k.code = 'b';
@@ -273,6 +275,28 @@ Key process_keypress() {
         k.code = 'y';
     }else if (substrings[0] == "\\x122") {
         k.code = 'z';
+        // NUMBERS
+    }else if (substrings[0] == "\\x30") {
+        k.code = '0';
+    }else if (substrings[0] == "\\x31") {
+        k.code = '1';
+    }else if (substrings[0] == "\\x32") {
+        k.code = '2';
+    }else if (substrings[0] == "\\x33") {
+        k.code = '3';
+    }else if (substrings[0] == "\\x34") {
+        k.code = '4';
+    }else if (substrings[0] == "\\x35") {
+        k.code = '5';
+    }else if (substrings[0] == "\\x36") {
+        k.code = '6';
+    }else if (substrings[0] == "\\x37") {
+        k.code = '7';
+    }else if (substrings[0] == "\\x38") {
+        k.code = '8';
+    }else if (substrings[0] == "\\x39") {
+        k.code = '9';
+    }
 
 
     return k;

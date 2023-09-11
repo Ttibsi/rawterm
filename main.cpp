@@ -13,11 +13,9 @@ int main() {
 
     while (true) {
         Key k = process_keypress();
-
         if (k.code == 'q' && k.mod.empty()) break;
 
         std::cout << k.code;
-
         int len = k.mod.size();
 
         if (len) {
@@ -34,10 +32,10 @@ int main() {
                 }
 
                 len--;
-                if (len) std::cout << ",";
+                if (len) std::cout << ", ";
             }
 
-            std::cout << " )";
+            std::cout << ")";
         }
 
         std::cout << "\r\n";

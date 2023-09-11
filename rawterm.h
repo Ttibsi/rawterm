@@ -12,9 +12,6 @@ int enable_raw_mode();
 
 #endif // RAWTERM_H
 
-// WARN: REMOVE THIS
-#define RAWTERM_IMPLEMENTATION
-
 #ifdef RAWTERM_IMPLEMENTATION
 
 // enable/disable raw mode
@@ -56,9 +53,7 @@ void enter_alt_screen() {
 
 void exitr_alt_screen() {
     std::cout << "\033[2J\033[?47l\0338";
-
 }
-
 
 // Read user input
 enum Mod { 
@@ -76,13 +71,18 @@ Key process_keypress() {
     std::cin.get(c);
 
     Key k;
-    k.code = c;
 
-    if (std::iscntrl(c)) k.mod.push_back(Mod::Control);
-    if (65 <= static_cast<int>(c) && static_cast<int>(c) <= 90) k.mod.push_back(Mod::Shift);
+    if (65 <= static_cast<int>(c) && static_cast<int>(c) <= 90) {
+        k.code = static_cast<int>(c) + 32;
+        k.mod.push_back(Mod::Shift);
+    } else if (std::iscntrl(c)) {
+        k.code = static_cast<int>(c);
+        k.mod.push_back(Mod::Control);
+    } else {
+        k.code = c;
+    }
 
     return k;
 }
-
 
 #endif // RAWTERM_IMPLEMENTATION

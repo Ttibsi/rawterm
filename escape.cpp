@@ -11,14 +11,17 @@ int main() {
 
         int ret = read(STDIN_FILENO, seq, sizeof(seq));
         if (ret < 0) {
-            std::cerr << "ERROR: something went wrong during reading user input: " << std::strerror(errno) << std::endl;
+            std::cerr
+                << "ERROR: something went wrong during reading user input: "
+                << std::strerror(errno) << std::endl;
             return 1;
         }
 
         std::string code;
         for (int i = 0; i < ret; ++i) {
             char buffer[5];
-            std::snprintf(buffer, sizeof(buffer), "\\x%02x", static_cast<unsigned char>(seq[i]));
+            std::snprintf(buffer, sizeof(buffer), "\\x%02x",
+                          static_cast<unsigned char>(seq[i]));
             code += buffer;
         }
 

@@ -1,6 +1,6 @@
 #include <cctype>
-#include <iostream>
 #include <ios>
+#include <iostream>
 #include <sys/types.h>
 
 #define RAWTERM_IMPLEMENTATION
@@ -10,7 +10,8 @@ int main() {
     enable_raw_mode();
     enter_alt_screen();
 
-    while (true) process_keypress();
+    while (true)
+        process_keypress();
     // while (true) {
     //     Key k = process_keypress();
     //     if (k.code == 'q' && k.mod.empty()) break;

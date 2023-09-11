@@ -16,13 +16,12 @@ int main() {
         if (k.code == 'q' && k.mod.empty()) break;
 
         std::cout << k.code;
-        int len = k.mod.size();
 
-        if (len) {
+        if (!k.mod.empty()) {
             std::cout << " (";
-            
-            while (len) {
-                switch (k.mod[len]) {
+
+            for (size_t i = 0; i < k.mod.size(); ++i) {
+                switch (k.mod[i]) {
                     case Mod::Control:
                         std::cout << "CTRL";
                         break;
@@ -31,13 +30,15 @@ int main() {
                         break;
                 }
 
-                len--;
-                if (len) std::cout << ", ";
+                if (i < k.mod.size() - 1) {
+                    std::cout << ", ";
+                }
             }
 
             std::cout << ")";
         }
 
+        std::cout << "(" << k.raw << ")";
         std::cout << "\r\n";
     }
 

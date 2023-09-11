@@ -64,6 +64,7 @@ enum Mod {
 struct Key {
     char code;
     std::vector<Mod> mod;
+    int raw;
 };
 
 Key process_keypress() {
@@ -71,12 +72,13 @@ Key process_keypress() {
     std::cin.get(c);
 
     Key k;
+    k.raw = static_cast<int>(c);
 
-    if (65 <= static_cast<int>(c) && static_cast<int>(c) <= 90) {
+    if (std::isupper(c)) {
         k.code = static_cast<int>(c) + 32;
         k.mod.push_back(Mod::Shift);
     } else if (std::iscntrl(c)) {
-        k.code = static_cast<int>(c);
+        k.code = static_cast<int>(c) + 96;
         k.mod.push_back(Mod::Control);
     } else {
         k.code = c;

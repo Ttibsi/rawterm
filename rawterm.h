@@ -51,14 +51,16 @@ void enter_alt_screen() {
     std::cout << "\0337\033[?47h\033[H";
 }
 
-void exitr_alt_screen() {
+void exit_alt_screen() {
     std::cout << "\033[2J\033[?47l\0338";
 }
 
 // Read user input
 enum Mod { 
     Control,
-    Shift
+    Shift,
+    Escape,
+    Arrow,
 };
 
 struct Key {
@@ -67,22 +69,85 @@ struct Key {
     int raw;
 };
 
+// Key process_keypress() {
+//     char c;
+//     std::cin.get(c);
+//
+//     Key k;
+//     k.raw = static_cast<int>(c);
+//
+//     // TODO: Escape, backspace, enter
+//     if (c == 27) {
+//         char next;
+//         if (std::cin.get(next)) {
+//             if (next == '[') {
+//                 char escape_char;
+//                 if (std::cin.get(escape_char)) {
+//                     k.mod.push_back(Mod::Arrow);
+//
+//                     if (escape_char == 'A') {
+//                         k.code = 'a'; // Up arrow key
+//                     } else if (escape_char == 'B') {
+//                         k.code = 'b'; // Down arrow key
+//                     } else if (escape_char == 'C') {
+//                         k.code = 'c'; // Right arrow key
+//                     } else if (escape_char == 'D') {
+//                         k.code = 'd'; // Left arrow key
+//                     }
+//                 }
+//             }
+//         } else {
+//             k.code = ' ';
+//             k.mod.push_back(Mod::Escape);
+//         }
+//     } else if (std::isupper(c)) {
+//         k.code = static_cast<int>(c) + 32;
+//         k.mod.push_back(Mod::Shift);
+//     } else if (std::iscntrl(c)) {
+//         k.code = static_cast<int>(c) + 96;
+//         k.mod.push_back(Mod::Control);
+//     } else {
+//         k.code = c;
+//     }
+//
+//     return k;
+// }
+
+
+
 Key process_keypress() {
-    char c;
-    std::cin.get(c);
-
     Key k;
-    k.raw = static_cast<int>(c);
+    char seq[32];
 
-    if (std::isupper(c)) {
-        k.code = static_cast<int>(c) + 32;
-        k.mod.push_back(Mod::Shift);
-    } else if (std::iscntrl(c)) {
-        k.code = static_cast<int>(c) + 96;
-        k.mod.push_back(Mod::Control);
-    } else {
-        k.code = c;
+    int ret = read(STDIN_FILENO, seq, sizeof(seq));
+    if (ret < 0) {
+        std::cerr << "ERROR: something went wrong during reading user input: " << std::strerror(errno) << std::endl;
+        return k;
     }
+
+    std::string code;
+    for (int i = 0; i < ret; ++i) {
+        char buffer[5]; // Enough space for "\\x00" plus null-terminator
+        std::snprintf(buffer, sizeof(buffer), "\\x%02x", static_cast<unsigned char>(seq[i]));
+        code += buffer;
+    }
+
+    std::vector<std::string> substrings;
+    for (size_t i = 0; i < code.length(); i += 4) {
+        // Get a substring of 4 characters
+        std::string sub = code.substr(i, 4);
+        substrings.push_back(sub);
+    }
+
+
+    // https://www.rapidtables.com/code/text/ascii-table.html
+    // Escape
+    std::cout << "sub0" << substrings[0] << "\r\n";
+    if (substrings[0] == "\x27") {
+    } else if (substrings[0] == "\\x61") {
+        std::cout << "aaaaaaa\r\n";
+    }
+
 
     return k;
 }

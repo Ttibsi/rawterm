@@ -3,6 +3,11 @@
 #define RAWTERM_IMPLEMENTATION
 #include "rawterm.h"
 
+// This code runs with `./build.sh && ./build/escape`. It will print out the
+// raw ascii code of any key you enter. It does not have a way out/to quit so 
+// you will need to kill your terminal window (or the executable with 
+// `pkill -9 escape` in another window).
+
 int main() {
     enable_raw_mode();
     enter_alt_screen();

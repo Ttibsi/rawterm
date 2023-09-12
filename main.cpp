@@ -6,6 +6,10 @@
 #define RAWTERM_IMPLEMENTATION
 #include "rawterm.h"
 
+// This is a demonstration on how `rawterm` works. You can compile this with 
+// `./build.sh` and run with `./build/main`. Any keypress you enter then will
+// show it's output as a Key object in the terminal. Press `q` to quit. 
+
 int main() {
     enable_raw_mode();
     enter_alt_screen();

@@ -23,7 +23,7 @@ int main() {
 }
 ```
 
-We also provide the `Key` event to track and handle keypresses, returned from 
+We also provide the `Key` event to track and handle keypresses, returned from
 the `process_keypress()` function, which takes no parameters. A `Key` looks
 like this:
 
@@ -37,15 +37,12 @@ struct Key {
 
 * `code` - is the value you pressed (ie `a`)
 * `mod` - is a vector of modifier keys
-    * Values include: `Alt_L`, `Arrow`, `Control`, `Escape`, `Function`, `Shift`
-* `raw` - is the raw ascii string that the terminal takes in. 
+    * Values include: `Alt_L`, `Arrow`, `Control`, `Delete`, `Escape`, `Function`, `Shift`, `Space`
+* `raw` - is the raw ascii string that the terminal takes in.
     * This mostly exists for debugging
 
 ### Be Aware Of:
 * `^m` and `enter` are the same key - they both pass `\x0d` code to the terminal
-* left alt and right alt (on my macbook) are different keys - only left-alt 
-has been handled
+* `^i` and `tab` are the same key - they both pass `\x09` code to the terminal
+* left alt and right alt are different keys - only left-alt has been handled
     * I think this is also the same for alt-gr on windows laptops
-* On macos, F11 isn't passed to the terminal - you may need to adjust some
-settings.
-

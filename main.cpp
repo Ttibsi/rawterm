@@ -10,44 +10,41 @@ int main() {
     enable_raw_mode();
     enter_alt_screen();
 
-    while (true)
-        process_keypress();
-    // while (true) {
-    //     Key k = process_keypress();
-    //     if (k.code == 'q' && k.mod.empty()) break;
-    //
-    //     std::cout << k.code;
-    //
-    //     if (!k.mod.empty()) {
-    //         std::cout << " (";
-    //
-    //         for (size_t i = 0; i < k.mod.size(); ++i) {
-    //             switch (k.mod[i]) {
-    //                 case Mod::Control:
-    //                     std::cout << "CTRL";
-    //                     break;
-    //                 case Mod::Shift:
-    //                     std::cout << "SHFT";
-    //                     break;
-    //                 case Mod::Arrow:
-    //                     std::cout << "ARROW";
-    //                     break;
-    //                 case Mod::Escape:
-    //                     std::cout << "ESC";
-    //                     break;
-    //             }
-    //
-    //             if (i < k.mod.size() - 1) {
-    //                 std::cout << ", ";
-    //             }
-    //         }
-    //
-    //         std::cout << ")";
-    //     }
-    //
-    //     std::cout << " (" << k.raw << ")";
-    //     std::cout << "\r\n";
-    // }
+    while (true) {
+        Key k = process_keypress();
+        if (k.code == 'q' && k.mod.empty()) break;
+
+        std::string mods = "[";
+
+        if (!k.mod.empty()) {
+            for (size_t i = 0; i < k.mod.size(); ++i) {
+                switch (k.mod[i]) {
+                    case Mod::Control:
+                        mods += " CTRL ";
+                        break;
+                    case Mod::Shift:
+                        mods += " SHFT ";
+                        break;
+                    case Mod::Arrow:
+                        mods += " ARROW ";
+                        break;
+                    case Mod::Escape:
+                        mods += " ESC ";
+                        break;
+                    case Alt_L:
+                        mods += " ALT_L ";
+                    break;
+                    case Function:
+                        mods += " FUNCTION ";
+                    break;
+                }
+            }
+        }
+
+        mods += "]";
+
+        std::cout << "Key{ code: " << k.code << ", mods: " << mods << ", raw: " << k.raw << "}\r\n";
+    }
 
     exit_alt_screen();
 

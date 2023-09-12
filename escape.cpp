@@ -1,3 +1,4 @@
+#include <cctype>
 
 #define RAWTERM_IMPLEMENTATION
 #include "rawterm.h"

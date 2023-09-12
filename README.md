@@ -37,7 +37,7 @@ struct Key {
 
 * `code` - is the value you pressed (ie `a`)
 * `mod` - is a vector of modifier keys
-    Values include: `Alt_L`, `Arrow`, `Control`, `Escape`, `Function`, `Shift`
+    * Values include: `Alt_L`, `Arrow`, `Control`, `Escape`, `Function`, `Shift`
 * `raw` - is the raw ascii string that the terminal takes in. 
     * This mostly exists for debugging
 

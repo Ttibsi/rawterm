@@ -3,6 +3,7 @@
 #include <cctype>
 #include <ios>
 #include <iostream>
+#include <utility>
 
 #define RAWTERM_IMPLEMENTATION
 #include "rawterm.h"
@@ -14,6 +15,8 @@
 int main() {
     enable_raw_mode();
     enter_alt_screen();
+    auto size = get_term_size();
+    std::cout << "Term size: " << size.first << ", " << size.second << "\r\n";
 
     while (true) {
         Key k = process_keypress();

@@ -41,6 +41,9 @@ struct Key {
 * `raw` - is the raw ascii string that the terminal takes in.
     * This mostly exists for debugging
 
+The `get_term_size()` function provides the size of the terminal window as
+an `std::pair<int, int>` as well
+
 ### Be Aware Of:
 * `^m` and `enter` are the same key - they both pass `\x0d` code to the terminal
 * `^i` and `tab` are the same key - they both pass `\x09` code to the terminal

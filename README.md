@@ -49,3 +49,5 @@ an `std::pair<int, int>` as well
 * `^i` and `tab` are the same key - they both pass `\x09` code to the terminal
 * left alt and right alt are different keys - only left-alt has been handled
     * I think this is also the same for alt-gr on windows laptops
+* `CMD` on macos doesn't return a unique ascii code, and is treated like the
+base character being pressed

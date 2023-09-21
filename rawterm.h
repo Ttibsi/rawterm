@@ -22,7 +22,7 @@
 // SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 // Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v1.1.0
+// Version: v1.2.0
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef RAWTERM_H
@@ -64,6 +64,8 @@ void enter_alt_screen();
 void exit_alt_screen();
 Key process_keypress();
 std::pair<int, int> get_term_size();
+void move_cursor(int line, int col);
+void clear_screen();
 
 #endif // RAWTERM_H
 
@@ -201,7 +203,6 @@ Key handle_escape(std::vector<std::string> substrings, std::string raw) {
 
     return {' ', {Mod::Escape}, raw}; // esc
 }
-
 Key process_keypress() {
     Key k;
     char seq[32];
@@ -554,6 +555,14 @@ std::pair<int, int> get_term_size() {
     struct winsize w;
     ioctl(0, TIOCGWINSZ, &w);
     return std::make_pair(w.ws_row, w.ws_col);
+}
+
+void move_cursor(int line, int col) {
+    std::cout << "\033[" << std::to_string(line) << ";" << std::to_string(col) << "H";
+}
+
+void clear_screen() {
+    std::cout << "\033[2J";
 }
 
 #endif // RAWTERM_IMPLEMENTATION

@@ -18,10 +18,19 @@ int main() {
     auto size = get_term_size();
     std::cout << "Term size: " << size.first << ", " << size.second << "\r\n";
 
+    int count = 0;
+
     while (true) {
         Key k = process_keypress();
         if (k.code == 'q' && k.mod.empty())
             break;
+
+        count++;
+        if (count == 5) {
+            clear_screen();
+            move_cursor(0,0); 
+            count = 0;
+        }
 
         std::string mods = "[";
 

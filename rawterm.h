@@ -22,7 +22,7 @@
 // SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 // Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v1.2.0
+// Version: v1.2.1
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef RAWTERM_H
@@ -558,7 +558,7 @@ std::pair<int, int> get_term_size() {
 }
 
 void move_cursor(int line, int col) {
-    std::cout << "\033[" << std::to_string(line) << ";" << std::to_string(col) << "H";
+    std::cout << "\033[" << std::to_string(line) << ";" << std::to_string(col) << "H" << std::flush;
 }
 
 void clear_screen() {

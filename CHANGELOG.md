@@ -1,3 +1,6 @@
+### v1.3.0
+* Added text formatting functions
+
 ### v1.2.1
 * Fix error with move_cursor() not actually updating
 

@@ -44,6 +44,17 @@ struct Key {
 The `get_term_size()` function provides the size of the terminal window as
 an `std::pair<int, int>` as well
 
+The following functions will accept a string and return your string wrapped in
+the relevant escape codes for formatting:
+- `bold()`
+- `italic()`
+- `underline()`
+- `blink()`
+- `inverse()`
+- `hidden()`
+- `strikethrough()`
+
+
 ### Be Aware Of:
 * `^m` and `enter` are the same key - they both pass `\x0d` code to the terminal
 * `^i` and `tab` are the same key - they both pass `\x09` code to the terminal

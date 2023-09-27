@@ -22,7 +22,7 @@
 // SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 // Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v1.3.0
+// Version: v1.3.1
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef RAWTERM_H
@@ -66,6 +66,14 @@ Key process_keypress();
 std::pair<int, int> get_term_size();
 void move_cursor(int line, int col);
 void clear_screen();
+
+std::string bold(std::string s);
+std::string italic(std::string s);
+std::string underline(std::string s);
+std::string blink(std::string s);
+std::string inverse(std::string s);
+std::string hidden(std::string s);
+std::string strikethrough(std::string s);
 
 #endif // RAWTERM_H
 

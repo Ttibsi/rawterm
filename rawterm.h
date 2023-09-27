@@ -22,7 +22,7 @@
 // SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 // Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v1.2.1
+// Version: v1.3.0
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef RAWTERM_H
@@ -561,8 +561,15 @@ void move_cursor(int line, int col) {
     std::cout << "\033[" << std::to_string(line) << ";" << std::to_string(col) << "H" << std::flush;
 }
 
-void clear_screen() {
-    std::cout << "\033[2J";
-}
+void clear_screen() { std::cout << "\033[2J"; }
+
+// Text formatting
+std::string bold(std::string s) { return "\033[1m" + s + "\033[22m"; }
+std::string italic(std::string s) { return "\033[3m" + s + "\033[23m"; }
+std::string underline(std::string s) { return "\033[4m" + s + "\033[24m"; }
+std::string blink(std::string s) { return "\033[5m" + s + "\033[25m"; }
+std::string inverse(std::string s) { return "\033[7m" + s + "\033[27m"; }
+std::string hidden(std::string s) { return "\033[8m" + s + "\033[28m"; }
+std::string strikethrough(std::string s) { return "\033[9m" + s + "\033[29m"; }
 
 #endif // RAWTERM_IMPLEMENTATION

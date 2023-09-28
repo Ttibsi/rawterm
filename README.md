@@ -55,6 +55,9 @@ the relevant escape codes for formatting:
 - `strikethrough()`
 
 
+You can also `clear_screen()`, or `save_cursor_position()` and 
+`load_cursor_position()`
+
 ### Be Aware Of:
 * `^m` and `enter` are the same key - they both pass `\x0d` code to the terminal
 * `^i` and `tab` are the same key - they both pass `\x09` code to the terminal

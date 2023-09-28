@@ -1,3 +1,6 @@
+### v1.4.0
+* save and load cursor position (SCO sequences)
+
 ### v1.3.1
 * Exported formatting functions ("header" section of header)
 

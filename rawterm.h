@@ -22,7 +22,7 @@
 // SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 // Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v1.4.0
+// Version: v1.5.0
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef RAWTERM_H
@@ -70,6 +70,12 @@ void clear_screen();
 void move_cursor(int line, int col);
 void save_cursor_position();
 void load_cursor_position();
+void cursor_block_blink();
+void cursor_block();
+void cursor_underscore_blink();
+void cursor_underscore();
+void cursor_pipe_blink();
+void cursor_pipe();
 
 std::string bold(std::string s);
 std::string italic(std::string s);
@@ -575,6 +581,13 @@ void move_cursor(int line, int col) {
 }
 void save_cursor_position() { std::cout << "\033[s" << std::flush; }
 void load_cursor_position() { std::cout << "\033[u" << std::flush; }
+// https://stackoverflow.com/a/48449104
+void cursor_block_blink() { std::cout << "\1\e[1 q\2" << std::flush; }
+void cursor_block() { std::cout << "\1\e[3 q\2" << std::flush; }
+void cursor_underscore_blink() { std::cout << "\1\e[3 q\2" << std::flush; }
+void cursor_underscore() { std::cout << "\1\e[4 q\2" << std::flush; }
+void cursor_pipe_blink() { std::cout << "\1\e[5 q\2" << std::flush; }
+void cursor_pipe() { std::cout << "\1\e[6 q\6" << std::flush; }
 
 
 // Text formatting

@@ -56,7 +56,14 @@ the relevant escape codes for formatting:
 
 
 You can also `clear_screen()`, or `save_cursor_position()` and 
-`load_cursor_position()`
+`load_cursor_position()`, or use the following functions to change the
+appearance of your cursor:
+- cursor_block_blink()
+- cursor_block()
+- cursor_underscore_blink()
+- cursor_underscore()
+- cursor_pipe_blink()
+- cursor_pipe()
 
 ### Be Aware Of:
 * `^m` and `enter` are the same key - they both pass `\x0d` code to the terminal

@@ -42,7 +42,7 @@
 #include <utility>
 #include <vector>
 
-enum Mod {
+enum class Mod {
     Alt_L,
     Arrow,
     Control,

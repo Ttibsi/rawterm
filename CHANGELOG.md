@@ -1,5 +1,6 @@
 ### v1.4.1
 *  `get_term_size()` now returns a pair of std::size_t instead of ints
+* `Mod` is now an `enum class` instead of an `enum`
 
 ### v1.4.0
 * save and load cursor position (SCO sequences)

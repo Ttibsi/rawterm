@@ -37,11 +37,14 @@ int main() {
         if (!k.mod.empty()) {
             for (size_t i = 0; i < k.mod.size(); ++i) {
                 switch (k.mod[i]) {
-                case Alt_L:
+                case Mod::Alt_L:
                     mods += " ALT_L ";
                     break;
                 case Mod::Arrow:
                     mods += " ARROW ";
+                    break;
+                case Mod::Backspace:
+                    mods += " Backspace ";
                     break;
                 case Mod::Control:
                     mods += " CTRL ";
@@ -52,13 +55,13 @@ int main() {
                 case Mod::Escape:
                     mods += " ESC ";
                     break;
-                case Function:
+                case Mod::Function:
                     mods += " FUNCTION ";
                     break;
                 case Mod::Shift:
                     mods += " SHFT ";
                     break;
-                case Space:
+                case Mod::Space:
                     mods += " SPACE ";
                     break;
                 default:

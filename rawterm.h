@@ -22,7 +22,7 @@
 // SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 // Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v1.5.0
+// Version: v1.6.0
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef RAWTERM_H
@@ -45,12 +45,14 @@
 enum class Mod {
     Alt_L,
     Arrow,
+    Backspace,
     Control,
     Delete,
     Escape,
     Function,
     Shift,
     Space,
+
 };
 
 struct Key {
@@ -564,6 +566,7 @@ Key process_keypress() {
     } else if (substrings[0] == "\\x7f") {
         // DELETE
         k.code = ' ';
+        k.mod.push_back(Mod::Backspace);
     }
 
     return k;

@@ -1,3 +1,6 @@
+### v1.6.0
+* Added the backspace key detection
+
 ### v1.5.0
 *  `get_term_size()` now returns a pair of std::size_t instead of ints
 * `Mod` is now an `enum class` instead of an `enum`

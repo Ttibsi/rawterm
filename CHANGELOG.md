@@ -1,3 +1,6 @@
+### v1.7.0
+* Fixed occasional segfault with reading `esc` char
+
 ### v1.6.0
 * Added the backspace key detection
 

@@ -22,7 +22,7 @@
 // SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 // Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v1.6.0
+// Version: v1.7.0
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef RAWTERM_H
@@ -52,7 +52,7 @@ enum class Mod {
     Function,
     Shift,
     Space,
-
+    Unknown,
 };
 
 struct Key {
@@ -171,6 +171,8 @@ Key handle_escape(std::vector<std::string> substrings, std::string raw) {
         asciiLetters.push_back(ss.str());
     }
 
+    if (substrings.size() == 1) return {' ', {Mod::Escape}, raw}; // esc
+
     if (std::find(asciiLetters.begin(), asciiLetters.end(), substrings[1]) !=
         asciiLetters.end()) {
         int placeholder;
@@ -221,8 +223,9 @@ Key handle_escape(std::vector<std::string> substrings, std::string raw) {
             return {'4', {Mod::Function}, raw}; // f4
     }
 
-    return {' ', {Mod::Escape}, raw}; // esc
+    return {' ', {Mod::Unknown}, raw};
 }
+
 Key process_keypress() {
     Key k;
     char seq[32];
@@ -334,6 +337,7 @@ Key process_keypress() {
         k.mod.push_back(Mod::Control);
     } else if (substrings[0] == "\\x1b") {
         // ESCAPE
+        std::cout << "we here";
         return handle_escape(substrings, code);
     } else if (substrings[0] == "\\x1c") {
         k.code = ' ';

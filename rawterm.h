@@ -337,7 +337,6 @@ Key process_keypress() {
         k.mod.push_back(Mod::Control);
     } else if (substrings[0] == "\\x1b") {
         // ESCAPE
-        std::cout << "we here";
         return handle_escape(substrings, code);
     } else if (substrings[0] == "\\x1c") {
         k.code = ' ';

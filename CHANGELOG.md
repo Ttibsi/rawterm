@@ -1,3 +1,6 @@
+### v1.7.1
+* Remove unneccesary copying (@Eczbek - #9)
+
 ### v1.7.0
 * Fixed occasional segfault with reading `esc` char
 

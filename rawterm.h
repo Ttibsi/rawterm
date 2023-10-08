@@ -79,13 +79,13 @@ void cursor_underscore();
 void cursor_pipe_blink();
 void cursor_pipe();
 
-std::string bold(std::string s);
-std::string italic(std::string s);
-std::string underline(std::string s);
-std::string blink(std::string s);
-std::string inverse(std::string s);
-std::string hidden(std::string s);
-std::string strikethrough(std::string s);
+std::string bold(const std::string& s);
+std::string italic(const std::string& s);
+std::string underline(const std::string& s);
+std::string blink(const std::string& s);
+std::string inverse(const std::string& s);
+std::string hidden(const std::string& s);
+std::string strikethrough(const std::string& s);
 
 #endif // RAWTERM_H
 
@@ -127,12 +127,12 @@ int enable_raw_mode() {
 // Enter/leave alternate screen
 // https://stackoverflow.com/a/12920036
 // Will need to find another solution for windows (#ifdef WIN32)
-void enter_alt_screen() { std::cout << "\0337\033[?47h\033[H"; }
+void enter_alt_screen() { std::cout << "\x1b7\x1b[?47h\x1b[H"; }
 
-void exit_alt_screen() { std::cout << "\033[2J\033[?47l\0338"; }
+void exit_alt_screen() { std::cout << "\x1b[2J\x1b[?47l\x1b8"; }
 
 // Read user input
-Key handle_escape(std::vector<std::string> substrings, std::string raw) {
+Key handle_escape(const std::vector<std::string>& substrings, const std::string& raw) {
     // substrings[0] is escape char
     // if substrings[1] is equal to a letter (upper or lowercase), it's left
     // alt+letter if substrings[1] is [, it's an arrow key (abcd after for udrl)
@@ -580,13 +580,13 @@ std::pair<std::size_t, std::size_t> get_term_size() {
     ioctl(0, TIOCGWINSZ, &w);
     return std::make_pair(w.ws_row, w.ws_col);
 }
-void clear_screen() { std::cout << "\033[2J"; }
+void clear_screen() { std::cout << "\x1b[2J"; }
 
 void move_cursor(int line, int col) {
-    std::cout << "\033[" << std::to_string(line) << ";" << std::to_string(col) << "H" << std::flush;
+    std::cout << "\x1b[" << std::to_string(line) << ";" << std::to_string(col) << "H" << std::flush;
 }
-void save_cursor_position() { std::cout << "\033[s" << std::flush; }
-void load_cursor_position() { std::cout << "\033[u" << std::flush; }
+void save_cursor_position() { std::cout << "\x1b[s" << std::flush; }
+void load_cursor_position() { std::cout << "\x1b[u" << std::flush; }
 // https://stackoverflow.com/a/48449104
 void cursor_block_blink() { std::cout << "\1\e[1 q\2" << std::flush; }
 void cursor_block() { std::cout << "\1\e[2 q\2" << std::flush; }
@@ -597,13 +597,13 @@ void cursor_pipe() { std::cout << "\1\e[6 q\6" << std::flush; }
 
 
 // Text formatting
-std::string bold(std::string s) { return "\033[1m" + s + "\033[22m"; }
-std::string italic(std::string s) { return "\033[3m" + s + "\033[23m"; }
-std::string underline(std::string s) { return "\033[4m" + s + "\033[24m"; }
-std::string blink(std::string s) { return "\033[5m" + s + "\033[25m"; }
-std::string inverse(std::string s) { return "\033[7m" + s + "\033[27m"; }
-std::string hidden(std::string s) { return "\033[8m" + s + "\033[28m"; }
-std::string strikethrough(std::string s) { return "\033[9m" + s + "\033[29m"; }
+std::string bold(const std::string& s) { return "\x1b[1m" + s + "\x1b[22m"; }
+std::string italic(const std::string& s) { return "\x1b[3m" + s + "\x1b[23m"; }
+std::string underline(const std::string& s) { return "\x1b[4m" + s + "\x1b[24m"; }
+std::string blink(const std::string& s) { return "\x1b[5m" + s + "\x1b[25m"; }
+std::string inverse(const std::string& s) { return "\x1b[7m" + s + "\x1b[27m"; }
+std::string hidden(const std::string& s) { return "\x1b[8m" + s + "\x1b[28m"; }
+std::string strikethrough(const std::string& s) { return "\x1b[9m" + s + "\x1b[29m"; }
 
 // Cursor positioning
 

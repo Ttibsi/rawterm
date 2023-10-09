@@ -127,9 +127,9 @@ int enable_raw_mode() {
 // Enter/leave alternate screen
 // https://stackoverflow.com/a/12920036
 // Will need to find another solution for windows (#ifdef WIN32)
-void enter_alt_screen() { std::cout << "\x1b7\x1b[?47h\x1b[H"; }
+void enter_alt_screen() { std::cout << "\x1b 7\x1b[?47h\x1b[H"; }
 
-void exit_alt_screen() { std::cout << "\x1b[2J\x1b[?47l\x1b8"; }
+void exit_alt_screen() { std::cout << "\x1b[2J\x1b[?47l\x1b 8"; }
 
 // Read user input
 Key handle_escape(const std::vector<std::string>& substrings, const std::string& raw) {

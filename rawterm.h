@@ -61,15 +61,20 @@ struct Key {
     std::string raw;
 };
 
+struct Pos {
+    int line;
+    int col;
+};
+
 int enable_raw_mode();
 void enter_alt_screen();
 void exit_alt_screen();
 Key process_keypress();
 
-std::pair<std::size_t, std::size_t> get_term_size();
+Pos get_term_size();
 void clear_screen();
 
-void move_cursor(int line, int col);
+void move_cursor(Pos pos);
 void save_cursor_position();
 void load_cursor_position();
 void cursor_block_blink();
@@ -96,7 +101,7 @@ std::string strikethrough(const std::string& s);
 
 struct termios orig;
 
-void die(const char *s) {
+void die(const char* s) {
     std::perror(s);
     std::exit(1);
 }
@@ -575,15 +580,15 @@ Key process_keypress() {
     return k;
 }
 
-std::pair<std::size_t, std::size_t> get_term_size() {
+Pos get_term_size() {
     struct winsize w;
     ioctl(0, TIOCGWINSZ, &w);
-    return std::make_pair(w.ws_row, w.ws_col);
+    return Pos { w.ws_row, w.ws_col };
 }
 void clear_screen() { std::cout << "\x1b[2J"; }
 
-void move_cursor(int line, int col) {
-    std::cout << "\x1b[" << std::to_string(line) << ";" << std::to_string(col) << "H" << std::flush;
+void move_cursor(Pos pos) {
+    std::cout << "\x1b[" << std::to_string(pos.line) << ";" << std::to_string(pos.col) << "H" << std::flush;
 }
 void save_cursor_position() { std::cout << "\x1b[s" << std::flush; }
 void load_cursor_position() { std::cout << "\x1b[u" << std::flush; }

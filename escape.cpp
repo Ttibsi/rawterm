@@ -1,6 +1,5 @@
 #include <cctype>
 
-#define RAWTERM_IMPLEMENTATION
 #include "rawterm.h"
 
 // This code runs with `./build.sh && ./build/escape`. It will print out the
@@ -9,8 +8,8 @@
 // `pkill -9 escape` in another window).
 
 int main() {
-    enable_raw_mode();
-    enter_alt_screen();
+    rawterm::enable_raw_mode();
+    rawterm::enter_alt_screen();
 
     while (true) {
         char seq[32];
@@ -34,6 +33,6 @@ int main() {
         std::cout << code << "\r\n";
     }
 
-    exit_alt_screen();
+    rawterm::exit_alt_screen();
     return 0;
 }

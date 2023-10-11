@@ -7,17 +7,17 @@ Note that `escape.cpp` will print out the raw code that you press, and exists
 for testing purposes only.
 
 ### How to use
+All components are within the `rawterm` namespace.
 Your startup and cleanup are handled with a few function calls:
 
 ```cpp
-#define RAWTERM_IMPLEMENTATION
 #include "rawterm.h"
 
 int main() {
-    enable_raw_mode();
-    enter_alt_screen();
+    rawterm::enable_raw_mode();
+    rawterm::enter_alt_screen();
     // Do things here
-    exit_alt_screen();
+    rawterm::exit_alt_screen();
     return 0;
 }
 ```
@@ -41,6 +41,7 @@ struct Key {
     * This mostly exists for debugging
 
 The `get_term_size()` function provides the size of the terminal window as a `Pos` structure:
+
 ```cpp
 struct Pos {
     int line;
@@ -59,7 +60,7 @@ the relevant escape codes for formatting:
 - `strikethrough()`
 
 
-You can also `clear_screen()`, or `save_cursor_position()` and 
+You can also `clear_screen()`, or `save_cursor_position()` and
 `load_cursor_position()`, or use the following functions to change the
 appearance of your cursor:
 - `cursor_block_blink()`

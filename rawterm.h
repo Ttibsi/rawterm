@@ -39,6 +39,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -99,32 +100,49 @@ std::string strikethrough(const std::string& s);
 // enable/disable raw mode
 // https://viewsourcecode.org/snaptoken/kilo/02.enteringRawMode.html
 
-struct termios orig;
+namespace detail {
+    termios orig;
 
-void die(const char* s) {
-    std::perror(s);
-    std::exit(1);
+    void die(const char* s) {
+        std::perror(s);
+        std::exit(1);
+    }
+
+    std::unordered_set<char> asciiLetters {
+        '\x31', '\x32', '\x33', '\x34', '\x35', '\x36', '\x37', '\x38',
+        '\x39', '\x41', '\x42', '\x43', '\x44', '\x45', '\x46', '\x47',
+        '\x48', '\x49', '\x4A', '\x4B', '\x4C', '\x4D', '\x4E', '\x4F',
+        '\x50', '\x51', '\x52', '\x53', '\x54', '\x55', '\x56', '\x57',
+        '\x58', '\x59', '\x5A', '\x61', '\x62', '\x63', '\x66', '\x67',
+        '\x66', '\x67', '\x68', '\x69', '\x6A', '\x6B', '\x6C', '\x6D',
+        '\x6E', '\x6F', '\x70', '\x71', '\x72', '\x73', '\x76', '\x77',
+        '\x76', '\x77', '\x78', '\x79', '\x7A'
+    };
 }
 
 // This doesn't need explicitly calling because of the atexit() call
 void disable_raw_mode() {
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig) == -1)
-        die("tcsetattr");
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &detail::orig) == -1)
+        detail::die("tcsetattr");
 }
 
 int enable_raw_mode() {
-    if (tcgetattr(STDIN_FILENO, &orig) == -1)
-        die("tcgetattr");
-    atexit(disable_raw_mode);
+    if (tcgetattr(STDIN_FILENO, &detail::orig) == -1)
+        detail::die("tcgetattr");
+    std::atexit(disable_raw_mode);
 
-    struct termios raw = orig;
-    raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
-    raw.c_oflag &= ~(OPOST);
-    // raw.c_lflag |= ~(CS8); // Disabled to allow term_size reading
-    raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+    termios raw = detail::orig;
+    // raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+    // raw.c_oflag &= ~(OPOST);
+    // raw.c_lflag |= ~(CS8); // Disable to allow term_size reading
+    // raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+
+    // cfmakeraw can replace the above unless you want to allow configuring them individually
+    // https://manpage.me/?q=cfmakeraw
+    cfmakeraw(&raw);
 
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1)
-        die("tcsetattr");
+        detail::die("tcsetattr");
 
     return 0;
 }
@@ -137,11 +155,11 @@ void enter_alt_screen() { std::cout << "\x1b 7\x1b[?47h\x1b[H"; }
 void exit_alt_screen() { std::cout << "\x1b[2J\x1b[?47l\x1b 8"; }
 
 // Read user input
-Key handle_escape(const std::vector<std::string>& substrings, const std::string& raw) {
-    // substrings[0] is escape char
-    // if substrings[1] is equal to a letter (upper or lowercase), it's left
-    // alt+letter if substrings[1] is [, it's an arrow key (abcd after for udrl)
-    // if substrings[2] is \x31 (1), it can be f5+
+Key handle_escape(std::string_view characters, const std::string& raw) {
+    // characters[0] is escape char
+    // if characters[1] is equal to a letter (upper or lowercase), it's left
+    // alt+letter if characters[1] is [, it's an arrow key (abcd after for udrl)
+    // if characters[2] is \x31 (1), it can be f5+
     // f1 \x1b\x4f\x50
     // f2 \x1b\x4f\x51
     // f3 \x1b\x4f\x52
@@ -156,76 +174,62 @@ Key handle_escape(const std::vector<std::string>& substrings, const std::string&
     // f12 \x1b\x5b\x32\x34\x7e
     // delete: \x1b\x5b\x33\x7e
 
-    std::vector<std::string> asciiLetters;
-    for (int i = 0x41; i <= 0x5A; ++i) {
-        std::stringstream ss;
-        ss << "\\x" << std::uppercase << std::hex << std::setw(2)
-           << std::setfill('0') << i;
-        asciiLetters.push_back(ss.str());
-    }
-    for (int i = 0x61; i <= 0x7A; ++i) {
-        std::stringstream ss;
-        ss << "\\x" << std::uppercase << std::hex << std::setw(2)
-           << std::setfill('0') << i;
-        asciiLetters.push_back(ss.str());
-    }
-    for (int i = 0x31; i <= 0x39; ++i) {
-        std::stringstream ss;
-        ss << "\\x" << std::uppercase << std::hex << std::setw(2)
-           << std::setfill('0') << i;
-        asciiLetters.push_back(ss.str());
-    }
+    if (characters.size() == 1) return {' ', {Mod::Escape}, raw}; // esc
 
-    if (substrings.size() == 1) return {' ', {Mod::Escape}, raw}; // esc
-
-    if (std::find(asciiLetters.begin(), asciiLetters.end(), substrings[1]) !=
-        asciiLetters.end()) {
-        int placeholder;
-        std::istringstream(substrings[1].substr(2)) >> std::hex >> placeholder;
-        return {char(placeholder), {Mod::Alt_L}, raw};
-    } else if (substrings[1] == "\\x5b") {
+    if (detail::asciiLetters.contains(characters[1])) {
+        return {characters[1], {Mod::Alt_L}, raw};
+    } else if (characters[1] == '\x5b') {
         // ARROWS
-        if (substrings[2] == "\\x41")
-            return {'A', {Mod::Arrow}, raw}; // up
-        if (substrings[2] == "\\x42")
-            return {'B', {Mod::Arrow}, raw}; // down
-        if (substrings[2] == "\\x43")
-            return {'C', {Mod::Arrow}, raw}; // right
-        if (substrings[2] == "\\x44")
-            return {'D', {Mod::Arrow}, raw}; // left
-        if (substrings[2] == "\\x33")
-            return {' ', {Mod::Delete}, raw}; // delete
+        switch (characters[2]) {
+            case '\x41':
+                return {'A', {Mod::Arrow}, raw}; // up
+            case '\x42':
+                return {'B', {Mod::Arrow}, raw}; // down
+            case '\x43':
+                return {'C', {Mod::Arrow}, raw}; // right
+            case '\x44':
+                return {'D', {Mod::Arrow}, raw}; // left
+            case '\x33':
+                return {' ', {Mod::Delete}, raw}; // delete
 
         // FUNCTIONS pt 2
-        if (substrings[2] == "\\x31") {
-            if (substrings[3] == "\\x35")
-                return {'5', {Mod::Function}, raw}; // f5
-            if (substrings[3] == "\\x37")
-                return {'6', {Mod::Function}, raw}; // f6
-            if (substrings[3] == "\\x38")
-                return {'7', {Mod::Function}, raw}; // f7
-            if (substrings[3] == "\\x39")
-                return {'8', {Mod::Function}, raw}; // f8
-        } else if (substrings[2] == "\\x32") {
-            if (substrings[3] == "\\x30")
-                return {'9', {Mod::Function}, raw}; // f9
-            if (substrings[3] == "\\x31")
-                return {'0', {Mod::Function}, raw}; // f10
-            if (substrings[3] == "\\x33")
-                return {'1', {Mod::Function}, raw}; // f11
-            if (substrings[3] == "\\x34")
-                return {'2', {Mod::Function}, raw}; // f12
+            case '\x31':
+                switch (characters[3]) {
+                    case '\x35':
+                        return {'5', {Mod::Function}, raw}; // f5
+                    case '\x37':
+                        return {'6', {Mod::Function}, raw}; // f6
+                    case '\x38':
+                        return {'7', {Mod::Function}, raw}; // f7
+                    case '\x39':
+                        return {'8', {Mod::Function}, raw}; // f8
+                }
+                break;
+            case '\x32':
+                switch (characters[3]) {
+                    case '\x30':
+                        return {'9', {Mod::Function}, raw}; // f9
+                    case '\x31':
+                        return {'0', {Mod::Function}, raw}; // f10
+                    case '\x33':
+                        return {'1', {Mod::Function}, raw}; // f11
+                    case '\x34':
+                        return {'2', {Mod::Function}, raw}; // f12
+                }
+                break;
         }
-    } else if (substrings[1] == "\\x4f") {
+    } else if (characters[1] == '\x4f') {
         // FUNCTIONS pt 1
-        if (substrings[2] == "\\x50")
-            return {'1', {Mod::Function}, raw}; // f1
-        if (substrings[2] == "\\x51")
-            return {'2', {Mod::Function}, raw}; // f2
-        if (substrings[2] == "\\x52")
-            return {'3', {Mod::Function}, raw}; // f3
-        if (substrings[2] == "\\x53")
-            return {'4', {Mod::Function}, raw}; // f4
+        switch (characters[2]) {
+            case '\x50':
+                return {'1', {Mod::Function}, raw}; // f1
+            case '\x51':
+                return {'2', {Mod::Function}, raw}; // f2
+            case '\x52':
+                return {'3', {Mod::Function}, raw}; // f3
+            case '\x53':
+                return {'4', {Mod::Function}, raw}; // f4
+        }
     }
 
     return {' ', {Mod::Unknown}, raw};
@@ -233,9 +237,9 @@ Key handle_escape(const std::vector<std::string>& substrings, const std::string&
 
 Key process_keypress() {
     Key k;
-    char seq[32];
 
-    int ret = read(STDIN_FILENO, seq, sizeof(seq));
+    std::string characters;
+    int ret = read(STDIN_FILENO, characters.data(), characters.size());
     if (ret < 0) {
         std::cerr
             << "ERROR: something went wrong during reading user input: "
@@ -243,338 +247,456 @@ Key process_keypress() {
         return k;
     }
 
-    std::string code;
-    for (int i = 0; i < ret; ++i) {
-        char buffer[5];
-        std::snprintf(buffer, sizeof(buffer), "\\x%02x",
-                      static_cast<unsigned char>(seq[i]));
-        code += buffer;
+    std::stringstream ss;
+    ss << std::uppercase << std::hex << std::setw(2) << std::setfill('0');
+    for (char c : characters) {
+        ss << "\\x" << static_cast<int>(c);
     }
-
-    k.raw = code;
-
-    std::vector<std::string> substrings;
-    for (size_t i = 0; i < code.length(); i += 4) {
-        std::string sub = code.substr(i, 4);
-        substrings.push_back(sub);
-    }
+    k.raw = ss.str();
 
     // TODO: alt-gr, multiple modifier keys?
     // NOTE: enter/^m are the same entry
     // https://www.rapidtables.com/code/text/ascii-table.html
-    if (substrings[0] == "\\x01") {
-        k.code = 'a';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x02") {
-        k.code = 'b';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x03") {
-        k.code = 'c';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x04") {
-        k.code = 'd';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x05") {
-        k.code = 'e';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x06") {
-        k.code = 'f';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x07") {
-        k.code = 'g';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x08") {
-        k.code = 'h';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x09") {
-        k.code = 'i';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x0a") {
-        k.code = 'j';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x0b") {
-        k.code = 'k';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x0c") {
-        k.code = 'l';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x0d") {
-        k.code = 'm';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x0e") {
-        k.code = 'n';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x0f") {
-        k.code = 'o';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x10") {
-        k.code = 'p';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x11") {
-        k.code = 'q';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x12") {
-        k.code = 'r';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x13") {
-        k.code = 's';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x14") {
-        k.code = 't';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x15") {
-        k.code = 'u';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x16") {
-        k.code = 'v';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x17") {
-        k.code = 'w';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x18") {
-        k.code = 'x';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x19") {
-        k.code = 'y';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x1a") {
-        k.code = 'z';
-        k.mod.push_back(Mod::Control);
-    } else if (substrings[0] == "\\x1b") {
+    switch (characters[0]) {
+        case '\x01':
+            k.code = 'a';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x02':
+            k.code = 'b';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x03':
+            k.code = 'c';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x04':
+            k.code = 'd';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x05':
+            k.code = 'e';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x06':
+            k.code = 'f';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x07':
+            k.code = 'g';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x08':
+            k.code = 'h';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x09':
+            k.code = 'i';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x0a':
+            k.code = 'j';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x0b':
+            k.code = 'k';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x0c':
+            k.code = 'l';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x0d':
+            k.code = 'm';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x0e':
+            k.code = 'n';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x0f':
+            k.code = 'o';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x10':
+            k.code = 'p';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x11':
+            k.code = 'q';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x12':
+            k.code = 'r';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x13':
+            k.code = 's';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x14':
+            k.code = 't';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x15':
+            k.code = 'u';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x16':
+            k.code = 'v';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x17':
+            k.code = 'w';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x18':
+            k.code = 'x';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x19':
+            k.code = 'y';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x1a':
+            k.code = 'z';
+            k.mod.push_back(Mod::Control);
+            break;
+        case '\x1b':
         // ESCAPE
-        return handle_escape(substrings, code);
-    } else if (substrings[0] == "\\x1c") {
-        k.code = ' ';
-    } else if (substrings[0] == "\\x1d") {
-        k.code = ' ';
-    } else if (substrings[0] == "\\x1e") {
-        k.code = ' ';
-    } else if (substrings[0] == "\\x1f") {
-        k.code = ' ';
-    } else if (substrings[0] == "\\x20") {
-        k.code = ' ';
-        k.mod.push_back(Mod::Space);
-    } else if (substrings[0] == "\\x21") {
-        k.code = '!';
-    } else if (substrings[0] == "\\x22") {
-        k.code = '"';
-    } else if (substrings[0] == "\\x23") {
-        k.code = '#';
-    } else if (substrings[0] == "\\x24") {
-        k.code = '$';
-    } else if (substrings[0] == "\\x25") {
-        k.code = '%';
-    } else if (substrings[0] == "\\x26") {
-        k.code = '&';
-    } else if (substrings[0] == "\\x27") {
-        k.code = '\'';
-    } else if (substrings[0] == "\\x28") {
-        k.code = '(';
-    } else if (substrings[0] == "\\x29") {
-        k.code = ')';
-    } else if (substrings[0] == "\\x2a") {
-        k.code = '*';
-    } else if (substrings[0] == "\\x2b") {
-        k.code = '+';
-    } else if (substrings[0] == "\\x2c") {
-        k.code = ',';
-    } else if (substrings[0] == "\\x2d") {
-        k.code = '-';
-    } else if (substrings[0] == "\\x2e") {
-        k.code = '.';
-    } else if (substrings[0] == "\\x2f") {
-        k.code = '/';
-    } else if (substrings[0] == "\\x30") {
+            return handle_escape(characters, k.raw);
+        case '\x1c':
+            k.code = ' ';
+            break;
+        case '\x1d':
+            k.code = ' ';
+            break;
+        case '\x1e':
+            k.code = ' ';
+            break;
+        case '\x1f':
+            k.code = ' ';
+            break;
+        case '\x20':
+            k.code = ' ';
+            k.mod.push_back(Mod::Space);
+            break;
+        case '\x21':
+            k.code = '!';
+            break;
+        case '\x22':
+            k.code = '"';
+            break;
+        case '\x23':
+            k.code = '#';
+            break;
+        case '\x24':
+            k.code = '$';
+            break;
+        case '\x25':
+            k.code = '%';
+            break;
+        case '\x26':
+            k.code = '&';
+            break;
+        case '\x27':
+            k.code = '\'';
+            break;
+        case '\x28':
+            k.code = '(';
+            break;
+        case '\x29':
+            k.code = ')';
+            break;
+        case '\x2a':
+            k.code = '*';
+            break;
+        case '\x2b':
+            k.code = '+';
+            break;
+        case '\x2c':
+            k.code = ',';
+            break;
+        case '\x2d':
+            k.code = '-';
+            break;
+        case '\x2e':
+            k.code = '.';
+            break;
+        case '\x2f':
+            k.code = '/';
+            break;
+        case '\x30':
         // NUMBERS
-        k.code = '0';
-    } else if (substrings[0] == "\\x31") {
-        k.code = '1';
-    } else if (substrings[0] == "\\x32") {
-        k.code = '2';
-    } else if (substrings[0] == "\\x33") {
-        k.code = '3';
-    } else if (substrings[0] == "\\x34") {
-        k.code = '4';
-    } else if (substrings[0] == "\\x35") {
-        k.code = '5';
-    } else if (substrings[0] == "\\x36") {
-        k.code = '6';
-    } else if (substrings[0] == "\\x37") {
-        k.code = '7';
-    } else if (substrings[0] == "\\x38") {
-        k.code = '8';
-    } else if (substrings[0] == "\\x39") {
-        k.code = '9';
-    } else if (substrings[0] == "\\x3a") {
-        k.code = ':';
-    } else if (substrings[0] == "\\x3b") {
-        k.code = ';';
-    } else if (substrings[0] == "\\x3c") {
-        k.code = '<';
-    } else if (substrings[0] == "\\x3d") {
-        k.code = '=';
-    } else if (substrings[0] == "\\x3e") {
-        k.code = '>';
-    } else if (substrings[0] == "\\x3f") {
-        k.code = '?';
-    } else if (substrings[0] == "\\x40") {
-        k.code = '@';
-    } else if (substrings[0] == "\\x41") {
+            k.code = '0';
+            break;
+        case '\x31':
+            k.code = '1';
+            break;
+        case '\x32':
+            k.code = '2';
+            break;
+        case '\x33':
+            k.code = '3';
+            break;
+        case '\x34':
+            k.code = '4';
+            break;
+        case '\x35':
+            k.code = '5';
+            break;
+        case '\x36':
+            k.code = '6';
+            break;
+        case '\x37':
+            k.code = '7';
+            break;
+        case '\x38':
+            k.code = '8';
+            break;
+        case '\x39':
+            k.code = '9';
+            break;
+        case '\x3a':
+            k.code = ':';
+            break;
+        case '\x3b':
+            k.code = ';';
+            break;
+        case '\x3c':
+            k.code = '<';
+            break;
+        case '\x3d':
+            k.code = '=';
+            break;
+        case '\x3e':
+            k.code = '>';
+            break;
+        case '\x3f':
+            k.code = '?';
+            break;
+        case '\x40':
+            k.code = '@';
+            break;
+        case '\x41':
         // UPPERCASE LETTERS
-        k.code = 'A';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x42") {
-        k.code = 'B';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x43") {
-        k.code = 'C';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x44") {
-        k.code = 'D';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x45") {
-        k.code = 'E';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x46") {
-        k.code = 'F';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x47") {
-        k.code = 'G';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x48") {
-        k.code = 'H';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x49") {
-        k.code = 'I';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x4a") {
-        k.code = 'J';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x4b") {
-        k.code = 'K';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x4c") {
-        k.code = 'L';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x4d") {
-        k.code = 'M';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x4e") {
-        k.code = 'N';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x4f") {
-        k.code = 'O';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x50") {
-        k.code = 'P';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x51") {
-        k.code = 'Q';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x52") {
-        k.code = 'R';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x53") {
-        k.code = 'S';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x54") {
-        k.code = 'T';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x55") {
-        k.code = 'U';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x56") {
-        k.code = 'V';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x57") {
-        k.code = 'W';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x58") {
-        k.code = 'X';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x59") {
-        k.code = 'Y';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x5a") {
-        k.code = 'Z';
-        k.mod.push_back(Mod::Shift);
-    } else if (substrings[0] == "\\x5b") {
-        k.code = '[';
-    } else if (substrings[0] == "\\x5c") {
-        k.code = '\\';
-    } else if (substrings[0] == "\\x5d") {
-        k.code = ']';
-    } else if (substrings[0] == "\\x5e") {
-        k.code = '^';
-    } else if (substrings[0] == "\\x5f") {
-        k.code = '_';
-    } else if (substrings[0] == "\\x60") {
-        k.code = '`';
-    } else if (substrings[0] == "\\x61") {
+            k.code = 'A';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x42':
+            k.code = 'B';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x43':
+            k.code = 'C';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x44':
+            k.code = 'D';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x45':
+            k.code = 'E';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x46':
+            k.code = 'F';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x47':
+            k.code = 'G';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x48':
+            k.code = 'H';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x49':
+            k.code = 'I';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x4a':
+            k.code = 'J';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x4b':
+            k.code = 'K';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x4c':
+            k.code = 'L';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x4d':
+            k.code = 'M';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x4e':
+            k.code = 'N';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x4f':
+            k.code = 'O';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x50':
+            k.code = 'P';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x51':
+            k.code = 'Q';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x52':
+            k.code = 'R';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x53':
+            k.code = 'S';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x54':
+            k.code = 'T';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x55':
+            k.code = 'U';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x56':
+            k.code = 'V';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x57':
+            k.code = 'W';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x58':
+            k.code = 'X';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x59':
+            k.code = 'Y';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x5a':
+            k.code = 'Z';
+            k.mod.push_back(Mod::Shift);
+            break;
+        case '\x5b':
+            k.code = '[';
+            break;
+        case '\x5c':
+            k.code = '\\';
+            break;
+        case '\x5d':
+            k.code = ']';
+            break;
+        case '\x5e':
+            k.code = '^';
+            break;
+        case '\x5f':
+            k.code = '_';
+            break;
+        case '\x60':
+            k.code = '`';
+            break;
+        case '\x61':
         // LOWERCASE LETTERS
-        k.code = 'a';
-    } else if (substrings[0] == "\\x62") {
-        k.code = 'b';
-    } else if (substrings[0] == "\\x63") {
-        k.code = 'c';
-    } else if (substrings[0] == "\\x64") {
-        k.code = 'd';
-    } else if (substrings[0] == "\\x65") {
-        k.code = 'e';
-    } else if (substrings[0] == "\\x66") {
-        k.code = 'f';
-    } else if (substrings[0] == "\\x67") {
-        k.code = 'g';
-    } else if (substrings[0] == "\\x68") {
-        k.code = 'h';
-    } else if (substrings[0] == "\\x69") {
-        k.code = 'i';
-    } else if (substrings[0] == "\\x6a") {
-        k.code = 'j';
-    } else if (substrings[0] == "\\x6b") {
-        k.code = 'k';
-    } else if (substrings[0] == "\\x6c") {
-        k.code = 'l';
-    } else if (substrings[0] == "\\x6d") {
-        k.code = 'm';
-    } else if (substrings[0] == "\\x6e") {
-        k.code = 'n';
-    } else if (substrings[0] == "\\x6f") {
-        k.code = 'o';
-    } else if (substrings[0] == "\\x70") {
-        k.code = 'p';
-    } else if (substrings[0] == "\\x71") {
-        k.code = 'q';
-    } else if (substrings[0] == "\\x72") {
-        k.code = 'r';
-    } else if (substrings[0] == "\\x73") {
-        k.code = 's';
-    } else if (substrings[0] == "\\x74") {
-        k.code = 't';
-    } else if (substrings[0] == "\\x75") {
-        k.code = 'u';
-    } else if (substrings[0] == "\\x76") {
-        k.code = 'v';
-    } else if (substrings[0] == "\\x77") {
-        k.code = 'w';
-    } else if (substrings[0] == "\\x78") {
-        k.code = 'x';
-    } else if (substrings[0] == "\\x79") {
-        k.code = 'y';
-    } else if (substrings[0] == "\\x7a") {
-        k.code = 'z';
-    } else if (substrings[0] == "\\x7b") {
-        k.code = '{';
-    } else if (substrings[0] == "\\x7c") {
-        k.code = '|';
-    } else if (substrings[0] == "\\x7d") {
-        k.code = '}';
-    } else if (substrings[0] == "\\x7e") {
-        k.code = '~';
-    } else if (substrings[0] == "\\x7f") {
-        // DELETE
-        k.code = ' ';
-        k.mod.push_back(Mod::Backspace);
+            k.code = 'a';
+            break;
+        case '\x62':
+            k.code = 'b';
+            break;
+        case '\x63':
+            k.code = 'c';
+            break;
+        case '\x64':
+            k.code = 'd';
+            break;
+        case '\x65':
+            k.code = 'e';
+            break;
+        case '\x66':
+            k.code = 'f';
+            break;
+        case '\x67':
+            k.code = 'g';
+            break;
+        case '\x68':
+            k.code = 'h';
+            break;
+        case '\x69':
+            k.code = 'i';
+            break;
+        case '\x6a':
+            k.code = 'j';
+            break;
+        case '\x6b':
+            k.code = 'k';
+            break;
+        case '\x6c':
+            k.code = 'l';
+            break;
+        case '\x6d':
+            k.code = 'm';
+            break;
+        case '\x6e':
+            k.code = 'n';
+            break;
+        case '\x6f':
+            k.code = 'o';
+            break;
+        case '\x70':
+            k.code = 'p';
+            break;
+        case '\x71':
+            k.code = 'q';
+            break;
+        case '\x72':
+            k.code = 'r';
+            break;
+        case '\x73':
+            k.code = 's';
+            break;
+        case '\x74':
+            k.code = 't';
+            break;
+        case '\x75':
+            k.code = 'u';
+            break;
+        case '\x76':
+            k.code = 'v';
+            break;
+        case '\x77':
+            k.code = 'w';
+            break;
+        case '\x78':
+            k.code = 'x';
+            break;
+        case '\x79':
+            k.code = 'y';
+            break;
+        case '\x7a':
+            k.code = 'z';
+            break;
+        case '\x7b':
+            k.code = '{';
+            break;
+        case '\x7c':
+            k.code = '|';
+            break;
+        case '\x7d':
+            k.code = '}';
+            break;
+        case '\x7e':
+            k.code = '~';
+            break;
+        case '\x7f':
+        // BACKSPACE
+            k.code = ' ';
+            k.mod.push_back(Mod::Backspace);
+            break;
     }
 
     return k;

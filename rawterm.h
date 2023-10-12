@@ -579,6 +579,11 @@ namespace rawterm {
 	inline std::string strikethrough(const std::string& s) {
 		return "\x1B[9m" + s + "\x1B[29m";
 	}
+
+    // Format text with specified foreground and background colours
+    inline std::string colour(const std::string& s, int fg_colour_code, int bg_colour_code) {
+        return std::string("\x1b[") + std::to_string(fg_colour_code) + ";" + std::to_string(bg_colour_code) + "m" + s + "\x1b[0m"; 
+    }
 } // namespace rawterm
 
 #endif // RAWTERM_H

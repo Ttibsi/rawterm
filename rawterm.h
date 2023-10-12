@@ -125,21 +125,22 @@ namespace rawterm {
 			'\x76', '\x77', '\x78', '\x79', '\x7A'
 		};
 
-		std::string characters;
-		const int ret = read(STDIN_FILENO, characters.data(), 5); // max length of esc sequence
+		char buffer[5];
+		const ssize_t ret = read(STDIN_FILENO, buffer, 5);
 		if (ret < 0) {
 			std::cerr
 				<< "ERROR: something went wrong during reading user input: "
 				<< std::strerror(errno) << std::endl;
 			return {' ', {rawterm::Mod::Unknown}, ""};
 		}
+		const std::string characters = buffer;
 
 		std::stringstream ss;
 		ss << std::uppercase << std::hex << std::setw(2) << std::setfill('0');
 		for (char c : characters) {
-			ss << "\\x" << static_cast<int>(c);
+			ss << "\\x" << static_cast<int>(static_cast<unsigned char>(c));
 		}
-		std::string raw = ss.str();
+		const std::string raw = ss.str();
 
 		// TODO: alt-gr, multiple modifier keys?
 		// NOTE: enter/^m are the same entry

@@ -126,7 +126,7 @@ namespace rawterm {
 		};
 
 		std::string characters;
-		const int ret = read(STDIN_FILENO, characters.data(), sizeof(char));
+		const int ret = read(STDIN_FILENO, characters.data(), 5); // max length of esc sequence
 		if (ret < 0) {
 			std::cerr
 				<< "ERROR: something went wrong during reading user input: "
@@ -534,31 +534,31 @@ namespace rawterm {
 		std::cout << "\1\x1B[6 q\6" << std::flush;
 	}
 
-	constexpr std::string bold(const std::string& s) {
+	inline std::string bold(const std::string& s) {
 		return "\x1B[1m" + s + "\x1B[22m";
 	}
 
-	constexpr std::string italic(const std::string& s) {
+	inline std::string italic(const std::string& s) {
 		return "\x1B[3m" + s + "\x1B[23m";
 	}
 
-	constexpr std::string underline(const std::string& s) {
+	inline std::string underline(const std::string& s) {
 		return "\x1B[4m" + s + "\x1B[24m";
 	}
 
-	constexpr std::string blink(const std::string& s) {
+	inline std::string blink(const std::string& s) {
 		return "\x1B[5m" + s + "\x1B[25m";
 	}
 
-	constexpr std::string inverse(const std::string& s) {
+	inline std::string inverse(const std::string& s) {
 		return "\x1B[7m" + s + "\x1B[27m";
 	}
 
-	constexpr std::string hidden(const std::string& s) {
+	inline std::string hidden(const std::string& s) {
 		return "\x1B[8m" + s + "\x1B[28m";
 	}
 
-	constexpr std::string strikethrough(const std::string& s) {
+	inline std::string strikethrough(const std::string& s) {
 		return "\x1B[9m" + s + "\x1B[29m";
 	}
 } // namespace rawterm

@@ -3,9 +3,7 @@
 #include <cctype>
 #include <ios>
 #include <iostream>
-#include <utility>
 
-#define RAWTERM_IMPLEMENTATION
 #include "rawterm.h"
 
 // This is a demonstration on how `rawterm` works. You can compile this with
@@ -13,22 +11,22 @@
 // show it's output as a Key object in the terminal. Press `q` to quit.
 
 int main() {
-    enable_raw_mode();
-    enter_alt_screen();
-    auto size = get_term_size();
-    std::cout << "Term size: " << size.first << ", " << size.second << "\r\n";
+    rawterm::enable_raw_mode();
+    rawterm::enter_alt_screen();
+    rawterm::Pos size = rawterm::get_term_size();
+    std::cout << "Term size: " << size.line << ", " << size.col << "\r\n";
 
     int count = 0;
 
     while (true) {
-        Key k = process_keypress();
+        rawterm::Key k = rawterm::process_keypress();
         if (k.code == 'q' && k.mod.empty())
             break;
 
         count++;
         if (count == 5) {
-            clear_screen();
-            move_cursor(0,0); 
+            rawterm::clear_screen();
+            rawterm::move_cursor({0,0});
             count = 0;
         }
 
@@ -37,31 +35,31 @@ int main() {
         if (!k.mod.empty()) {
             for (size_t i = 0; i < k.mod.size(); ++i) {
                 switch (k.mod[i]) {
-                case Mod::Alt_L:
+                case rawterm::Mod::Alt_L:
                     mods += " ALT_L ";
                     break;
-                case Mod::Arrow:
+                case rawterm::Mod::Arrow:
                     mods += " ARROW ";
                     break;
-                case Mod::Backspace:
+                case rawterm::Mod::Backspace:
                     mods += " Backspace ";
                     break;
-                case Mod::Control:
+                case rawterm::Mod::Control:
                     mods += " CTRL ";
                     break;
-                case Mod::Delete:
+                case rawterm::Mod::Delete:
                     mods += " DEL ";
                     break;
-                case Mod::Escape:
+                case rawterm::Mod::Escape:
                     mods += " ESC ";
                     break;
-                case Mod::Function:
+                case rawterm::Mod::Function:
                     mods += " FUNCTION ";
                     break;
-                case Mod::Shift:
+                case rawterm::Mod::Shift:
                     mods += " SHFT ";
                     break;
-                case Mod::Space:
+                case rawterm::Mod::Space:
                     mods += " SPACE ";
                     break;
                 default:
@@ -77,7 +75,7 @@ int main() {
                   << ", raw: " << k.raw << "}\r\n";
     }
 
-    exit_alt_screen();
+    rawterm::exit_alt_screen();
 
     return 0;
 }

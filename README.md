@@ -1,6 +1,5 @@
 # rawterm
-A c++ header-only library for working with raw mode in a terminal. This has
-been tested solely in c++ - I don't know if this works in C.
+A c++ header-only library for working with raw mode in a terminal
 
 See `main.cpp` for an example on how this works
 
@@ -8,17 +7,17 @@ Note that `escape.cpp` will print out the raw code that you press, and exists
 for testing purposes only.
 
 ### How to use
+All components are within the `rawterm` namespace.
 Your startup and cleanup are handled with a few function calls:
 
 ```cpp
-#define RAWTERM_IMPLEMENTATION
 #include "rawterm.h"
 
 int main() {
-    enable_raw_mode();
-    enter_alt_screen();
+    rawterm::enable_raw_mode();
+    rawterm::enter_alt_screen();
     // Do things here
-    exit_alt_screen();
+    rawterm::exit_alt_screen();
     return 0;
 }
 ```
@@ -41,8 +40,14 @@ struct Key {
 * `raw` - is the raw ascii string that the terminal takes in.
     * This mostly exists for debugging
 
-The `get_term_size()` function provides the size of the terminal window as
-an `std::pair<int, int>` as well
+The `get_term_size()` function provides the size of the terminal window as a `Pos` structure:
+
+```cpp
+struct Pos {
+    int line;
+    int col;
+};
+```
 
 The following functions will accept a string and return your string wrapped in
 the relevant escape codes for formatting:
@@ -55,15 +60,15 @@ the relevant escape codes for formatting:
 - `strikethrough()`
 
 
-You can also `clear_screen()`, or `save_cursor_position()` and 
+You can also `clear_screen()`, or `save_cursor_position()` and
 `load_cursor_position()`, or use the following functions to change the
 appearance of your cursor:
-- cursor_block_blink()
-- cursor_block()
-- cursor_underscore_blink()
-- cursor_underscore()
-- cursor_pipe_blink()
-- cursor_pipe()
+- `cursor_block_blink()`
+- `cursor_block()`
+- `cursor_underscore_blink()`
+- `cursor_underscore()`
+- `cursor_pipe_blink()`
+- `cursor_pipe()`
 
 ### Be Aware Of:
 * `^m` and `enter` are the same key - they both pass `\x0d` code to the terminal

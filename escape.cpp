@@ -1,6 +1,7 @@
 #include <cctype>
+#include <string>
+#include <sstream>
 
-#define RAWTERM_IMPLEMENTATION
 #include "rawterm.h"
 
 // This code runs with `./build.sh && ./build/escape`. It will print out the
@@ -9,31 +10,36 @@
 // `pkill -9 escape` in another window).
 
 int main() {
-    enable_raw_mode();
-    enter_alt_screen();
+    rawterm::enable_raw_mode();
+    rawterm::enter_alt_screen();
 
     while (true) {
-        char seq[32];
+        // char seq[32];
+        std::string seq;
 
-        int ret = read(STDIN_FILENO, seq, sizeof(seq));
+        int ret = read(STDIN_FILENO, seq.data(), 32);
         if (ret < 0) {
             std::cerr
                 << "ERROR: something went wrong during reading user input: "
                 << std::strerror(errno) << std::endl;
-            return 1;
+            break;
         }
 
         std::string code;
         for (int i = 0; i < ret; ++i) {
-            char buffer[5];
-            std::snprintf(buffer, sizeof(buffer), "\\x%02x",
-                          static_cast<unsigned char>(seq[i]));
-            code += buffer;
+            // char buffer[5];
+            // std::snprintf(buffer, sizeof(buffer), "\\x%02x",
+            //               static_cast<unsigned char>(seq[i]));
+            // code += buffer;
+
+            std::stringstream ss;
+            ss << std::hex << "\\x" << static_cast<unsigned int>(seq[i]);
+            code += ss.str();
         }
 
         std::cout << code << "\r\n";
     }
 
-    exit_alt_screen();
+    rawterm::exit_alt_screen();
     return 0;
 }

@@ -22,7 +22,7 @@
 // SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 // Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v1.7.1
+// Version: v2.0.0
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef RAWTERM_H
@@ -83,13 +83,16 @@ namespace rawterm {
 	// https://stackoverflow.com/a/12920036
 	// Will need to find another solution for windows (#ifdef WIN32)
 
-	// This doesn't need explicitly calling because of the atexit() call
+    // Return to terminal "cooked" mode - this function doesn't need to be 
+    // called due to the `atexit` call
 	inline void disable_raw_mode() {
 		if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &rawterm::detail::orig) == -1) {
 			rawterm::detail::die("tcsetattr");
 		}
 	}
 
+    // Switch terminal to raw mode, enabling character-level reading of input
+    // without waiting for a newline character
 	inline void enable_raw_mode() {
 		if (tcgetattr(STDIN_FILENO, &rawterm::detail::orig) == -1) {
 			rawterm::detail::die("tcgetattr");
@@ -104,15 +107,18 @@ namespace rawterm {
 		}
 	}
 
+    // Switch to an alternative terminal screen -- should be supported on all 
+    // terminal emulators
 	inline void enter_alt_screen() {
 		std::cout << "\x1B 7\x1B[?47h\x1B[H";
 	}
 
+    // Exit alternate screen mode
 	inline void exit_alt_screen() {
 		std::cout << "\x1B[2J\x1B[?47l\x1B 8";
 	}
 
-	// Read user input
+	// Read user input and return a Key object ready to read the value
 	inline rawterm::Key process_keypress() {
 		static const std::unordered_set<char> asciiLetters {
 			'\x31', '\x32', '\x33', '\x34', '\x35', '\x36', '\x37', '\x38',
@@ -487,16 +493,21 @@ namespace rawterm {
 		return {' ', {rawterm::Mod::Unknown}, raw};
 	}
 
+    // Read the current size of the terminal window and return as a Pos object
 	inline rawterm::Pos get_term_size() {
 		struct winsize w;
 		ioctl(0, TIOCGWINSZ, &w);
 		return Pos { w.ws_row, w.ws_col };
 	}
 
+    // Clear terminal screen of all text
 	inline void clear_screen() {
 		std::cout << "\x1B[2J";
 	}
 
+    // Move the terminal cursor to the given position, starting from 0,0
+    // Note that terminals sometimes handle 0,0 and 1,1 as the same position
+    // TODO: Ovwerload this to take in x and y co-ords as well
 	inline void move_cursor(rawterm::Pos pos) {
 		std::cout << "\x1B[" << std::to_string(pos.line) << ';' << std::to_string(pos.col) << 'H' << std::flush;
 	}
@@ -534,30 +545,37 @@ namespace rawterm {
 		std::cout << "\1\x1B[6 q\6" << std::flush;
 	}
 
+    // Format text output in bold
 	inline std::string bold(const std::string& s) {
 		return "\x1B[1m" + s + "\x1B[22m";
 	}
 
+    // Format text output in italics
 	inline std::string italic(const std::string& s) {
 		return "\x1B[3m" + s + "\x1B[23m";
 	}
 
+    // Format text output underlined
 	inline std::string underline(const std::string& s) {
 		return "\x1B[4m" + s + "\x1B[24m";
 	}
 
+    // Format text output to blink
 	inline std::string blink(const std::string& s) {
 		return "\x1B[5m" + s + "\x1B[25m";
 	}
 
+    // Format text output with reversed colours
 	inline std::string inverse(const std::string& s) {
 		return "\x1B[7m" + s + "\x1B[27m";
 	}
 
+    // Format text output to be invisible
 	inline std::string hidden(const std::string& s) {
 		return "\x1B[8m" + s + "\x1B[28m";
 	}
 
+    // Format text output with a strikethrough
 	inline std::string strikethrough(const std::string& s) {
 		return "\x1B[9m" + s + "\x1B[29m";
 	}

@@ -1,3 +1,11 @@
+### v2.0.0
+* Added descriptive comments to each function
+* Added `Pos` structure, now returned by `get_term_size` and accepted by 
+`move_cursor` (eczbek - #10)
+* Made `asciiLetters` into an unordered set for better accessing (eczbek - #10)
+* Replaced if-else chains with switches (eczbek - #10)
+* Wrapped everything in `rawterm` namespace (eczbek - #10)
+
 ### v1.7.1
 * Remove unneccesary copying (@Eczbek - #9)
 

@@ -2,6 +2,6 @@
 
 set -xe
 
-mkdir -p ./build/
-g++ -std=c++20  -ggdb ./main.cpp -o ./build/main
-g++ -std=c++20 ./escape.cpp -o ./build/escape
+mkdir -p ./out/
+g++ -std=c++20  -ggdb ./examples/keys.cpp -o ./out/keys
+g++ -std=c++20 ./examples/raw_escapes.cpp -o ./out/raw_escapes

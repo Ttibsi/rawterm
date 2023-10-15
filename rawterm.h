@@ -68,6 +68,19 @@ namespace rawterm {
         Unknown
     };
 
+    const int FG_BG_OFFSET = 10;
+    enum Colour {
+        black = 30,
+        red = 31,
+        green = 32,
+        yellow = 33,
+        blue = 34,
+        magenta = 35,
+        cyan = 36,
+        white = 37,
+        df = 39    
+    };
+
     struct Key {
         char code;
         std::vector<rawterm::Mod> mod;
@@ -552,13 +565,22 @@ namespace rawterm {
 
     // Format text output with a strikethrough
 
-	  inline std::string strikethrough(const std::string& s) {
-		  return "\x1B[9m" + s + "\x1B[29m";
-	  }
+	inline std::string strikethrough(const std::string& s) {
+	    return "\x1B[9m" + s + "\x1B[29m";
+    }
 
     // Format text with specified foreground and background colours
-    inline std::string colour(const std::string& s, int fg_colour_code, int bg_colour_code) {
-        return std::string("\x1b[") + std::to_string(fg_colour_code) + ";" + std::to_string(bg_colour_code) + "m" + s + "\x1b[0m"; 
+    inline std::string colour(const std::string& s, int fg_colour_code, int bg_colour_code) { 
+        return std::string("\x1b[") + std::to_string(fg_colour_code) + ";" + std::to_string(bg_colour_code) + "m" + s + "\x1b[0m";
+    }
+    inline std::string colour(const std::string& s, const Colour c_fg, const Colour c_bg) { 
+        return std::string("\x1b[") + std::to_string(c_fg) + ";" + std::to_string(c_bg + FG_BG_OFFSET) + "m" + s + "\x1b[0m"; 
+    }
+    inline std::string fg_colour(const std::string& s, const Colour c_fg) { 
+        return colour(s, c_fg, Colour::df + FG_BG_OFFSET); 
+    }
+    inline std::string bg_colour(const std::string& s, const Colour c_bg) { 
+        return colour(s, Colour::df, c_bg + FG_BG_OFFSET);
     }
 } // namespace rawterm
 

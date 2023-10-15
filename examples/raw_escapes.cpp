@@ -2,7 +2,7 @@
 #include <string>
 #include <sstream>
 
-#include "rawterm.h"
+#include "../rawterm.h"
 
 // This code runs with `./build.sh && ./build/escape`. It will print out the
 // raw ascii code of any key you enter. It does not have a way out/to quit so

@@ -1,10 +1,8 @@
 # rawterm
-A c++ header-only library for working with raw mode in a terminal
+A c++20 header-only library for working with raw mode in a terminal. See the 
+`examples/` directory for examples on how to use this library -- see 
+`examples/keys.cpp` for a simple place to start.
 
-See `main.cpp` for an example on how this works
-
-Note that `escape.cpp` will print out the raw code that you press, and exists
-for testing purposes only.
 
 ### How to use
 All components are within the `rawterm` namespace.
@@ -16,6 +14,7 @@ Your startup and cleanup are handled with a few function calls:
 int main() {
     rawterm::enable_raw_mode();
     rawterm::enter_alt_screen();
+
     // Do things here
     rawterm::exit_alt_screen();
     return 0;
@@ -28,26 +27,15 @@ like this:
 
 ```cpp
 struct Key {
-    char code;
-    std::vector<Mod> mod;
-    std::string raw;
+    char code; // The key you pressed (ex: `a`)
+    std::vector<Rawterm::Mod> mod; // A list of modifier keys you've pressed (ex `Rawterm::Shift`)
+    std::string raw; // The raw ansi code pressed (mostly for debugging)
 };
 ```
 
-* `code` - is the value you pressed (ie `a`)
-* `mod` - is a vector of modifier keys
-    * Values include: `Alt_L`, `Arrow`, `Control`, `Delete`, `Escape`, `Function`, `Shift`, `Space`
-* `raw` - is the raw ascii string that the terminal takes in.
-    * This mostly exists for debugging
+The `get_term_size()` function provides the size of the terminal window as a 
+`Pos` structure that holds the `line` and `col` as `std::size_t`
 
-The `get_term_size()` function provides the size of the terminal window as a `Pos` structure:
-
-```cpp
-struct Pos {
-    int line;
-    int col;
-};
-```
 
 The following functions will accept a string and return your string wrapped in
 the relevant escape codes for formatting:

@@ -4,7 +4,7 @@
 #include <ios>
 #include <iostream>
 
-#include "rawterm.h"
+#include "../rawterm.h"
 
 // This is a demonstration on how `rawterm` works. You can compile this with
 // `./build.sh` and run with `./build/main`. Any keypress you enter then will

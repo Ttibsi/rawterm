@@ -1,6 +1,6 @@
 # rawterm
-A c++20 header-only library for working with raw mode in a terminal. See the 
-`examples/` directory for examples on how to use this library -- see 
+A c++20 header-only library for working with raw mode in a terminal. See the
+`examples/` directory for examples on how to use this library -- see
 `examples/keys.cpp` for a simple place to start.
 
 
@@ -33,7 +33,7 @@ struct Key {
 };
 ```
 
-The `get_term_size()` function provides the size of the terminal window as a 
+The `get_term_size()` function provides the size of the terminal window as a
 `Pos` structure that holds the `line` and `col` as `std::size_t`
 
 
@@ -46,6 +46,8 @@ the relevant escape codes for formatting:
 - `inverse()`
 - `hidden()`
 - `strikethrough()`
+
+To set the text color, use `fg()` or `bg()` with the `Color` structure.
 
 
 You can also `clear_screen()`, or `save_cursor_position()` and

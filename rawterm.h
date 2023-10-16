@@ -68,18 +68,18 @@ namespace rawterm {
         Unknown
     };
 
-    const int FG_BG_OFFSET = 10;
-    enum Colour {
-        black = 30,
-        red = 31,
-        green = 32,
-        yellow = 33,
-        blue = 34,
-        magenta = 35,
-        cyan = 36,
-        white = 37,
-        df = 39    
+    // Colours handling
+    struct Colour {
+        std::uint8_t red;
+        std::uint8_t green;
+        std::uint8_t blue;
     };
+    inline const Colour red { 255, 0, 0 };
+    inline const Colour orange { 255, 127, 0 };
+    inline const Colour yellow { 255, 255, 0 };
+    inline const Colour green { 0, 255, 0 };
+    inline const Colour blue { 0, 0, 255 };
+    inline const Colour violet { 127, 0, 255 };
 
     struct Key {
         char code;
@@ -570,17 +570,21 @@ namespace rawterm {
     }
 
     // Format text with specified foreground and background colours
-    inline std::string colour(const std::string& s, int fg_colour_code, int bg_colour_code) { 
-        return std::string("\x1b[") + std::to_string(fg_colour_code) + ";" + std::to_string(bg_colour_code) + "m" + s + "\x1b[0m";
+    inline std::string fg(const std::string& s, const rawterm::Colour& colour) {
+        return "\x1B[38;2;"
+            + std::to_string(colour.red) + ";"
+            + std::to_string(colour.green) + ";"
+            + std::to_string(colour.blue) + "m"
+            + s
+            + "\x1B[0m";
     }
-    inline std::string colour(const std::string& s, const Colour c_fg, const Colour c_bg) { 
-        return std::string("\x1b[") + std::to_string(c_fg) + ";" + std::to_string(c_bg + FG_BG_OFFSET) + "m" + s + "\x1b[0m"; 
-    }
-    inline std::string fg_colour(const std::string& s, const Colour c_fg) { 
-        return colour(s, c_fg, Colour::df + FG_BG_OFFSET); 
-    }
-    inline std::string bg_colour(const std::string& s, const Colour c_bg) { 
-        return colour(s, Colour::df, c_bg + FG_BG_OFFSET);
+    inline std::string bg(const std::string& s, const rawterm::Colour& colour) {
+        return "\x1B[48;2;"
+            + std::to_string(colour.red) + ";"
+            + std::to_string(colour.green) + ";"
+            + std::to_string(colour.blue) + "m"
+            + s
+            + "\x1B[0m";
     }
 } // namespace rawterm
 

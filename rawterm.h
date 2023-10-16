@@ -582,7 +582,7 @@ namespace rawterm {
 			+ std::to_string(color.red) + ';'
 			+ std::to_string(color.green) + ';'
 			+ std::to_string(color.blue) + 'm'
-			+ s + "\x1B[0m";
+			+ s + "\x1B[38m";
 	}
 
 	inline std::string bg(const std::string &s, const Color color) {
@@ -590,7 +590,7 @@ namespace rawterm {
 			+ std::to_string(color.red) + ';'
 			+ std::to_string(color.green) + ';'
 			+ std::to_string(color.blue) + 'm'
-			+ s + "\x1B[0m";
+			+ s + "\x1B[48m";
 	}
 
 	// clear screen entirely

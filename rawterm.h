@@ -32,12 +32,9 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -50,11 +47,6 @@
 namespace rawterm {
     namespace detail {
         inline termios orig;
-
-        inline void die(const char *s) {
-            std::perror(s);
-            std::exit(1);
-        }
     } // namespace detail
 
     enum struct Mod {
@@ -112,7 +104,7 @@ namespace rawterm {
     // called due to the `atexit` call
     inline void disable_raw_mode() {
         if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &rawterm::detail::orig) == -1) {
-            rawterm::detail::die("tcsetattr");
+            std::perror("tcsetattr");
         }
     }
 
@@ -120,7 +112,7 @@ namespace rawterm {
     // without waiting for a newline character
     inline void enable_raw_mode() {
         if (tcgetattr(STDIN_FILENO, &rawterm::detail::orig) == -1) {
-            rawterm::detail::die("tcgetattr");
+            std::perror("tcgetattr");
         }
         std::atexit(rawterm::disable_raw_mode);
 
@@ -128,7 +120,7 @@ namespace rawterm {
         cfmakeraw(&raw);
 
         if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
-            rawterm::detail::die("tcsetattr");
+            std::perror("tcsetattr");
         }
     }
 
@@ -154,8 +146,7 @@ namespace rawterm {
         std::string characters;
         const ssize_t ret = read(STDIN_FILENO, characters.data(), 32);
         if (ret < 0) {
-            std::cerr << "ERROR: something went wrong during reading user input: "
-                      << std::strerror(errno) << std::endl;
+			std::perror("ERROR: something went wrong during reading user input: ");
             return {' ', {rawterm::Mod::Unknown}, ""};
         }
 

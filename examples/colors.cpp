@@ -22,10 +22,10 @@ int main() {
 	};
 
 	for (rawterm::Color color : colors) {
-		std::cout << rawterm::fg(rawterm::bold("Hello, world!\n"), color);
+		std::cout << rawterm::fg(rawterm::bold("Hello, world!\r\n"), color);
 	}
 
 	for (rawterm::Color color : colors) {
-		std::cout << rawterm::bg(rawterm::bold("Hello, world!\n"), color);
+		std::cout << rawterm::bg(rawterm::bold("Hello, world!\r\n"), color);
 	}
 }

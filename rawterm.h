@@ -33,6 +33,8 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -78,6 +80,29 @@ namespace rawterm {
         std::size_t line;
         std::size_t col;
     };
+
+	struct Color {
+		std::uint8_t red;
+		std::uint8_t green;
+		std::uint8_t blue;
+	};
+
+	// Color presets
+	inline const Color black { 0, 0, 0 };
+	inline const Color gray { 127, 127, 127 };
+	inline const Color white { 255, 255, 255 };
+	inline const Color red { 255, 0, 0 };
+	inline const Color orange { 255, 127, 0 };
+	inline const Color yellow { 255, 255, 0 };
+	inline const Color lime { 127, 255, 0 };
+	inline const Color green { 0, 255, 0 };
+	inline const Color mint { 0, 255, 127 };
+	inline const Color cyan { 0, 255, 255 };
+	inline const Color azure { 0, 127, 255 };
+	inline const Color blue { 0, 0, 255 };
+	inline const Color violet { 127, 0, 255 };
+	inline const Color purple { 255, 0, 255 };
+	inline const Color magenta { 255, 0, 127 };
 
     // Enter/leave alternate screen
     // https://stackoverflow.com/a/12920036
@@ -135,7 +160,7 @@ namespace rawterm {
         }
 
         std::string raw;
-        for (int i = 0; i < ret; ++i) {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(ret); ++i) {
             std::stringstream ss;
             ss << std::hex << "\\x" << static_cast<unsigned int>(characters[i]);
             raw += ss.str();
@@ -490,9 +515,6 @@ namespace rawterm {
         return Pos{w.ws_row, w.ws_col};
     }
 
-    // Clear terminal screen of all text
-    inline void clear_screen() { std::cout << "\x1B[2J"; }
-
     // Move the terminal cursor to the given position, starting from 0,0
     // Note that terminals sometimes handle 0,0 and 1,1 as the same position
     // TODO: Ovwerload this to take in x and y co-ords as well
@@ -554,6 +576,77 @@ namespace rawterm {
     inline std::string strikethrough(const std::string &s) {
         return "\x1B[9m" + s + "\x1B[29m";
     }
+
+	inline std::string fg(const std::string &s, const Color color) {
+		return "\x1B[38;2;"
+			+ std::to_string(color.red) + ';'
+			+ std::to_string(color.green) + ';'
+			+ std::to_string(color.blue) + 'm'
+			+ s + "\x1B[0m";
+	}
+
+	inline std::string bg(const std::string &s, const Color color) {
+		return "\x1B[48;2;"
+			+ std::to_string(color.red) + ';'
+			+ std::to_string(color.green) + ';'
+			+ std::to_string(color.blue) + 'm'
+			+ s + "\x1B[0m";
+	}
+
+	// clear screen entirely
+	void clear_screen() {
+		std::cout << "\x1B[2J\x1B[H";
+	}
+
+	// clear screen from beginning until position
+	void clear_screen_until(const Pos pos) {
+		std::cout
+			<< "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
+			<< std::to_string(pos.col) << "H\x1B[1J\x1B[u";
+	}
+
+	// clear screen from position until end
+	void clear_screen_from(const Pos pos) {
+		std::cout
+			<< "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
+			<< std::to_string(pos.col) << "H\x1B[0J\x1B[u";
+	}
+
+	// clear cursor's line entirely
+	void clear_line() {
+		std::cout << "\x1B[2K\r";
+	}
+
+	// clear position's line entirely
+	void clear_line(const Pos pos) {
+		std::cout
+			<< "\x1B[s\x1B[" << std::to_string(pos.line)
+			<< "H\x1B[2K\x1B[u";
+	}
+
+	// clear cursor's line from beginning until cursor's column
+	void clear_line_until() {
+		std::cout << "\x1B[1K";
+	}
+
+	// clear position's line from beginning until position's column
+	void clear_line_until(const Pos pos) {
+		std::cout
+			<< "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
+			<< std::to_string(pos.col) << "H\x1B[1K\x1B[u";
+	}
+
+	// clear cursor's line from cursor's column until end
+	void clear_line_from() {
+		std::cout << "\x1B[0K";
+	}
+
+	// clear position's line from position's column until end
+	void clear_line_from(const Pos pos) {
+		std::cout
+			<< "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
+			<< std::to_string(pos.col) << "H\x1B[0K\x1B[u";
+	}
 } // namespace rawterm
 
 #endif // RAWTERM_H

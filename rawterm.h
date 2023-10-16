@@ -38,6 +38,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <unordered_set>
 #include <vector>
 
@@ -73,28 +74,28 @@ namespace rawterm {
         std::size_t col;
     };
 
-	struct Color {
-		std::uint8_t red;
-		std::uint8_t green;
-		std::uint8_t blue;
-	};
+    struct Color {
+        std::uint8_t red;
+        std::uint8_t green;
+        std::uint8_t blue;
+    };
 
-	// Color presets
-	inline const Color black { 0, 0, 0 };
-	inline const Color gray { 127, 127, 127 };
-	inline const Color white { 255, 255, 255 };
-	inline const Color red { 255, 0, 0 };
-	inline const Color orange { 255, 127, 0 };
-	inline const Color yellow { 255, 255, 0 };
-	inline const Color lime { 127, 255, 0 };
-	inline const Color green { 0, 255, 0 };
-	inline const Color mint { 0, 255, 127 };
-	inline const Color cyan { 0, 255, 255 };
-	inline const Color azure { 0, 127, 255 };
-	inline const Color blue { 0, 0, 255 };
-	inline const Color violet { 127, 0, 255 };
-	inline const Color purple { 255, 0, 255 };
-	inline const Color magenta { 255, 0, 127 };
+    // Color presets
+    inline const Color black { 0, 0, 0 };
+    inline const Color gray { 127, 127, 127 };
+    inline const Color white { 255, 255, 255 };
+    inline const Color red { 255, 0, 0 };
+    inline const Color orange { 255, 127, 0 };
+    inline const Color yellow { 255, 255, 0 };
+    inline const Color lime { 127, 255, 0 };
+    inline const Color green { 0, 255, 0 };
+    inline const Color mint { 0, 255, 127 };
+    inline const Color cyan { 0, 255, 255 };
+    inline const Color azure { 0, 127, 255 };
+    inline const Color blue { 0, 0, 255 };
+    inline const Color violet { 127, 0, 255 };
+    inline const Color purple { 255, 0, 255 };
+    inline const Color magenta { 255, 0, 127 };
 
     // Enter/leave alternate screen
     // https://stackoverflow.com/a/12920036
@@ -143,19 +144,18 @@ namespace rawterm {
             '\x6E', '\x6F', '\x70', '\x71', '\x72', '\x73', '\x76', '\x77',
             '\x76', '\x77', '\x78', '\x79', '\x7A'};
 
-        std::string characters;
-        const ssize_t ret = read(STDIN_FILENO, characters.data(), 32);
-        if (ret < 0) {
-			std::perror("ERROR: something went wrong during reading user input: ");
+        std::string characters = std::string(32, '\0');
+        if (read(STDIN_FILENO, characters.data(), 32) < 0) {
+            std::perror("ERROR: something went wrong during reading user input: ");
             return {' ', {rawterm::Mod::Unknown}, ""};
         }
 
-        std::string raw;
-        for (std::size_t i = 0; i < static_cast<std::size_t>(ret); ++i) {
-            std::stringstream ss;
-            ss << std::hex << "\\x" << static_cast<unsigned int>(characters[i]);
-            raw += ss.str();
+        std::stringstream ss;
+        ss << std::hex;
+        for (char c : characters.substr(0, characters.find('\0'))) {
+            ss << "\\x" << static_cast<int>(static_cast<unsigned char>(c));
         }
+        const std::string raw = ss.str();
 
         // TODO: alt-gr, multiple modifier keys?
         // NOTE: enter/^m are the same entry
@@ -511,27 +511,27 @@ namespace rawterm {
     // TODO: Ovwerload this to take in x and y co-ords as well
     inline void move_cursor(rawterm::Pos pos) {
         std::cout << "\x1B[" << std::to_string(pos.line) << ';'
-                  << std::to_string(pos.col) << 'H' << std::flush;
+                  << std::to_string(pos.col) << 'H';
     }
 
-    inline void save_cursor_position() { std::cout << "\x1B[s" << std::flush; }
+    inline void save_cursor_position() { std::cout << "\x1B[s"; }
 
-    inline void load_cursor_position() { std::cout << "\x1B[u" << std::flush; }
+    inline void load_cursor_position() { std::cout << "\x1B[u"; }
 
     // https://stackoverflow.com/a/48449104
-    inline void cursor_block_blink() { std::cout << "\1\x1B[1 q\2" << std::flush; }
+    inline void cursor_block_blink() { std::cout << "\1\x1B[1 q\2"; }
 
-    inline void cursor_block() { std::cout << "\1\x1B[2 q\2" << std::flush; }
+    inline void cursor_block() { std::cout << "\1\x1B[2 q\2"; }
 
     inline void cursor_underscore_blink() {
-        std::cout << "\1\x1B[3 q\2" << std::flush;
+        std::cout << "\1\x1B[3 q\2";
     }
 
-    inline void cursor_underscore() { std::cout << "\1\x1B[4 q\2" << std::flush; }
+    inline void cursor_underscore() { std::cout << "\1\x1B[4 q\2"; }
 
-    inline void cursor_pipe_blink() { std::cout << "\1\x1B[5 q\2" << std::flush; }
+    inline void cursor_pipe_blink() { std::cout << "\1\x1B[5 q\2"; }
 
-    inline void cursor_pipe() { std::cout << "\1\x1B[6 q\6" << std::flush; }
+    inline void cursor_pipe() { std::cout << "\1\x1B[6 q\6"; }
 
     // Format text output in bold
     inline std::string bold(const std::string &s) {
@@ -568,76 +568,76 @@ namespace rawterm {
         return "\x1B[9m" + s + "\x1B[29m";
     }
 
-	inline std::string fg(const std::string &s, const Color color) {
-		return "\x1B[38;2;"
-			+ std::to_string(color.red) + ';'
-			+ std::to_string(color.green) + ';'
-			+ std::to_string(color.blue) + 'm'
-			+ s + "\x1B[38m";
-	}
+    inline std::string fg(const std::string &s, const Color color) {
+        return "\x1B[38;2;"
+            + std::to_string(color.red) + ';'
+            + std::to_string(color.green) + ';'
+            + std::to_string(color.blue) + 'm'
+            + s + "\x1B[38m";
+    }
 
-	inline std::string bg(const std::string &s, const Color color) {
-		return "\x1B[48;2;"
-			+ std::to_string(color.red) + ';'
-			+ std::to_string(color.green) + ';'
-			+ std::to_string(color.blue) + 'm'
-			+ s + "\x1B[48m";
-	}
+    inline std::string bg(const std::string &s, const Color color) {
+        return "\x1B[48;2;"
+            + std::to_string(color.red) + ';'
+            + std::to_string(color.green) + ';'
+            + std::to_string(color.blue) + 'm'
+            + s + "\x1B[48m";
+    }
 
-	// clear screen entirely
-	void clear_screen() {
-		std::cout << "\x1B[2J\x1B[H";
-	}
+    // clear screen entirely
+    void clear_screen() {
+        std::cout << "\x1B[2J\x1B[H";
+    }
 
-	// clear screen from beginning until position
-	void clear_screen_until(const Pos pos) {
-		std::cout
-			<< "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
-			<< std::to_string(pos.col) << "H\x1B[1J\x1B[u";
-	}
+    // clear screen from beginning until position
+    void clear_screen_until(const Pos pos) {
+        std::cout
+            << "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
+            << std::to_string(pos.col) << "H\x1B[1J\x1B[u";
+    }
 
-	// clear screen from position until end
-	void clear_screen_from(const Pos pos) {
-		std::cout
-			<< "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
-			<< std::to_string(pos.col) << "H\x1B[0J\x1B[u";
-	}
+    // clear screen from position until end
+    void clear_screen_from(const Pos pos) {
+        std::cout
+            << "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
+            << std::to_string(pos.col) << "H\x1B[0J\x1B[u";
+    }
 
-	// clear cursor's line entirely
-	void clear_line() {
-		std::cout << "\x1B[2K\r";
-	}
+    // clear cursor's line entirely
+    void clear_line() {
+        std::cout << "\x1B[2K\r";
+    }
 
-	// clear position's line entirely
-	void clear_line(const Pos pos) {
-		std::cout
-			<< "\x1B[s\x1B[" << std::to_string(pos.line)
-			<< "H\x1B[2K\x1B[u";
-	}
+    // clear position's line entirely
+    void clear_line(const Pos pos) {
+        std::cout
+            << "\x1B[s\x1B[" << std::to_string(pos.line)
+            << "H\x1B[2K\x1B[u";
+    }
 
-	// clear cursor's line from beginning until cursor's column
-	void clear_line_until() {
-		std::cout << "\x1B[1K";
-	}
+    // clear cursor's line from beginning until cursor's column
+    void clear_line_until() {
+        std::cout << "\x1B[1K";
+    }
 
-	// clear position's line from beginning until position's column
-	void clear_line_until(const Pos pos) {
-		std::cout
-			<< "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
-			<< std::to_string(pos.col) << "H\x1B[1K\x1B[u";
-	}
+    // clear position's line from beginning until position's column
+    void clear_line_until(const Pos pos) {
+        std::cout
+            << "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
+            << std::to_string(pos.col) << "H\x1B[1K\x1B[u";
+    }
 
-	// clear cursor's line from cursor's column until end
-	void clear_line_from() {
-		std::cout << "\x1B[0K";
-	}
+    // clear cursor's line from cursor's column until end
+    void clear_line_from() {
+        std::cout << "\x1B[0K";
+    }
 
-	// clear position's line from position's column until end
-	void clear_line_from(const Pos pos) {
-		std::cout
-			<< "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
-			<< std::to_string(pos.col) << "H\x1B[0K\x1B[u";
-	}
+    // clear position's line from position's column until end
+    void clear_line_from(const Pos pos) {
+        std::cout
+            << "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
+            << std::to_string(pos.col) << "H\x1B[0K\x1B[u";
+    }
 } // namespace rawterm
 
 #endif // RAWTERM_H

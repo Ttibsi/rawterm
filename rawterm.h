@@ -34,7 +34,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <cstdio>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -137,11 +136,11 @@ namespace rawterm {
         static const std::unordered_set<char> asciiLetters{
             '\x31', '\x32', '\x33', '\x34', '\x35', '\x36', '\x37', '\x38',
             '\x39', '\x41', '\x42', '\x43', '\x44', '\x45', '\x46', '\x47',
-            '\x48', '\x49', '\x4A', '\x4B', '\x4C', '\x4D', '\x4E', /* '\x4F', */
+            '\x48', '\x49', '\x4A', '\x4B', '\x4C', '\x4D', '\x4E', '\x4F',
             '\x50', '\x51', '\x52', '\x53', '\x54', '\x55', '\x56', '\x57',
-            '\x58', '\x59', '\x5A', '\x61', '\x62', '\x63', '\x66', '\x67',
+            '\x58', '\x59', '\x5A', '\x61', '\x62', '\x63', '\x64', '\x65',
             '\x66', '\x67', '\x68', '\x69', '\x6A', '\x6B', '\x6C', '\x6D',
-            '\x6E', '\x6F', '\x70', '\x71', '\x72', '\x73', '\x76', '\x77',
+            '\x6E', '\x6F', '\x70', '\x71', '\x72', '\x73', '\x74', '\x75',
             '\x76', '\x77', '\x78', '\x79', '\x7A'};
 
         std::string characters = std::string(32, '\0');
@@ -511,7 +510,7 @@ namespace rawterm {
     // TODO: Ovwerload this to take in x and y co-ords as well
     inline void move_cursor(rawterm::Pos pos) {
         std::cout << "\x1B[" << std::to_string(pos.line) << ';'
-                  << std::to_string(pos.col) << 'H';
+                  << std::to_string(pos.col) << 'H' << std::flush;
     }
 
     inline void save_cursor_position() { std::cout << "\x1B[s"; }

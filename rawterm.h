@@ -32,6 +32,7 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <iomanip>
@@ -513,6 +514,15 @@ namespace rawterm {
                   << std::to_string(pos.col) << 'H' << std::flush;
     }
 
+    // Move the terminal cursor relatively to its current position
+    inline void offset_cursor(rawterm::Pos offset) {
+        if (offset.line < 0) { std::cout << "\x1B[" << -offset.line << 'D'; }
+        else if (offset.line > 0) { std::cout << "\x1B[" << offset.line << 'C'; }
+
+        if (offset.col < 0) { std::cout << "\x1B[" << -offset.col << 'A'; }
+        else if (offset.col > 0) { std::cout << "\x1B[" << offset.col << 'B'; }
+    }
+
     inline void save_cursor_position() { std::cout << "\x1B[s"; }
 
     inline void load_cursor_position() { std::cout << "\x1B[u"; }
@@ -531,6 +541,10 @@ namespace rawterm {
     inline void cursor_pipe_blink() { std::cout << "\1\x1B[5 q\2"; }
 
     inline void cursor_pipe() { std::cout << "\1\x1B[6 q\6"; }
+
+    inline void cursor_hide() { std::cout << "\x1B[?25l"; }
+
+    inline void cursor_show() { std::cout << "\x1B[?25h"; }
 
     // Format text output in bold
     inline std::string bold(const std::string &s) {

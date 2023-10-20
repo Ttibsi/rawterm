@@ -59,6 +59,8 @@ appearance of your cursor:
 - `cursor_underscore()`
 - `cursor_pipe_blink()`
 - `cursor_pipe()`
+- `cursor_hide()`
+- `cursor_show()`
 
 ### Be Aware Of:
 * `^m` and `enter` are the same key - they both pass `\x0d` code to the terminal

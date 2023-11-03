@@ -28,10 +28,12 @@ like this:
 ```cpp
 struct Key {
     char code; // The key you pressed (ex: `a`)
-    std::vector<Rawterm::Mod> mod; // A list of modifier keys you've pressed (ex `Rawterm::Shift`)
+    std::deque<Rawterm::Mod> mod; // A list of modifier keys you've pressed (ex `Rawterm::Mod::Shift`)
     std::string raw; // The raw ansi code pressed (mostly for debugging)
 };
 ```
+The `getMod(Key* k)` function takes a pointer to a Key object, and can be used
+to consecutively read the contents of Key.mod
 
 The `get_term_size()` function provides the size of the terminal window as a
 `Pos` structure that holds the `horizontal` and `vertical` cursor coordinates 

@@ -22,24 +22,24 @@
 // SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 // Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v2.1.0
+// Version: v2.2.0
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef RAWTERM_H
 #define RAWTERM_H
 
-#include <sys/ioctl.h>
-#include <termios.h>
-#include <unistd.h>
-
 #include <cctype>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
 #include <unordered_set>
 #include <vector>
 
@@ -60,6 +60,7 @@ namespace rawterm {
         Enter,
         Escape,
         Function,
+        None,
         Shift,
         Space,
         Unknown
@@ -67,7 +68,7 @@ namespace rawterm {
 
     struct Key {
         char code;
-        std::vector<rawterm::Mod> mod;
+        std::deque<rawterm::Mod> mod;
         std::string raw;
     };
 
@@ -167,8 +168,7 @@ namespace rawterm {
         const std::string raw = ss.str();
 
         // TODO: alt-gr, multiple modifier keys?
-        // NOTE: enter/^m are the same entry
-        // https://www.rapidtables.com/code/text/ascii-table.html
+        // NOTE: https://www.rapidtables.com/code/text/ascii-table.html
         switch (characters[0]) {
         case '\x01':
             return {'a', {rawterm::Mod::Control}, raw};
@@ -243,8 +243,15 @@ namespace rawterm {
             if (raw.size() == 4) {
                 return {' ', {rawterm::Mod::Escape}, raw}; // esc
             }
-            if (asciiLetters.contains(characters[1])) {
-                return {characters[1], {rawterm::Mod::Alt_L}, raw};
+
+            if (raw.size() == 8 && asciiLetters.contains(characters[1])) {
+                Key k = {characters[1], {rawterm::Mod::Alt_L}, raw};
+
+                if (characters[1] >= 'A' && characters[1] <= 'Z') {
+                    k.mod.push_back(rawterm::Mod::Shift);
+                }
+
+                return k;
             }
             if (characters[1] == '\x5B') {
                 // ARROWS
@@ -286,7 +293,7 @@ namespace rawterm {
                     }
                     break;
                 }
-            } else if (characters[1] == '\x4F') {
+            } else if (raw.size() == 12 && characters[1] == '\x4F') {
                 // FUNCTIONS pt 1
                 switch (characters[2]) {
                 case '\x50':
@@ -662,11 +669,23 @@ namespace rawterm {
             << std::to_string(pos.vertical) << "H\x1B[0K\x1B[u";
     }
 
+    // Check that the key pressed is a printable character
     bool isCharInput(rawterm::Key k) {
         return std::isprint(static_cast<unsigned char>(k.code)) &&
         k.code != ' ' &&
         (k.mod.empty() || k.mod[0] == Mod::Shift);
     }
+
+    //  Sequential calls to this function returns the modifiers pressed
+    rawterm::Mod getMod(Key* k) {
+        if (k->mod.empty()) { return rawterm::Mod::None; }
+        else { 
+            rawterm::Mod val = k->mod[0];
+            k->mod.pop_front();
+            return val;
+        }
+    }
+
 } // namespace rawterm
 
 #endif // RAWTERM_H

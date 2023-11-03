@@ -1,3 +1,10 @@
+### v2.2.0
+* `key.mod` is now a `std::deque` instead of an std::vector
+* Added `rawterm::Mod::None` as a default value
+* Added `getMod()` to read modifiers sequentially
+* Fixed error with `alt_l + capital letter` as it was using multiple modifiers
+    * `Alt_L` and `Shift`
+
 ### v2.1.0
 * Added `isCharInput()` function
 * ^m now returns `Enter` modifier value instead of `Control`

@@ -1,3 +1,8 @@
+### v2.1.0
+* Added `isCharInput()` function
+* ^m now returns `Enter` modifier value instead of `Control`
+* `Pos` struct members renamed to be clearer
+
 ### v2.0.0
 * Added descriptive comments to each function
 * Added `Pos` structure, now returned by `get_term_size` and accepted by

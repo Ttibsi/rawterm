@@ -23,43 +23,45 @@ int main() {
 
         std::string mods = "[";
 
-        switch (rawterm::getMod(&k)) {
-            case rawterm::Mod::Alt_L:
-                mods += "Alt_L";
-                break;
-            case rawterm::Mod::Arrow:
-                mods += "Arrow";
-                break;
-            case rawterm::Mod::Backspace:
-                mods += "Backspace";
-                break;
-            case rawterm::Mod::Control:
-                mods += "Control";
-                break;
-            case rawterm::Mod::Delete:
-                mods += "Delete";
-                break;
-            case rawterm::Mod::Enter:
-                mods += "Enter";
-                break;
-            case rawterm::Mod::Escape:
-                mods += "Escape";
-                break;
-            case rawterm::Mod::Function:
-                mods += "Function";
-                break;
-            case rawterm::Mod::None:
-                mods += "None";
-                break;
-            case rawterm::Mod::Shift:
-                mods += "Shift";
-                break;
-            case rawterm::Mod::Space:
-                mods += "Space";
-                break;
-            case rawterm::Mod::Unknown:
-                mods += "Unknown";
-                break;
+        while (!(k.mod.empty())) {
+            switch (rawterm::getMod(&k)) {
+                case rawterm::Mod::Alt_L:
+                    mods += " Alt_L ";
+                    break;
+                case rawterm::Mod::Arrow:
+                    mods += " Arrow ";
+                    break;
+                case rawterm::Mod::Backspace:
+                    mods += " Backspace ";
+                    break;
+                case rawterm::Mod::Control:
+                    mods += " Control ";
+                    break;
+                case rawterm::Mod::Delete:
+                    mods += " Delete ";
+                    break;
+                case rawterm::Mod::Enter:
+                    mods += " Enter ";
+                    break;
+                case rawterm::Mod::Escape:
+                    mods += " Escape ";
+                    break;
+                case rawterm::Mod::Function:
+                    mods += " Function ";
+                    break;
+                case rawterm::Mod::None:
+                    mods += " None ";
+                    break;
+                case rawterm::Mod::Shift:
+                    mods += " Shift ";
+                    break;
+                case rawterm::Mod::Space:
+                    mods += " Space ";
+                    break;
+                case rawterm::Mod::Unknown:
+                    mods += " Unknown ";
+                    break;
+            }
         }
 
         mods += "]";

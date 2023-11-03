@@ -168,8 +168,7 @@ namespace rawterm {
         const std::string raw = ss.str();
 
         // TODO: alt-gr, multiple modifier keys?
-        // NOTE: enter/^m are the same entry
-        // https://www.rapidtables.com/code/text/ascii-table.html
+        // NOTE: https://www.rapidtables.com/code/text/ascii-table.html
         switch (characters[0]) {
         case '\x01':
             return {'a', {rawterm::Mod::Control}, raw};
@@ -244,8 +243,15 @@ namespace rawterm {
             if (raw.size() == 4) {
                 return {' ', {rawterm::Mod::Escape}, raw}; // esc
             }
-            if (asciiLetters.contains(characters[1])) {
-                return {characters[1], {rawterm::Mod::Alt_L}, raw};
+
+            if (raw.size() == 8 && asciiLetters.contains(characters[1])) {
+                Key k = {characters[1], {rawterm::Mod::Alt_L}, raw};
+
+                if (characters[1] >= 'A' && characters[1] <= 'Z') {
+                    k.mod.push_back(rawterm::Mod::Shift);
+                }
+
+                return k;
             }
             if (characters[1] == '\x5B') {
                 // ARROWS
@@ -287,7 +293,7 @@ namespace rawterm {
                     }
                     break;
                 }
-            } else if (characters[1] == '\x4F') {
+            } else if (raw.size() == 12 && characters[1] == '\x4F') {
                 // FUNCTIONS pt 1
                 switch (characters[2]) {
                 case '\x50':

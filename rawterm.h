@@ -22,7 +22,7 @@
 // SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 // Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v2.0.0
+// Version: v2.1.0
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef RAWTERM_H
@@ -32,6 +32,7 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include <cctype>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -56,6 +57,7 @@ namespace rawterm {
         Backspace,
         Control,
         Delete,
+        Enter,
         Escape,
         Function,
         Shift,
@@ -70,8 +72,8 @@ namespace rawterm {
     };
 
     struct Pos {
-        std::size_t line;
-        std::size_t col;
+        std::size_t horizontal;
+        std::size_t vertical;
     };
 
     struct Color {
@@ -101,10 +103,16 @@ namespace rawterm {
     // https://stackoverflow.com/a/12920036
     // Will need to find another solution for windows (#ifdef WIN32)
 
+    void clear_screen();
+    inline void move_cursor(rawterm::Pos pos);
+
     // Return to terminal "cooked" mode - this function doesn't need to be
     // called due to the `atexit` call
     inline void disable_raw_mode() {
         if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &rawterm::detail::orig) == -1) {
+            move_cursor({1,1});
+            clear_screen();
+            move_cursor({1,1});
             std::perror("tcsetattr");
         }
     }
@@ -132,17 +140,18 @@ namespace rawterm {
     // Exit alternate screen mode
     inline void exit_alt_screen() { std::cout << "\x1B[2J\x1B[?47l\x1B 8"; }
 
+    static const std::unordered_set<char> asciiLetters{
+        '\x31', '\x32', '\x33', '\x34', '\x35', '\x36', '\x37', '\x38',
+        '\x39', '\x41', '\x42', '\x43', '\x44', '\x45', '\x46', '\x47',
+        '\x48', '\x49', '\x4A', '\x4B', '\x4C', '\x4D', '\x4E', '\x4F',
+        '\x50', '\x51', '\x52', '\x53', '\x54', '\x55', '\x56', '\x57',
+        '\x58', '\x59', '\x5A', '\x61', '\x62', '\x63', '\x64', '\x65',
+        '\x66', '\x67', '\x68', '\x69', '\x6A', '\x6B', '\x6C', '\x6D',
+        '\x6E', '\x6F', '\x70', '\x71', '\x72', '\x73', '\x74', '\x75',
+        '\x76', '\x77', '\x78', '\x79', '\x7A'};
+
     // Read user input and return a Key object ready to read the value
     inline rawterm::Key process_keypress() {
-        static const std::unordered_set<char> asciiLetters{
-            '\x31', '\x32', '\x33', '\x34', '\x35', '\x36', '\x37', '\x38',
-            '\x39', '\x41', '\x42', '\x43', '\x44', '\x45', '\x46', '\x47',
-            '\x48', '\x49', '\x4A', '\x4B', '\x4C', '\x4D', '\x4E', '\x4F',
-            '\x50', '\x51', '\x52', '\x53', '\x54', '\x55', '\x56', '\x57',
-            '\x58', '\x59', '\x5A', '\x61', '\x62', '\x63', '\x64', '\x65',
-            '\x66', '\x67', '\x68', '\x69', '\x6A', '\x6B', '\x6C', '\x6D',
-            '\x6E', '\x6F', '\x70', '\x71', '\x72', '\x73', '\x74', '\x75',
-            '\x76', '\x77', '\x78', '\x79', '\x7A'};
 
         std::string characters = std::string(32, '\0');
         if (read(STDIN_FILENO, characters.data(), 32) < 0) {
@@ -186,7 +195,8 @@ namespace rawterm {
         case '\x0C':
             return {'l', {rawterm::Mod::Control}, raw};
         case '\x0D':
-            return {'m', {rawterm::Mod::Control}, raw};
+            // Enter is ^m
+            return {'m', {rawterm::Mod::Enter}, raw};
         case '\x0E':
             return {'n', {rawterm::Mod::Control}, raw};
         case '\x0F':
@@ -230,7 +240,7 @@ namespace rawterm {
             // f12 \x1B\x5B\x32\x34\x7E
             // delete: \x1B\x5B\x33\x7E
 
-            if (characters.size() == 1) {
+            if (raw.size() == 4) {
                 return {' ', {rawterm::Mod::Escape}, raw}; // esc
             }
             if (asciiLetters.contains(characters[1])) {
@@ -510,17 +520,17 @@ namespace rawterm {
     // Note that terminals sometimes handle 0,0 and 1,1 as the same position
     // TODO: Ovwerload this to take in x and y co-ords as well
     inline void move_cursor(rawterm::Pos pos) {
-        std::cout << "\x1B[" << std::to_string(pos.line) << ';'
-                  << std::to_string(pos.col) << 'H' << std::flush;
+        std::cout << "\x1B[" << std::to_string(pos.horizontal) << ';'
+                  << std::to_string(pos.vertical) << 'H' << std::flush;
     }
 
     // Move the terminal cursor relatively to its current position
     inline void offset_cursor(rawterm::Pos offset) {
-        if (offset.line < 0) { std::cout << "\x1B[" << -offset.line << 'D'; }
-        else if (offset.line > 0) { std::cout << "\x1B[" << offset.line << 'C'; }
+        if (offset.horizontal < 0) { std::cout << "\x1B[" << -offset.horizontal << 'D'; }
+        else if (offset.horizontal > 0) { std::cout << "\x1B[" << offset.horizontal << 'C'; }
 
-        if (offset.col < 0) { std::cout << "\x1B[" << -offset.col << 'A'; }
-        else if (offset.col > 0) { std::cout << "\x1B[" << offset.col << 'B'; }
+        if (offset.vertical < 0) { std::cout << "\x1B[" << -offset.vertical << 'A'; }
+        else if (offset.vertical > 0) { std::cout << "\x1B[" << offset.vertical << 'B'; }
     }
 
     inline void save_cursor_position() { std::cout << "\x1B[s"; }
@@ -605,15 +615,15 @@ namespace rawterm {
     // clear screen from beginning until position
     void clear_screen_until(const Pos pos) {
         std::cout
-            << "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
-            << std::to_string(pos.col) << "H\x1B[1J\x1B[u";
+            << "\x1B[s\x1B[" << std::to_string(pos.horizontal) << ';'
+            << std::to_string(pos.vertical) << "H\x1B[1J\x1B[u";
     }
 
     // clear screen from position until end
     void clear_screen_from(const Pos pos) {
         std::cout
-            << "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
-            << std::to_string(pos.col) << "H\x1B[0J\x1B[u";
+            << "\x1B[s\x1B[" << std::to_string(pos.horizontal) << ';'
+            << std::to_string(pos.vertical) << "H\x1B[0J\x1B[u";
     }
 
     // clear cursor's line entirely
@@ -624,7 +634,7 @@ namespace rawterm {
     // clear position's line entirely
     void clear_line(const Pos pos) {
         std::cout
-            << "\x1B[s\x1B[" << std::to_string(pos.line)
+            << "\x1B[s\x1B[" << std::to_string(pos.horizontal)
             << "H\x1B[2K\x1B[u";
     }
 
@@ -636,8 +646,8 @@ namespace rawterm {
     // clear position's line from beginning until position's column
     void clear_line_until(const Pos pos) {
         std::cout
-            << "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
-            << std::to_string(pos.col) << "H\x1B[1K\x1B[u";
+            << "\x1B[s\x1B[" << std::to_string(pos.horizontal) << ';'
+            << std::to_string(pos.vertical) << "H\x1B[1K\x1B[u";
     }
 
     // clear cursor's line from cursor's column until end
@@ -648,8 +658,14 @@ namespace rawterm {
     // clear position's line from position's column until end
     void clear_line_from(const Pos pos) {
         std::cout
-            << "\x1B[s\x1B[" << std::to_string(pos.line) << ';'
-            << std::to_string(pos.col) << "H\x1B[0K\x1B[u";
+            << "\x1B[s\x1B[" << std::to_string(pos.horizontal) << ';'
+            << std::to_string(pos.vertical) << "H\x1B[0K\x1B[u";
+    }
+
+    bool isCharInput(rawterm::Key k) {
+        return std::isprint(static_cast<unsigned char>(k.code)) &&
+        k.code != ' ' &&
+        (k.mod.empty() || k.mod[0] == Mod::Shift);
     }
 } // namespace rawterm
 

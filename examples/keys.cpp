@@ -14,59 +14,52 @@ int main() {
     rawterm::enable_raw_mode();
     rawterm::enter_alt_screen();
     rawterm::Pos size = rawterm::get_term_size();
-    std::cout << "Term size: " << size.line << ", " << size.col << "\r\n";
-
-    int count = 0;
+    std::cout << "Term size: " << size.horizontal << ", " << size.vertical << "\r\n";
 
     while (true) {
         rawterm::Key k = rawterm::process_keypress();
         if (k.code == 'q' && k.mod.empty())
             break;
 
-        count++;
-        if (count == 5) {
-            rawterm::clear_screen();
-            rawterm::move_cursor({0,0});
-            count = 0;
-        }
-
         std::string mods = "[";
 
-        if (!k.mod.empty()) {
-            for (size_t i = 0; i < k.mod.size(); ++i) {
-                switch (k.mod[i]) {
-                case rawterm::Mod::Alt_L:
-                    mods += " ALT_L ";
-                    break;
-                case rawterm::Mod::Arrow:
-                    mods += " ARROW ";
-                    break;
-                case rawterm::Mod::Backspace:
-                    mods += " Backspace ";
-                    break;
-                case rawterm::Mod::Control:
-                    mods += " CTRL ";
-                    break;
-                case rawterm::Mod::Delete:
-                    mods += " DEL ";
-                    break;
-                case rawterm::Mod::Escape:
-                    mods += " ESC ";
-                    break;
-                case rawterm::Mod::Function:
-                    mods += " FUNCTION ";
-                    break;
-                case rawterm::Mod::Shift:
-                    mods += " SHFT ";
-                    break;
-                case rawterm::Mod::Space:
-                    mods += " SPACE ";
-                    break;
-                default:
-                    mods += " OTHER ";
-                    break;
-                }
-            }
+        switch (rawterm::getMod(&k)) {
+            case rawterm::Mod::Alt_L:
+                mods += "Alt_L";
+                break;
+            case rawterm::Mod::Arrow:
+                mods += "Arrow";
+                break;
+            case rawterm::Mod::Backspace:
+                mods += "Backspace";
+                break;
+            case rawterm::Mod::Control:
+                mods += "Control";
+                break;
+            case rawterm::Mod::Delete:
+                mods += "Delete";
+                break;
+            case rawterm::Mod::Enter:
+                mods += "Enter";
+                break;
+            case rawterm::Mod::Escape:
+                mods += "Escape";
+                break;
+            case rawterm::Mod::Function:
+                mods += "Function";
+                break;
+            case rawterm::Mod::None:
+                mods += "None";
+                break;
+            case rawterm::Mod::Shift:
+                mods += "Shift";
+                break;
+            case rawterm::Mod::Space:
+                mods += "Space";
+                break;
+            case rawterm::Mod::Unknown:
+                mods += "Unknown";
+                break;
         }
 
         mods += "]";

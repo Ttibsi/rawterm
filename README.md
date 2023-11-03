@@ -34,7 +34,8 @@ struct Key {
 ```
 
 The `get_term_size()` function provides the size of the terminal window as a
-`Pos` structure that holds the `line` and `col` as `std::size_t`
+`Pos` structure that holds the `horizontal` and `vertical` cursor coordinates 
+as `std::size_t`
 
 
 The following functions will accept a string and return your string wrapped in

@@ -22,7 +22,7 @@
 // SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 // Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v2.2.0
+// Version: v2.2.1
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef RAWTERM_H
@@ -615,69 +615,69 @@ namespace rawterm {
     }
 
     // clear screen entirely
-    void clear_screen() {
+    inline void clear_screen() {
         std::cout << "\x1B[2J\x1B[H";
     }
 
     // clear screen from beginning until position
-    void clear_screen_until(const Pos pos) {
+    inline void clear_screen_until(const Pos pos) {
         std::cout
             << "\x1B[s\x1B[" << std::to_string(pos.horizontal) << ';'
             << std::to_string(pos.vertical) << "H\x1B[1J\x1B[u";
     }
 
     // clear screen from position until end
-    void clear_screen_from(const Pos pos) {
+    inline void clear_screen_from(const Pos pos) {
         std::cout
             << "\x1B[s\x1B[" << std::to_string(pos.horizontal) << ';'
             << std::to_string(pos.vertical) << "H\x1B[0J\x1B[u";
     }
 
     // clear cursor's line entirely
-    void clear_line() {
+    inline void clear_line() {
         std::cout << "\x1B[2K\r";
     }
 
     // clear position's line entirely
-    void clear_line(const Pos pos) {
+    inline void clear_line(const Pos pos) {
         std::cout
             << "\x1B[s\x1B[" << std::to_string(pos.horizontal)
             << "H\x1B[2K\x1B[u";
     }
 
     // clear cursor's line from beginning until cursor's column
-    void clear_line_until() {
+    inline void clear_line_until() {
         std::cout << "\x1B[1K";
     }
 
     // clear position's line from beginning until position's column
-    void clear_line_until(const Pos pos) {
+    inline void clear_line_until(const Pos pos) {
         std::cout
             << "\x1B[s\x1B[" << std::to_string(pos.horizontal) << ';'
             << std::to_string(pos.vertical) << "H\x1B[1K\x1B[u";
     }
 
     // clear cursor's line from cursor's column until end
-    void clear_line_from() {
+    inline void clear_line_from() {
         std::cout << "\x1B[0K";
     }
 
     // clear position's line from position's column until end
-    void clear_line_from(const Pos pos) {
+    inline void clear_line_from(const Pos pos) {
         std::cout
             << "\x1B[s\x1B[" << std::to_string(pos.horizontal) << ';'
             << std::to_string(pos.vertical) << "H\x1B[0K\x1B[u";
     }
 
     // Check that the key pressed is a printable character
-    bool isCharInput(rawterm::Key k) {
+    inline bool isCharInput(rawterm::Key k) {
         return std::isprint(static_cast<unsigned char>(k.code)) &&
         k.code != ' ' &&
         (k.mod.empty() || k.mod[0] == Mod::Shift);
     }
 
     //  Sequential calls to this function returns the modifiers pressed
-    rawterm::Mod getMod(Key* k) {
+    inline rawterm::Mod getMod(Key* k) {
         if (k->mod.empty()) { return rawterm::Mod::None; }
         else { 
             rawterm::Mod val = k->mod[0];

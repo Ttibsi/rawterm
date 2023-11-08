@@ -1,3 +1,6 @@
+### v2.2.1
+* Inlined some functions to prevent "duplicate symbol" linker issue
+
 ### v2.2.0
 * `key.mod` is now a `std::deque` instead of an std::vector
 * Added `rawterm::Mod::None` as a default value

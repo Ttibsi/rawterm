@@ -1,3 +1,6 @@
+### v2.2.2
+* Fixed incorrect naming of `Pos` members
+
 ### v2.2.1
 * Inlined some functions to prevent "duplicate symbol" linker issue
 

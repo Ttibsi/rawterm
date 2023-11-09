@@ -1,6 +1,6 @@
 #include <cctype>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "../rawterm.h"
 
@@ -10,28 +10,28 @@
 // `pkill -9 escape` in another window).
 
 int main() {
-    rawterm::enable_raw_mode();
-    rawterm::enter_alt_screen();
+  rawterm::enable_raw_mode();
+  rawterm::enter_alt_screen();
 
-    while (true) {
-        std::string seq;
+  while (true) {
+    std::string seq;
 
-        int ret = read(STDIN_FILENO, seq.data(), 32);
-        if (ret < 0) {
-            std::perror("ERROR: something went wrong during reading user input");
-            break;
-        }
-
-        std::string code;
-        for (int i = 0; i < ret; ++i) {
-            std::stringstream ss;
-            ss << std::hex << "\\x" << static_cast<unsigned int>(seq[i]);
-            code += ss.str();
-        }
-
-        std::cout << code << "\r\n";
+    int ret = read(STDIN_FILENO, seq.data(), 32);
+    if (ret < 0) {
+      std::perror("ERROR: something went wrong during reading user input");
+      break;
     }
 
-    rawterm::exit_alt_screen();
-    return 0;
+    std::string code;
+    for (int i = 0; i < ret; ++i) {
+      std::stringstream ss;
+      ss << std::hex << "\\x" << static_cast<unsigned int>(seq[i]);
+      code += ss.str();
+    }
+
+    std::cout << code << "\r\n";
+  }
+
+  rawterm::exit_alt_screen();
+  return 0;
 }

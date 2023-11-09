@@ -1,3 +1,6 @@
+### v2.2.3
+* Updated `offset_cursor` to used signed ints instead of a `rawterm::Pos`
+
 ### v2.2.2
 * Fixed incorrect naming of `Pos` members
 

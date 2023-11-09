@@ -36,7 +36,7 @@ The `getMod(Key* k)` function takes a pointer to a Key object, and can be used
 to consecutively read the contents of Key.mod
 
 The `get_term_size()` function provides the size of the terminal window as a
-`Pos` structure that holds the `horizontal` and `vertical` cursor coordinates 
+`Pos` structure that holds the `horizontal` and `vertical` cursor coordinates
 as `std::size_t`
 
 

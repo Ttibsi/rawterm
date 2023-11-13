@@ -1,3 +1,7 @@
+### v2.2.4
+* Fixed cursor changes not flushing the escape code
+* Added `rawterm::to_string` to get string values of the `rawterm::Mod` enum
+
 ### v2.2.3
 * Updated `offset_cursor` to used signed ints instead of a `rawterm::Pos`
 

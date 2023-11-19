@@ -137,10 +137,10 @@ inline void enable_raw_mode() {
 
 // Switch to an alternative terminal screen -- should be supported on all
 // terminal emulators
-inline void enter_alt_screen() { std::cout << "\x1B 7\x1B[?47h\x1B[H"; }
+inline void enter_alt_screen() { std::cout << "\x1B[?1049h" << std::flush; }
 
 // Exit alternate screen mode
-inline void exit_alt_screen() { std::cout << "\x1B[2J\x1B[?47l\x1B 8"; }
+inline void exit_alt_screen() { std::cout << "\x1B[?1049l" << std::flush; }
 
 static const std::unordered_set<char> asciiLetters{
     '\x31', '\x32', '\x33', '\x34', '\x35', '\x36', '\x37', '\x38', '\x39',

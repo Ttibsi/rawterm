@@ -1,7 +1,9 @@
+### v2.2.5
+* Fixed incorrect ansi code for entering/leaving raw mode
+
 ### v2.2.4
 * Fixed cursor changes not flushing the escape code
 * Added `rawterm::to_string` to get string values of the `rawterm::Mod` enum
-* Fixed incorrect ansi code for entering/leaving raw mode
 
 ### v2.2.3
 * Updated `offset_cursor` to used signed ints instead of a `rawterm::Pos`

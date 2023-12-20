@@ -1,3 +1,7 @@
+### v2.3.0
+* Added handling for SIGWINCH (Sig win change) for terminal resizing
+* Fixed incorrect "closing" ansi code for colour highlighting
+
 ### v2.2.5
 * Fixed incorrect ansi code for entering/leaving raw mode
 

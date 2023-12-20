@@ -65,6 +65,9 @@ appearance of your cursor:
 - `cursor_hide()`
 - `cursor_show()`
 
+Overload `inline void resize_handler(int);` to specify what happens on
+terminal resize -- this handles the `SIGWINCH` signal
+
 ### Be Aware Of:
 * `^m` and `enter` are the same key - they both pass `\x0d` code to the terminal
 * `^i` and `tab` are the same key - they both pass `\x09` code to the terminal

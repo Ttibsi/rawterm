@@ -36,6 +36,7 @@
 #include <deque>
 #include <iomanip>
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <sys/ioctl.h>
@@ -48,8 +49,15 @@
 // https://viewsourcecode.org/snaptoken/kilo/02.enteringRawMode.html
 
 namespace rawterm {
+    inline bool ENABLE_CTRL_C_Z;
+    inline void enable_raw_mode(bool enable_ctrl_cz);
+
     namespace detail {
         inline termios orig;
+
+        inline void sigcont ([[maybe_unused]] int signum) {
+            rawterm::enable_raw_mode(true);
+        }
     } // namespace detail
 
     enum struct Mod {
@@ -122,19 +130,30 @@ namespace rawterm {
 
     // Switch terminal to raw mode, enabling character-level reading of input
     // without waiting for a newline character
-    inline void enable_raw_mode() {
+    inline void enable_raw_mode(bool enable_ctrl_cz) {
+        ENABLE_CTRL_C_Z = enable_ctrl_cz;
+
         if (tcgetattr(STDIN_FILENO, &rawterm::detail::orig) == -1) {
             std::perror("tcgetattr");
         }
         std::atexit(rawterm::disable_raw_mode);
 
         termios raw = rawterm::detail::orig;
-        cfmakeraw(&raw);
+        raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+        raw.c_oflag &= ~(OPOST);
+        // raw.c_lflag |= ~(CS8); // Disable to allow term_size reading
+        raw.c_lflag &= ~(ECHO | IEXTEN | ICANON);
+
+        // Do this separately for CTRL+C/Z
+        if (!(ENABLE_CTRL_C_Z)) raw.c_lflag &= ~( ISIG ); 
 
         if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
             std::perror("tcsetattr");
         }
     }
+
+    inline void enable_raw_mode() { enable_raw_mode(false); }
+
 
     // Switch to an alternative terminal screen -- should be supported on all
     // terminal emulators
@@ -155,6 +174,8 @@ namespace rawterm {
 
     // Read user input and return a Key object ready to read the value
     inline rawterm::Key process_keypress() {
+        if (ENABLE_CTRL_C_Z) std::signal(SIGCONT, rawterm::detail::sigcont);
+
         std::string characters = std::string(32, '\0');
         if (read(STDIN_FILENO, characters.data(), 32) < 0) {
             std::perror(

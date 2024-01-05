@@ -153,13 +153,8 @@ namespace rawterm {
         '\x74', '\x75', '\x76', '\x77', '\x78', '\x79', '\x7A'
     };
 
-    // Overload this function in your code to decide what happens when you
-    // resize the terminal
-    inline void resize_handler(int signal) { std::cout << "resize\r\n"; }
     // Read user input and return a Key object ready to read the value
     inline rawterm::Key process_keypress() {
-
-        std::signal(SIGWINCH, resize_handler);
         std::string characters = std::string(32, '\0');
         if (read(STDIN_FILENO, characters.data(), 32) < 0) {
             std::perror(

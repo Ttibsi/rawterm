@@ -11,7 +11,7 @@
 // show it's output as a Key object in the terminal. Press `q` to quit.
 
 int main() {
-  rawterm::enable_raw_mode();
+  rawterm::enable_raw_mode(true);
   rawterm::enter_alt_screen();
   rawterm::Pos size = rawterm::get_term_size();
   std::cout << "Term size: " << size.vertical << ", " << size.horizontal

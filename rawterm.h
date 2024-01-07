@@ -198,7 +198,11 @@ namespace rawterm {
         });
 
         std::string characters = std::string(32, '\0');
-        read(STDIN_FILENO, characters.data(), 32);
+        if (read(STDIN_FILENO, characters.data(), 32) < 0) {
+            std::perror(
+                "ERROR: something went wrong during reading user input: ");
+            return { ' ', { rawterm::Mod::Unknown }, "" };
+        }
 
         std::stringstream ss;
         ss << std::hex;

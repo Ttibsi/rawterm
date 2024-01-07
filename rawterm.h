@@ -36,7 +36,6 @@
 #include <deque>
 #include <iomanip>
 #include <iostream>
-#include <optional>
 #include <sstream>
 #include <string>
 #include <sys/ioctl.h>
@@ -49,15 +48,9 @@
 // https://viewsourcecode.org/snaptoken/kilo/02.enteringRawMode.html
 
 namespace rawterm {
-    inline bool ENABLE_CTRL_C_Z;
-    inline void enable_raw_mode(bool enable_ctrl_cz);
 
     namespace detail {
         inline termios orig;
-
-        inline void sigcont ([[maybe_unused]] int signum) {
-            rawterm::enable_raw_mode(true);
-        }
     } // namespace detail
 
     enum struct Mod {
@@ -130,8 +123,7 @@ namespace rawterm {
 
     // Switch terminal to raw mode, enabling character-level reading of input
     // without waiting for a newline character
-    inline void enable_raw_mode(bool enable_ctrl_cz) {
-        ENABLE_CTRL_C_Z = enable_ctrl_cz;
+    inline void enable_raw_mode() {
 
         if (tcgetattr(STDIN_FILENO, &rawterm::detail::orig) == -1) {
             std::perror("tcgetattr");
@@ -142,18 +134,12 @@ namespace rawterm {
         raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
         raw.c_oflag &= ~(OPOST);
         // raw.c_lflag |= ~(CS8); // Disable to allow term_size reading
-        raw.c_lflag &= ~(ECHO | IEXTEN | ICANON);
-
-        // Do this separately for CTRL+C/Z
-        if (!(ENABLE_CTRL_C_Z)) raw.c_lflag &= ~( ISIG ); 
+        raw.c_lflag &= ~(ECHO | IEXTEN | ICANON | ISIG );
 
         if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
             std::perror("tcsetattr");
         }
     }
-
-    inline void enable_raw_mode() { enable_raw_mode(false); }
-
 
     // Switch to an alternative terminal screen -- should be supported on all
     // terminal emulators
@@ -172,16 +158,22 @@ namespace rawterm {
         '\x74', '\x75', '\x76', '\x77', '\x78', '\x79', '\x7A'
     };
 
+    inline bool is_signals_enabled = false;
+    inline void enable_signals() { is_signals_enabled = true; }
+
     // Read user input and return a Key object ready to read the value
     inline rawterm::Key process_keypress() {
-        if (ENABLE_CTRL_C_Z) std::signal(SIGCONT, rawterm::detail::sigcont);
+        std::signal(SIGCONT, [](int) {
+            rawterm::clear_screen();
+            rawterm::enable_raw_mode();
+        });
+
+        std::signal(SIGTSTP, [](int) {
+            std::raise(SIGSTOP);
+        });
 
         std::string characters = std::string(32, '\0');
-        if (read(STDIN_FILENO, characters.data(), 32) < 0) {
-            std::perror(
-                "ERROR: something went wrong during reading user input: ");
-            return { ' ', { rawterm::Mod::Unknown }, "" };
-        }
+        read(STDIN_FILENO, characters.data(), 32);
 
         std::stringstream ss;
         ss << std::hex;
@@ -198,6 +190,7 @@ namespace rawterm {
         case '\x02':
             return { 'b', { rawterm::Mod::Control }, raw };
         case '\x03':
+            if (is_signals_enabled) { raise(SIGINT); }
             return { 'c', { rawterm::Mod::Control }, raw };
         case '\x04':
             return { 'd', { rawterm::Mod::Control }, raw };
@@ -245,6 +238,7 @@ namespace rawterm {
         case '\x19':
             return { 'y', { rawterm::Mod::Control }, raw };
         case '\x1A':
+            if (is_signals_enabled) { raise(SIGTSTP); }
             return { 'z', { rawterm::Mod::Control }, raw };
         case '\x1B':
             // ESCAPE

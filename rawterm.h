@@ -22,7 +22,7 @@
 // SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 // Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v2.3.1
+// Version: v2.4.0
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef RAWTERM_H
@@ -34,6 +34,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <deque>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -51,6 +52,8 @@ namespace rawterm {
 
     namespace detail {
         inline termios orig;
+        inline bool sigtstp_called = false;
+        inline bool sigcont_called = false;
     } // namespace detail
 
     enum struct Mod {
@@ -158,18 +161,40 @@ namespace rawterm {
         '\x74', '\x75', '\x76', '\x77', '\x78', '\x79', '\x7A'
     };
 
+    // Enables the use of ctrl+c and ctrl+z
     inline bool is_signals_enabled = false;
     inline void enable_signals() { is_signals_enabled = true; }
 
+    // wrapper functions for custom signal handlers
+    inline void sigtstp_handler(std::function<void(void)> func) {
+        if (detail::sigtstp_called) {
+            func();
+            detail::sigtstp_called = false;
+        }
+    }
+
+    inline void sigcont_handler(std::function<void(void)> func) {
+        if (detail::sigcont_called) {
+            func();
+            detail::sigcont_called = false;
+        }
+    }
+
     // Read user input and return a Key object ready to read the value
     inline rawterm::Key process_keypress() {
-        std::signal(SIGCONT, [](int) {
-            rawterm::clear_screen();
-            rawterm::enable_raw_mode();
+
+        // Backgrounding
+        std::signal(SIGTSTP, [](int) {
+            detail::sigtstp_called = true;
+            rawterm::exit_alt_screen();
+            std::raise(SIGSTOP);
         });
 
-        std::signal(SIGTSTP, [](int) {
-            std::raise(SIGSTOP);
+        // Foregrounding
+        std::signal(SIGCONT, [](int) {
+            detail::sigcont_called = true;
+            rawterm::enter_alt_screen();
+            rawterm::enable_raw_mode();
         });
 
         std::string characters = std::string(32, '\0');

@@ -1,6 +1,7 @@
-### v2.3.1
+### v2.4.0
 * Reverted failed SIGWINCH handling
 * Added handling for terminal job system (SIGSTP/SIGCONT)
+* Added new functions for custom handlers for the user
 
 ### v2.3.0
 * Added handling for SIGWINCH (Sig win change) for terminal resizing

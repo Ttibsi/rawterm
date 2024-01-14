@@ -1,3 +1,6 @@
+### v2.4.1
+*  Added tab key to modifiers list
+
 ### v2.4.0
 * Reverted failed SIGWINCH handling
 * Added handling for terminal job system (SIGSTP/SIGCONT)

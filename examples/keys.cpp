@@ -62,6 +62,9 @@ int main() {
       case rawterm::Mod::Space:
         mods += " Space ";
         break;
+      case rawterm::Mod::Tab:
+        mods += " Tab ";
+        break;
       case rawterm::Mod::Unknown:
         mods += " Unknown ";
         break;

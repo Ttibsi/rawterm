@@ -22,7 +22,7 @@
 // SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 // Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v2.4.0
+// Version: v2.4.1
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef RAWTERM_H
@@ -68,6 +68,7 @@ namespace rawterm {
         None,
         Shift,
         Space,
+        Tab, 
         Unknown
     };
 
@@ -232,7 +233,7 @@ namespace rawterm {
         case '\x08':
             return { 'h', { rawterm::Mod::Control }, raw };
         case '\x09':
-            return { 'i', { rawterm::Mod::Control }, raw };
+            return { 'i', { rawterm::Mod::Tab }, raw };
         case '\x0A':
             return { 'j', { rawterm::Mod::Control }, raw };
         case '\x0B':
@@ -749,6 +750,8 @@ namespace rawterm {
             return "Shift";
         case Mod::Space:
             return "Space";
+        case Mod::Tab:
+            return "Tab";
         case Mod::Unknown:
             return "Unknown";
         }

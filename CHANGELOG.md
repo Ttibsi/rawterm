@@ -1,5 +1,6 @@
 ### v2.4.1
-*  Added tab key to modifiers list
+* Added tab key to modifiers list
+* Added wstring handling
 
 ### v2.4.0
 * Reverted failed SIGWINCH handling

@@ -624,9 +624,17 @@ namespace rawterm {
         return "\x1B[1m" + s + "\x1B[22m";
     }
 
+    inline std::wstring bold(const std::wstring &s) {
+        return L"\x1B[1m" + s + L"\x1B[22m";
+    }
+
     // Format text output in italics
     inline std::string italic(const std::string &s) {
         return "\x1B[3m" + s + "\x1B[23m";
+    }
+
+    inline std::wstring italic(const std::wstring &s) {
+        return L"\x1B[3m" + s + L"\x1B[23m";
     }
 
     // Format text output underlined
@@ -634,9 +642,17 @@ namespace rawterm {
         return "\x1B[4m" + s + "\x1B[24m";
     }
 
+    inline std::wstring underline(const std::wstring &s) {
+        return L"\x1B[4m" + s + L"\x1B[24m";
+    }
+
     // Format text output to blink
     inline std::string blink(const std::string &s) {
         return "\x1B[5m" + s + "\x1B[25m";
+    }
+
+    inline std::wstring blink(const std::wstring &s) {
+        return L"\x1B[5m" + s + L"\x1B[25m";
     }
 
     // Format text output with reversed colours
@@ -644,9 +660,17 @@ namespace rawterm {
         return "\x1B[7m" + s + "\x1B[27m";
     }
 
+    inline std::wstring inverse(const std::wstring &s) {
+        return L"\x1B[7m" + s + L"\x1B[27m";
+    }
+
     // Format text output to be invisible
     inline std::string hidden(const std::string &s) {
         return "\x1B[8m" + s + "\x1B[28m";
+    }
+
+    inline std::wstring hidden(const std::wstring &s) {
+        return L"\x1B[8m" + s + L"\x1B[28m";
     }
 
     // Format text output with a strikethrough
@@ -654,16 +678,35 @@ namespace rawterm {
         return "\x1B[9m" + s + "\x1B[29m";
     }
 
+    inline std::wstring strikethrough(const std::wstring &s) {
+        return L"\x1B[9m" + s + L"\x1B[29m";
+    }
+
+    // Set the foreground colour based on a given Color object
     inline std::string fg(const std::string &s, const Color color) {
         return "\x1B[38;2;" + std::to_string(color.red) + ';' +
                std::to_string(color.green) + ';' + std::to_string(color.blue) +
                'm' + s + "\x1B[39m";
     }
 
+    inline std::wstring fg(const std::wstring &s, const Color color) {
+        return L"\x1B[38;2;" + std::to_wstring(color.red) + L';' +
+               std::to_wstring(color.green) + L';' + std::to_wstring(color.blue) +
+               L'm' + s + L"\x1B[39m";
+    }
+
+
+    // Set the background colour based on a given Color object
     inline std::string bg(const std::string &s, const Color color) {
         return "\x1B[48;2;" + std::to_string(color.red) + ';' +
                std::to_string(color.green) + ';' + std::to_string(color.blue) +
                'm' + s + "\x1B[49m";
+    }
+
+    inline std::wstring bg(const std::wstring &s, const Color color) {
+        return L"\x1B[48;2;" + std::to_wstring(color.red) + L';' +
+               std::to_wstring(color.green) + L';' + std::to_wstring(color.blue) +
+               L'm' + s + L"\x1B[49m";
     }
 
     // clear screen entirely
@@ -754,6 +797,37 @@ namespace rawterm {
             return "Tab";
         case Mod::Unknown:
             return "Unknown";
+        }
+    }
+
+    inline std::wstring to_wstring(Mod m) {
+        switch (m) {
+        case Mod::Alt_L:
+            return L"Alt_L";
+        case Mod::Arrow:
+            return L"Arrow";
+        case Mod::Backspace:
+            return L"Backspace";
+        case Mod::Control:
+            return L"Control";
+        case Mod::Delete:
+            return L"Delete";
+        case Mod::Enter:
+            return L"Enter";
+        case Mod::Escape:
+            return L"Escape";
+        case Mod::Function:
+            return L"Function";
+        case Mod::None:
+            return L"None";
+        case Mod::Shift:
+            return L"Shift";
+        case Mod::Space:
+            return L"Space";
+        case Mod::Tab:
+            return L"Tab";
+        case Mod::Unknown:
+            return L"Unknown";
         }
     }
 

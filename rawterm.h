@@ -569,11 +569,22 @@ namespace rawterm {
 
     // Move the terminal cursor to the given position, starting from 0,0
     // Note that terminals sometimes handle 0,0 and 1,1 as the same position
-    // TODO: Ovwerload this to take in x and y co-ords as well
     inline void move_cursor(rawterm::Pos pos) {
         std::cout << "\x1B[" << std::to_string(pos.vertical) << ';'
                   << std::to_string(pos.horizontal) << 'H' << std::flush;
     }
+
+    // Move cursor up x lines (default 1)
+    inline void move_cursor_up(int in = 1) { std::cout << "\x1b[" + std::to_string(in) + "A" << std::flush; }
+
+    // Move cursor down x lines (default 1)
+    inline void move_cursor_down(int in = 1) { std::cout << "\x1b[" + std::to_string(in) + "B" << std::flush; }
+
+    // Move cursor right x cols (default 1)
+    inline void move_cursor_right(int in = 1) { std::cout << "\x1b[" + std::to_string(in) + "C" << std::flush; }
+
+    // Move cursor left x cols (default 1)
+    inline void move_cursor_left(int in = 1) { std::cout << "\x1b[" + std::to_string(in) + "D" << std::flush; }
 
     // Move the terminal cursor relatively to its current position
     inline void offset_cursor(std::pair<int, int> offset) {

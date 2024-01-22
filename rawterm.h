@@ -76,7 +76,28 @@ namespace rawterm {
         char code;
         std::deque<rawterm::Mod> mod;
         std::string raw;
+
+        rawterm::Mod getMod();
+        bool isCharInput();
     };
+
+    //  Sequential calls to this function returns the modifiers pressed
+    inline rawterm::Mod Key::getMod() {
+        if (mod.empty()) {
+            return rawterm::Mod::None;
+        } else {
+            rawterm::Mod val = mod[0];
+            mod.pop_front();
+            return val;
+        }
+    }
+
+    // Check that the key pressed is a printable character
+    inline bool Key::isCharInput() {
+        return std::isprint(static_cast<unsigned char>(code)) &&
+               code != ' ' && (mod.empty() || mod[0] == Mod::Shift);
+    }
+
 
     // 0 == vertical == ^v, 1 == horizontal == <>
     struct Pos {
@@ -762,22 +783,6 @@ namespace rawterm {
                   << std::to_string(pos.horizontal) << "H\x1B[0K\x1B[u";
     }
 
-    // Check that the key pressed is a printable character
-    inline bool isCharInput(rawterm::Key k) {
-        return std::isprint(static_cast<unsigned char>(k.code)) &&
-               k.code != ' ' && (k.mod.empty() || k.mod[0] == Mod::Shift);
-    }
-
-    //  Sequential calls to this function returns the modifiers pressed
-    inline rawterm::Mod getMod(Key *k) {
-        if (k->mod.empty()) {
-            return rawterm::Mod::None;
-        } else {
-            rawterm::Mod val = k->mod[0];
-            k->mod.pop_front();
-            return val;
-        }
-    }
 
     // Convert a Mod enum to a string
     inline std::string to_string(Mod m) {

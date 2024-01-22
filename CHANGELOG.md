@@ -2,6 +2,7 @@
 * Added tab key to modifiers list
 * Added wstring handling
 * Added functions for relative cursor movement
+* Converted `getMod()` and `isCharInput()` to methods on `Key`
 
 ### v2.4.0
 * Reverted failed SIGWINCH handling

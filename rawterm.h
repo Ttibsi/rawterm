@@ -103,6 +103,10 @@ namespace rawterm {
     struct Pos {
         std::size_t vertical;
         std::size_t horizontal;
+
+	friend constexpr bool operator==(const Pos& self, const Pos& other) {
+		return self.vertical == other.vertical && self.horizontal == other.horizontal;
+	}
     };
 
     struct Color {

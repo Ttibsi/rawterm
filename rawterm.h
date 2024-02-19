@@ -789,7 +789,7 @@ namespace rawterm {
 
 
     // Convert a Mod enum to a string
-    inline std::string to_string(Mod m) {
+    inline std::string to_string(const Mod m) {
         switch (m) {
         case Mod::Alt_L:
             return "Alt_L";
@@ -818,9 +818,11 @@ namespace rawterm {
         case Mod::Unknown:
             return "Unknown";
         }
+        
+        return "";
     }
 
-    inline std::wstring to_wstring(Mod m) {
+    inline std::wstring to_wstring(const Mod m) {
         switch (m) {
         case Mod::Alt_L:
             return L"Alt_L";

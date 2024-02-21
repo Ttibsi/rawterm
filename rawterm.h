@@ -159,6 +159,7 @@ namespace rawterm {
             std::perror("tcsetattr");
         }
         #elif _WIN32
+	    SetConsoleOutputCP(437);
         #endif
     }
 
@@ -182,18 +183,19 @@ namespace rawterm {
             }
             return 0;
         #elif _WIN32
-    //https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences#example-of-sgr-terminal-sequences
-            DWORD dwMode = 0;
-            if (!GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), &dwMode)) {
+	    //https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences#example-of-sgr-terminal-sequences
+            DWORD in_flags = 0;
+            if (!GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &in_flags)) {
                 return GetLastError();
             }
             
-            dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	    in_flags &= ~(ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT );
+        in_flags |= ENABLE_VIRTUAL_TERMINAL_INPUT;
 
-            return SetConsoleMode(
-                    GetStdHandle(STD_OUTPUT_HANDLE),
-                    dwMode
-            );
+	    SetConsoleMode( GetStdHandle(STD_INPUT_HANDLE), in_flags);
+	    SetConsoleOutputCP(65001); // enable utf-8
+            std::atexit(rawterm::disable_raw_mode);
+            return 0;
         #endif
     }
 
@@ -384,6 +386,7 @@ namespace rawterm {
                         return { '8', { rawterm::Mod::Function }, raw }; // f8
                     }
                     break;
+
                 case '\x32':
                     switch (characters[3]) {
                     case '\x30':
@@ -396,6 +399,7 @@ namespace rawterm {
                         return { '2', { rawterm::Mod::Function }, raw }; // f12
                     }
                     break;
+
                 }
             } else if (raw.size() == 12 && characters[1] == '\x4F') {
                 // FUNCTIONS pt 1
@@ -411,6 +415,7 @@ namespace rawterm {
                 }
             }
             break;
+
         case '\x1C':
             return { ' ', {}, raw };
         case '\x1D':
@@ -616,7 +621,6 @@ namespace rawterm {
             // BACKSPACE
             return { ' ', { rawterm::Mod::Backspace }, raw };
         }
-
         return { ' ', { rawterm::Mod::Unknown }, raw };
     }
 

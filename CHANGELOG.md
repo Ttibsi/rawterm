@@ -1,3 +1,6 @@
+### v3.0.0
+* Windows support
+
 ### v2.4.1
 * Added tab key to modifiers list
 * Added wstring handling

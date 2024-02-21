@@ -14,6 +14,7 @@ int main() {
   }
 
   for (rawterm::Color color : colors) {
-    std::cout << rawterm::bg(rawterm::bold("Hello, world!\r\n"), color);
+    std::cout << rawterm::bg(rawterm::bold("Hello, world!"), color);
+    std::cout << "\r\n";
   }
 }

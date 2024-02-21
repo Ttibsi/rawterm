@@ -39,11 +39,18 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <sys/ioctl.h>
-#include <termios.h>
 #include <unistd.h>
 #include <unordered_set>
 #include <vector>
+
+#if __linux__
+    #include <sys/ioctl.h>
+    #include <termios.h>
+#elif _WIN32
+    #define WINDOWS_LEAN_AND_MEAN
+    #include <windows.h>
+#endif
+
 
 // enable/disable raw mode
 // https://viewsourcecode.org/snaptoken/kilo/02.enteringRawMode.html
@@ -51,7 +58,9 @@
 namespace rawterm {
 
     namespace detail {
-        inline termios orig;
+        #if __linux__
+            inline termios orig;
+        #endif
         inline bool sigtstp_called = false;
         inline bool sigcont_called = false;
     } // namespace detail
@@ -142,32 +151,52 @@ namespace rawterm {
     // Return to terminal "cooked" mode - this function doesn't need to be
     // called due to the `atexit` call
     inline void disable_raw_mode() {
+        #if __linux__
         if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &rawterm::detail::orig) == -1) {
             move_cursor({ 1, 1 });
             clear_screen();
             move_cursor({ 1, 1 });
             std::perror("tcsetattr");
         }
+        #elif _WIN32
+	    SetConsoleOutputCP(437);
+        #endif
     }
 
     // Switch terminal to raw mode, enabling character-level reading of input
     // without waiting for a newline character
-    inline void enable_raw_mode() {
+    inline unsigned int enable_raw_mode() {
+        #if __linux__
+            if (tcgetattr(STDIN_FILENO, &rawterm::detail::orig) == -1) {
+                std::perror("tcgetattr");
+            }
+            std::atexit(rawterm::disable_raw_mode);
 
-        if (tcgetattr(STDIN_FILENO, &rawterm::detail::orig) == -1) {
-            std::perror("tcgetattr");
-        }
-        std::atexit(rawterm::disable_raw_mode);
+            termios raw = rawterm::detail::orig;
+            raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+            raw.c_oflag &= ~(OPOST);
+            // raw.c_lflag |= ~(CS8); // Disable to allow term_size reading
+            raw.c_lflag &= ~(ECHO | IEXTEN | ICANON | ISIG );
 
-        termios raw = rawterm::detail::orig;
-        raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
-        raw.c_oflag &= ~(OPOST);
-        // raw.c_lflag |= ~(CS8); // Disable to allow term_size reading
-        raw.c_lflag &= ~(ECHO | IEXTEN | ICANON | ISIG );
+            if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
+                std::perror("tcsetattr");
+            }
+            return 0;
+        #elif _WIN32
+	    //https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences#example-of-sgr-terminal-sequences
+            DWORD in_flags = 0;
+            if (!GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &in_flags)) {
+                return GetLastError();
+            }
+            
+	    in_flags &= ~(ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT );
+        in_flags |= ENABLE_VIRTUAL_TERMINAL_INPUT;
 
-        if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
-            std::perror("tcsetattr");
-        }
+	    SetConsoleMode( GetStdHandle(STD_INPUT_HANDLE), in_flags);
+	    SetConsoleOutputCP(65001); // enable utf-8
+            std::atexit(rawterm::disable_raw_mode);
+            return 0;
+        #endif
     }
 
     // Switch to an alternative terminal screen -- should be supported on all
@@ -189,7 +218,11 @@ namespace rawterm {
 
     // Enables the use of ctrl+c and ctrl+z
     inline bool is_signals_enabled = false;
-    inline void enable_signals() { is_signals_enabled = true; }
+    inline void enable_signals() {
+        #if __linux__
+            is_signals_enabled = true; 
+        #endif
+    }
 
     // wrapper functions for custom signal handlers
     inline void sigtstp_handler(std::function<void(void)> func) {
@@ -209,19 +242,21 @@ namespace rawterm {
     // Read user input and return a Key object ready to read the value
     inline rawterm::Key process_keypress() {
 
-        // Backgrounding
-        std::signal(SIGTSTP, [](int) {
-            detail::sigtstp_called = true;
-            rawterm::exit_alt_screen();
-            std::raise(SIGSTOP);
-        });
+        #if __linux__
+            // Backgrounding
+            std::signal(SIGTSTP, [](int) {
+                detail::sigtstp_called = true;
+                rawterm::exit_alt_screen();
+                std::raise(SIGSTOP);
+            });
 
-        // Foregrounding
-        std::signal(SIGCONT, [](int) {
-            detail::sigcont_called = true;
-            rawterm::enter_alt_screen();
-            rawterm::enable_raw_mode();
-        });
+            // Foregrounding
+            std::signal(SIGCONT, [](int) {
+                detail::sigcont_called = true;
+                rawterm::enter_alt_screen();
+                rawterm::enable_raw_mode();
+            });
+        #endif
 
         std::string characters = std::string(32, '\0');
         if (read(STDIN_FILENO, characters.data(), 32) < 0) {
@@ -293,7 +328,9 @@ namespace rawterm {
         case '\x19':
             return { 'y', { rawterm::Mod::Control }, raw };
         case '\x1A':
-            if (is_signals_enabled) { raise(SIGTSTP); }
+            #if __linux__
+                if (is_signals_enabled) { raise(SIGTSTP); }
+            #endif
             return { 'z', { rawterm::Mod::Control }, raw };
         case '\x1B':
             // ESCAPE
@@ -349,6 +386,7 @@ namespace rawterm {
                         return { '8', { rawterm::Mod::Function }, raw }; // f8
                     }
                     break;
+
                 case '\x32':
                     switch (characters[3]) {
                     case '\x30':
@@ -361,6 +399,7 @@ namespace rawterm {
                         return { '2', { rawterm::Mod::Function }, raw }; // f12
                     }
                     break;
+
                 }
             } else if (raw.size() == 12 && characters[1] == '\x4F') {
                 // FUNCTIONS pt 1
@@ -376,6 +415,7 @@ namespace rawterm {
                 }
             }
             break;
+
         case '\x1C':
             return { ' ', {}, raw };
         case '\x1D':
@@ -581,15 +621,24 @@ namespace rawterm {
             // BACKSPACE
             return { ' ', { rawterm::Mod::Backspace }, raw };
         }
-
         return { ' ', { rawterm::Mod::Unknown }, raw };
     }
 
     // Read the current size of the terminal window and return as a Pos object
     inline rawterm::Pos get_term_size() {
-        struct winsize w;
-        ioctl(0, TIOCGWINSZ, &w);
-        return Pos{ w.ws_row, w.ws_col };
+        #if __linux__
+            struct winsize w;
+            ioctl(0, TIOCGWINSZ, &w);
+            return Pos{ w.ws_row, w.ws_col };
+
+        #elif _WIN32
+            CONSOLE_SCREEN_BUFFER_INFO csbi;
+            GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+            unsigned int columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+            unsigned int rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+
+            return Pos{rows, columns};
+        #endif
     }
 
     // Move the terminal cursor to the given position, starting from 0,0

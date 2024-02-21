@@ -1,6 +1,7 @@
 #include <cctype>
 #include <sstream>
 #include <string>
+#include <unistd.h>
 
 #include "../rawterm.h"
 

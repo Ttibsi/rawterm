@@ -32,8 +32,9 @@ struct Key {
     std::string raw; // The raw ansi code pressed (mostly for debugging)
 };
 ```
-The `getMod(Key* k)` function takes a pointer to a Key object, and can be used
-to consecutively read the contents of Key.mod
+You can use the `getMod()` method to read the modifiers on a key, or use the 
+`isCharInput()` method to check if the `kry.code` attribute is a printable
+character.
 
 The `get_term_size()` function provides the size of the terminal window as a
 `Pos` structure that holds the `horizontal` and `vertical` cursor coordinates
@@ -42,16 +43,20 @@ as `std::size_t`
 
 The following functions will accept a string and return your string wrapped in
 the relevant escape codes for formatting:
-- `bold()`
-- `italic()`
-- `underline()`
-- `blink()`
-- `inverse()`
-- `hidden()`
-- `strikethrough()`
+- `rawterm::bold()`
+- `rawterm::italic()`
+- `rawterm::underline()`
+- `rawterm::blink()`
+- `rawterm::inverse()`
+- `rawterm::hidden()`
+- `rawterm::strikethrough()`
 
-To set the text color, use `fg()` or `bg()` with the `Color` structure.
+Changing the colour of text:
+```cpp
+rawterm::fg("Hello world in red!", {255, 0, 0})
+```
 
+Alternatively, you can pass in a pre-defined colour
 
 You can also `clear_screen()`, or `save_cursor_position()` and
 `load_cursor_position()`, or use the following functions to change the

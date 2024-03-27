@@ -904,4 +904,8 @@ namespace rawterm {
 
 } // namespace rawterm
 
+#ifdef RAWTERM_ENABLE_EXTRAS
+#include "rawterm_extras.h"
+#endif // RAWTERM_ENABLE_EXTRAS
+
 #endif // RAWTERM_H

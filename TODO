@@ -1,0 +1,7 @@
+- [ ] Make repo cmake-fetchcontent
+- [ ] include license file
+- [ ] Add extras
+    - Set full terminal background
+    - Create header bar 
+    - Pane class that accepts a size
+        `rawterm::make_pane()` returns a std::unique_ptr to a Pane

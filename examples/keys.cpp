@@ -5,6 +5,8 @@
 #include <iostream>
 
 #include <rawterm/core.h>
+#include <rawterm/color.h>
+#include <rawterm/extras/extras.h>
 
 // This is a demonstration on how `rawterm` works. You can compile this with
 // `./build.sh` and run with `./out/keys`. Any keypress you enter then will
@@ -16,9 +18,14 @@ int main() {
     rawterm::enable_signals();
 
     rawterm::clear_screen();
+    rawterm::set_terminal_background(rawterm::Colors::cyan);
+
     rawterm::Pos size = rawterm::get_term_size();
-    std::cout << "Term size: " << size.vertical << ", " << size.horizontal
-        << "\r\n";
+    std::string header = "Term size: " 
+        + std::to_string(size.vertical) + ", " 
+        + std::to_string(size.horizontal);
+
+    std::cout << rawterm::set_header(header) << std::flush;
 
     while (true) {
         rawterm::Key k = rawterm::process_keypress();

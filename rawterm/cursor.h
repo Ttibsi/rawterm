@@ -6,6 +6,7 @@
 namespace rawterm {
     struct Cursor : Pos {
         Cursor() : Pos{1, 1} {}
+        Cursor(Pos p) : Pos{p} {}
         void reset();
         void move(rawterm::Pos);
         void move_up(int); 

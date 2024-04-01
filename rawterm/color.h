@@ -9,6 +9,14 @@ namespace rawterm {
         std::uint8_t red;
         std::uint8_t green;
         std::uint8_t blue;
+
+        [[nodiscard]] std::ostream& operator<<(std::ostream& os) const {
+            os << "\x1b[38;2;" + std::to_string(this->red) + ";" + 
+                std::to_string(this->green) + ";" + 
+                std::to_string(this->blue) + "m";
+
+            return os;
+        }
     };
 
     // Color presets
@@ -30,10 +38,11 @@ namespace rawterm {
         inline const Color magenta{ 255, 0, 127 };
     } 
 
-    std::string set_foreground(const std::string&, const Color);
-    std::string set_background(const std::string&, const Color);
-    std::string reset_foreground();
-    std::string reset_background();
+    [[nodiscard]] std::string set_foreground(const std::string&, const Color);
+    [[nodiscard]] std::string set_background(const std::string&, const Color);
+    [[nodiscard]] std::string reset_foreground();
+    [[nodiscard]] std::string reset_background();
+    void set_terminal_background(const Color&);
 }
 
 #endif // RAWTERM_COLOR_H

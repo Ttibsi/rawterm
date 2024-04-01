@@ -5,6 +5,9 @@ add_library(rawterm STATIC
     core.cpp
     cursor.cpp
     text.cpp
+
+    extras/extras.cpp
+    extras/pane.cpp
 )
 
 target_include_directories(rawterm PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)

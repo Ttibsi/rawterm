@@ -1,30 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////
-// MIT License
-//
-// Copyright (c) 2023 Ttibsi
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-//////////////////////////////////////////////////////////////////////////////
-// Code source: https://github.com/Ttibsi/rawterm/blob/main/rawterm.h
-// Version: v3.0.0
-//////////////////////////////////////////////////////////////////////////////
-
 #ifndef RAWTERM_CORE_H
 #define RAWTERM_CORE_H
 
@@ -41,6 +14,7 @@
 #include <string>
 #include <unistd.h>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #if __linux__
@@ -50,10 +24,6 @@
     #define WINDOWS_LEAN_AND_MEAN
     #include <windows.h>
 #endif
-
-
-// enable/disable raw mode
-// https://viewsourcecode.org/snaptoken/kilo/02.enteringRawMode.html
 
 namespace rawterm {
 
@@ -95,8 +65,18 @@ namespace rawterm {
         int vertical;
         int horizontal;
 
-        friend constexpr bool operator==(const Pos& self, const Pos& other) {
-            return self.vertical == other.vertical && self.horizontal == other.horizontal;
+        [[nodiscard]] constexpr bool operator==(const Pos& other) const {
+            return this->vertical == other.vertical && this->horizontal == other.horizontal;
+        }
+    
+        constexpr Pos& operator+= (const Pos& other) {
+            this->vertical += other.vertical;
+            this->horizontal += other.horizontal;
+            return *this;
+        }
+
+        [[nodiscard]] constexpr Pos& operator+ (const Pos& other) {
+            return *this += other;
         }
     };
 
@@ -118,18 +98,19 @@ namespace rawterm {
     void enable_signals();
     void sigtstp_handler(std::function<void(void)>);
     void sigcont_handler(std::function<void(void)>);
-    rawterm::Key process_keypress();
-    rawterm::Pos get_term_size();
+    [[nodiscard]] rawterm::Key process_keypress();
+    [[nodiscard]] rawterm::Pos get_term_size();
     void clear_screen();
     void clear_line();
     void clear_line_from();
     void clear_line_until();
+
     void clear_screen_until(const Pos);
     void clear_screen_from(const Pos);
     void clear_line(const Pos&);
     void clear_line_until(const Pos&);
     void clear_line_from(const Pos&);
-    const std::string to_string(const Mod& );
+    [[nodiscard]] const std::string to_string(const Mod& );
 
 } // namespace rawterm
 

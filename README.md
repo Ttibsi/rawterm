@@ -26,3 +26,5 @@ fetchcontent_makeavailable(rawterm)
 * left alt and right alt are different keys - only left-alt has been handled
 * `CMD` on macos doesn't return a unique ascii code, and is treated like the
 base character being pressed
+
+### Projects Using Rawterm

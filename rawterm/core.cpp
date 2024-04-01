@@ -89,7 +89,7 @@ namespace rawterm {
         }
     }
 
-    rawterm::Key process_keypress() {
+    [[nodiscard]] rawterm::Key process_keypress() {
 
         #if __linux__
             // Backgrounding
@@ -473,7 +473,7 @@ namespace rawterm {
         return { ' ', { rawterm::Mod::Unknown }, raw };
     }
 
-    rawterm::Pos get_term_size() {
+    [[nodiscard]] rawterm::Pos get_term_size() {
         #if __linux__
             struct winsize w;
             ioctl(0, TIOCGWINSZ, &w);
@@ -522,7 +522,7 @@ namespace rawterm {
                   << std::to_string(pos.horizontal) << "H\x1B[0K\x1B[u";
     }
 
-    const std::string to_string(const Mod& m) {
+    [[nodiscard]] const std::string to_string(const Mod& m) {
         switch (m) {
         case Mod::Alt_L:
             return "Alt_L";

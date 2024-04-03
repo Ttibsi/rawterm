@@ -6,24 +6,32 @@ namespace rawterm {
                   << std::to_string(horizontal) << 'H' << std::flush;
     }
 
+    // TODO: Bounds checking on these
     void Cursor::move(Pos pos) {
+        vertical = pos.vertical;
+        horizontal = pos.vertical;
+        
         std::cout << "\x1B[" << std::to_string(pos.vertical) << ';'
                   << std::to_string(pos.horizontal) << 'H' << std::flush;
     }
 
     void Cursor::move_up(int in = 1) {
+        vertical--;
         std::cout << "\x1b[" + std::to_string(in) + "A" << std::flush; 
     }
 
     void Cursor::move_down(int in = 1) {
+        vertical++;
         std::cout << "\x1b[" + std::to_string(in) + "B" << std::flush; 
     }
 
     void Cursor::move_right(int in = 1) {
+        horizontal++;
         std::cout << "\x1b[" + std::to_string(in) + "C" << std::flush; 
     }
 
     void Cursor::move_left(int in = 1) {
+        horizontal--;
         std::cout << "\x1b[" + std::to_string(in) + "D" << std::flush; 
     }
 

@@ -56,8 +56,10 @@ namespace rawterm {
         std::deque<rawterm::Mod> mod;
         std::string raw;
 
-        rawterm::Mod getMod();
-        bool isCharInput();
+        [[nodiscard]] rawterm::Mod getMod();
+        [[nodiscard]] bool isCharInput();
+
+        // TODO: operator== would make sense to simplify comparison
     };
 
     // 0 == vertical == ^v, 1 == horizontal == <>
@@ -92,7 +94,7 @@ namespace rawterm {
     };
 
     void disable_raw_mode();
-    int enable_raw_mode();
+    [[maybe_unused]] const int enable_raw_mode();
     void enter_alt_screen();
     void exit_alt_screen();
     void enable_signals();
@@ -100,6 +102,7 @@ namespace rawterm {
     void sigcont_handler(std::function<void(void)>);
     [[nodiscard]] rawterm::Key process_keypress();
     [[nodiscard]] rawterm::Pos get_term_size();
+    [[nodiscard]] std::string set_terminal_title(const std::string&);
     void clear_screen();
     void clear_line();
     void clear_line_from();
@@ -110,7 +113,7 @@ namespace rawterm {
     void clear_line(const Pos&);
     void clear_line_until(const Pos&);
     void clear_line_from(const Pos&);
-    [[nodiscard]] const std::string to_string(const Mod& );
+    [[nodiscard]] const std::string to_string(const Mod&);
 
 } // namespace rawterm
 

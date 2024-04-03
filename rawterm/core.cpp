@@ -31,7 +31,7 @@ namespace rawterm {
         #endif
     }
 
-    int enable_raw_mode() {
+    [[maybe_unused]] const int enable_raw_mode() {
         #if __linux__
             if (tcgetattr(STDIN_FILENO, &rawterm::detail::orig) == -1) {
                 std::perror("tcgetattr");
@@ -489,6 +489,8 @@ namespace rawterm {
         #endif
     }
 
+    [[nodiscard]] std::string set_terminal_title(const std::string& title) { return "\u001b]0;" + title + '\a'; }
+
     void clear_screen() { std::cout << "\x1B[2J\x1B[H"; }
 
     void clear_line() { std::cout << "\x1B[2K\r"; }
@@ -554,4 +556,5 @@ namespace rawterm {
         
         return "";
     }
+
 }

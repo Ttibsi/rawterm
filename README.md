@@ -1,7 +1,8 @@
 # rawterm
 A c++20 library for working with raw mode in a terminal. See the
-`examples/` directory for examples on how to use this library, and the 
-`rawterm/` library files for docs on how to use each function.
+`examples/` directory for examples on how to use this library, and each 
+header file in `rawterm/` has a relevant markdown file in `docs/` when 
+relevant
 
 See `examples/hello_world.cpp` for a simple place to start.
 

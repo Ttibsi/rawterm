@@ -89,7 +89,7 @@ namespace rawterm {
         }
     }
 
-    [[nodiscard]] rawterm::Key process_keypress() {
+    [[nodiscard]] const rawterm::Key process_keypress() {
 
         #if __linux__
             // Backgrounding
@@ -473,7 +473,7 @@ namespace rawterm {
         return { ' ', { rawterm::Mod::Unknown }, raw };
     }
 
-    [[nodiscard]] rawterm::Pos get_term_size() {
+    [[nodiscard]] const rawterm::Pos get_term_size() {
         #if __linux__
             struct winsize w;
             ioctl(0, TIOCGWINSZ, &w);
@@ -504,22 +504,22 @@ namespace rawterm {
                   << std::to_string(pos.horizontal) << "H\x1B[1J\x1B[u";
     }
 
-    void clear_screen_from(const Pos pos) {
+    void clear_screen_from(const Pos& pos) {
         std::cout << "\x1B[s\x1B[" << std::to_string(pos.vertical) << ';'
                   << std::to_string(pos.horizontal) << "H\x1B[0J\x1B[u";
     }
 
-    void clear_line(const Pos pos) {
+    void clear_line(const Pos& pos) {
         std::cout << "\x1B[s\x1B[" << std::to_string(pos.vertical)
                   << "H\x1B[2K\x1B[u";
     }
 
-    void clear_line_until(const Pos pos) {
+    void clear_line_until(const Pos& pos) {
         std::cout << "\x1B[s\x1B[" << std::to_string(pos.vertical) << ';'
                   << std::to_string(pos.horizontal) << "H\x1B[1K\x1B[u";
     }
 
-    void clear_line_from(const Pos pos) {
+    void clear_line_from(const Pos& pos) {
         std::cout << "\x1B[s\x1B[" << std::to_string(pos.vertical) << ';'
                   << std::to_string(pos.horizontal) << "H\x1B[0K\x1B[u";
     }

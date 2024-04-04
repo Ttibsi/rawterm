@@ -10,12 +10,10 @@ namespace rawterm {
         std::uint8_t green;
         std::uint8_t blue;
 
-        [[nodiscard]] std::ostream& operator<<(std::ostream& os) const {
-            os << "\x1b[38;2;" + std::to_string(this->red) + ";" + 
-                std::to_string(this->green) + ";" + 
-                std::to_string(this->blue) + "m";
-
-            return os;
+        friend std::ostream& operator<<(std::ostream& os, const Color& c) {
+            return os << "\x1b[38;2;" + std::to_string(c.red) + ";" +
+                std::to_string(c.green) + ";" +
+                std::to_string(c.blue) + "m";
         }
     };
 

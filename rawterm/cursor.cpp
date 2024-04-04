@@ -7,7 +7,8 @@ namespace rawterm {
     }
 
     // TODO: Bounds checking on these
-    void Cursor::move(Pos pos) {
+    void Cursor::move(const Pos& pos) {
+        // These save the given position to the cursor object
         vertical = pos.vertical;
         horizontal = pos.vertical;
         

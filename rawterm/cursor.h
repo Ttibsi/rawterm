@@ -8,7 +8,7 @@ namespace rawterm {
         Cursor() : Pos{1, 1} {}
         Cursor(Pos p) : Pos{p} {}
         void reset();
-        void move(rawterm::Pos);
+        void move(const Pos&);
         void move_up(int); 
         void move_down(int);
         void move_right(int);

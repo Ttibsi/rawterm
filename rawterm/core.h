@@ -67,6 +67,10 @@ namespace rawterm {
         int vertical;
         int horizontal;
 
+        friend std::ostream& operator<<(std::ostream& os, const Pos& p) {
+            return os << "Pos{" << p.vertical << ", " << p.horizontal << "}";
+        }
+
         [[nodiscard]] constexpr bool operator==(const Pos& other) const {
             return this->vertical == other.vertical && this->horizontal == other.horizontal;
         }
@@ -77,9 +81,25 @@ namespace rawterm {
             return *this;
         }
 
-        [[nodiscard]] constexpr Pos& operator+ (const Pos& other) {
-            return *this += other;
+        [[nodiscard]] constexpr Pos operator+ (const Pos& other) const {
+            return {
+                this->vertical + other.vertical,
+                this->horizontal + other.horizontal
+            };
         }
+
+        constexpr Pos& operator+= (const int other) {
+            this->vertical += other;
+            this->horizontal += other;
+            return *this;
+        }
+
+        constexpr Pos& operator-= (const int other) {
+            this->vertical += other;
+            this->horizontal += other;
+            return *this;
+        }
+
     };
 
     // TODO: constexpr std array
@@ -100,16 +120,16 @@ namespace rawterm {
     void enable_signals();
     void sigtstp_handler(std::function<void(void)>);
     void sigcont_handler(std::function<void(void)>);
-    [[nodiscard]] rawterm::Key process_keypress();
-    [[nodiscard]] rawterm::Pos get_term_size();
+    [[nodiscard]] const rawterm::Key process_keypress();
+    [[nodiscard]] const rawterm::Pos get_term_size();
     [[nodiscard]] std::string set_terminal_title(const std::string&);
     void clear_screen();
     void clear_line();
     void clear_line_from();
     void clear_line_until();
 
-    void clear_screen_until(const Pos);
-    void clear_screen_from(const Pos);
+    void clear_screen_until(const Pos&);
+    void clear_screen_from(const Pos&);
     void clear_line(const Pos&);
     void clear_line_until(const Pos&);
     void clear_line_from(const Pos&);

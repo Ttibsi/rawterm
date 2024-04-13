@@ -11,7 +11,7 @@ namespace rawterm {
         std::uint8_t blue;
 
         friend std::ostream& operator<<(std::ostream& os, const Color& c) {
-            return os << "\x1b[38;2;" + std::to_string(c.red) + ";" +
+            return os << std::to_string(c.red) + ";" +
                 std::to_string(c.green) + ";" +
                 std::to_string(c.blue) + "m";
         }

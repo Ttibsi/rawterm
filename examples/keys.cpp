@@ -1,6 +1,7 @@
 #include <sys/types.h>
 
 #include <cctype>
+#include <deque>
 #include <ios>
 #include <iostream>
 
@@ -29,7 +30,7 @@ int main() {
 
     while (true) {
         rawterm::Key k = rawterm::process_keypress();
-        if (k.code == 'q' && k.mod.empty())
+        if (k == rawterm::Key('q', rawterm::Mod::None)) {
             break;
 
         std::string mods = "[";

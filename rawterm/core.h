@@ -56,10 +56,19 @@ namespace rawterm {
         std::deque<rawterm::Mod> mod;
         std::string raw;
 
+        Key(char c, Mod m) : code(c), mod(std::deque<Mod>{m}) {}
+
         [[nodiscard]] rawterm::Mod getMod();
         [[nodiscard]] bool isCharInput();
 
-        // TODO: operator== would make sense to simplify comparison
+        [[nodiscard]] constexpr bool operator==(const Key& other) const {
+            if (other.mod.empty() || other.mod == std::deque<Mod>{Mod::None}) {
+                // None is the same as empty
+                return this->code == other.code && (this->mod == std::deque<Mod>{Mod::None} || this->mod.empty());
+            } else {
+                return this->code == other.code && this->mod == other.mod;
+            }
+        }
     };
 
     // 0 == vertical == ^v, 1 == horizontal == <>

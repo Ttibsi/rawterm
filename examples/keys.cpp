@@ -32,6 +32,7 @@ int main() {
         rawterm::Key k = rawterm::process_keypress();
         if (k == rawterm::Key('q', rawterm::Mod::None)) {
             break;
+        }
 
         std::string mods = "[";
         while (!(k.mod.empty())) mods += " " + rawterm::to_string(k.getMod());

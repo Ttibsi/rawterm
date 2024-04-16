@@ -1,4 +1,7 @@
-- [ ] Add extras
-    - Set full terminal background
-    - Pane class that accepts a size
-        `rawterm::make_pane()` returns a std::unique_ptr to a Pane
+- Finish `Pane` 
+- function to get cursor location (termios?)
+     - windows has a getcursorlocation function 
+- look into background colour (each cell individually)
+- Update docs with operators
+- Update changelog
+- update readme with 4.0 changelog

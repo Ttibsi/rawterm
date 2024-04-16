@@ -3,19 +3,19 @@
 
 #include <iostream>
 #include <memory>
-#include <span>
+#include <vector>
 
 #include <rawterm/color.h>
 #include <rawterm/core.h>
 #include <rawterm/cursor.h>
 
 namespace rawterm {
-    template<typename T = std::span<std::string> >
+    template<typename T = std::vector<std::string> >
     class Pane {
         private:
             const Pos start_point;
             Pos dimensions;
-            const T content;
+            T content;
             Cursor cur;
 
         public:
@@ -45,8 +45,8 @@ namespace rawterm {
                 cur.move(start_point);
 
                 for (int idx = 0; idx < content.size(); idx++) {
-                    std::cout << content[idx] << content[idx].size();
-                    cur.move({start_point.vertical + 1, start_point.horizontal});
+                    std::cout << content[idx];
+                    cur.move({start_point.vertical + idx + 1, start_point.horizontal});
                 }
 
                 cur.move(start_point);
@@ -55,12 +55,12 @@ namespace rawterm {
             void set_pane_background(const Color& color) {
                 cur.move(start_point);
 
-                std::cout << color;
-                for (int y = 0; y < dimensions.vertical; y++) {
-                    for (int x = 0; x < dimensions.horizontal; x++) {
-                        std::cout << " ";
-                    }
-                        std::cout << "\r\n";
+
+                for (int idx = 0; idx < dimensions.vertical; idx++) {
+                    std::cout << "\x1b[48;2;" 
+                        << color << std::string(dimensions.horizontal, ' ')
+                        << "\x1b[0m";
+                    cur.move({start_point.vertical + idx + 1, start_point.horizontal});
                 }
             }
 
@@ -73,21 +73,28 @@ namespace rawterm {
                 Pos split_start = {start_point.vertical, new_dims.horizontal + 1};
                 dimensions = new_dims;
                 
-                draw();
                 return make(split_start, new_dims, new_content);
             }
 
+            [[nodiscard]] std::unique_ptr<Pane<T>> split_vertical() {
+                return split_vertical(T());
+            }
+
             [[nodiscard]] std::unique_ptr<Pane<T>> split_horizontal(T new_content) {
-                Pos new_dims = {dimensions.horizontal, dimensions.vertical / 2} ;
-                if (dimensions.vertical % 2) { new_dims.vertical + 1; }
+                Pos new_dims = {dimensions.vertical / 2, dimensions.horizontal} ;
+                bool extra_row = false; 
+                if (dimensions.vertical % 2 == 1) { extra_row = true; }
+                if (extra_row) { new_dims.vertical + 1; }
 
                 Pos split_start = {new_dims.vertical + 1, start_point.horizontal};
                 dimensions = new_dims;
                 
-                draw();
-                // return make(split_start, new_dims, std::span<T>());
+                if (extra_row) { new_dims.vertical - 1; }
                 return make(split_start, new_dims, new_content);
+            }
 
+            [[nodiscard]] std::unique_ptr<Pane<T>> split_horizontal() {
+                return split_horizontal(T());
             }
 
             void resize(const Pos& new_size) {
@@ -96,7 +103,7 @@ namespace rawterm {
             }
     };
 
-    template<typename T = std::span<std::string>>
+    template<typename T = std::vector<std::string>>
     using pane_t = std::unique_ptr<Pane<T>>;
 }
 

@@ -87,19 +87,21 @@ int main() {
     for (auto&& line: lryics_1) { line = rawterm::set_foreground(line, rawterm::Colors::red); }
     for (auto&& line: lryics_2) { line = rawterm::set_foreground(line, rawterm::Colors::blue); }
 
-    std::vector<rawterm::pane_t<std::string>> panes = {};
+    std::vector<rawterm::pane_t<>> panes = {};
+    panes.push_back(rawterm::Pane<>::make({1,1}, term_size, lryics_1));
 
     panes.push_back(
-        rawterm::Pane<std::string>::make({1,1}, term_size, std::span(lryics_1))
-    );
-
-    panes.push_back(
-        panes[0]->split_vertical(std::span(lryics_2.begin(), lryics_2.begin() + term_size.vertical - 1))
+        panes[0]->split_vertical(std::vector(lryics_2.begin(), lryics_2.begin() + term_size.vertical))
     );
 
     for (auto&& p: panes) { p->draw(); };
 
     auto k = rawterm::process_keypress();
+    panes.push_back(panes[1]->split_horizontal());
+
+    for (auto&& p: panes) { p->draw(); };
+    k = rawterm::process_keypress();
+
     rawterm::exit_alt_screen();
     return 0;
 }

@@ -1,6 +1,6 @@
 add_executable(cells cells.cpp)
 add_executable(colors colors.cpp)
-add_executable(cursor_position t.cpp)
+add_executable(cursor_position cursor_position.cpp)
 add_executable(hello_world hello_world.cpp)
 add_executable(keys keys.cpp)
 add_executable(raw_escapes raw_escapes.cpp)

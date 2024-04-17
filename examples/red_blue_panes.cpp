@@ -94,10 +94,13 @@ int main() {
         panes[0]->split_vertical(std::vector(lryics_2.begin(), lryics_2.begin() + term_size.vertical))
     );
 
+    panes[0]->set_pane_background(rawterm::Colors::azure);
+    panes[1]->set_pane_background(rawterm::Colors::lime);
     for (auto&& p: panes) { p->draw(); };
 
     auto k = rawterm::process_keypress();
     panes.push_back(panes[1]->split_horizontal());
+    panes[2]->set_pane_background(rawterm::Colors::red);
 
     for (auto&& p: panes) { p->draw(); };
     k = rawterm::process_keypress();

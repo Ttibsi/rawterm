@@ -25,13 +25,15 @@ namespace rawterm {
 
     void set_terminal_background(const Color& col) {
         rawterm::Cursor::save_cursor_position();
-
         rawterm::Pos term_size = rawterm::get_term_size();
-        int len = term_size.vertical * term_size.horizontal;
-        std::string background = "\x1B[48;2;" + std::to_string(col.red) + ';' +
-            std::to_string(col.green) + ';' + std::to_string(col.blue) + 'm';
 
-        std::cout << background << std::string(len, ' ');
+        for (unsigned int v = 0; v < term_size.vertical; v++) {
+            for (unsigned int h = 0; h < term_size.horizontal; h++) {
+                std::cout << "\x1B[48;2;" << col << " " << "\x1B[49m";
+            }
+        }
+
+
         rawterm::Cursor::load_cursor_position();
     }
 }

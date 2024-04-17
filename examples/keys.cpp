@@ -19,7 +19,6 @@ int main() {
     rawterm::enable_signals();
 
     rawterm::clear_screen();
-    rawterm::set_terminal_background(rawterm::Colors::cyan);
 
     rawterm::Pos size = rawterm::get_term_size();
     std::string header = "Term size: " 

@@ -17,6 +17,7 @@ namespace rawterm {
             Pos dimensions;
             T content;
             Cursor cur;
+            std::optional<Color> background_color;
 
         public:
             Pane(const Pos& s, Pos d, T c): 
@@ -34,8 +35,14 @@ namespace rawterm {
 
                 for (int i = start_point.vertical; i < end.vertical; i++) {
                     for (int j = start_point.horizontal; j < end.horizontal; j++) {
-                        cur.move({i - 1, j - 1});
-                        std::cout << " ";
+                        cur.move({i, j});
+                        
+                        if (background_color.has_value()) {
+                            std::cout << "\x1B[48;2;" << background_color.value() << " " << "\x1B[49m";
+                        } else {
+                            std::cout << " ";
+
+                        }
                     }
                 }
             }
@@ -45,6 +52,9 @@ namespace rawterm {
                 cur.move(start_point);
 
                 for (int idx = 0; idx < content.size(); idx++) {
+                    if (background_color.has_value()) {
+                        std::cout << "\x1B[48;2;" << background_color.value();
+                    }
                     std::cout << content[idx];
                     cur.move({start_point.vertical + idx + 1, start_point.horizontal});
                 }
@@ -52,20 +62,9 @@ namespace rawterm {
                 cur.move(start_point);
             }
 
-            void set_pane_background(const Color& color) {
-                cur.move(start_point);
+            void set_pane_background(const Color& col) { background_color = col; }
 
 
-                for (int idx = 0; idx < dimensions.vertical; idx++) {
-                    std::cout << "\x1b[48;2;" 
-                        << color << std::string(dimensions.horizontal, ' ')
-                        << "\x1b[0m";
-                    cur.move({start_point.vertical + idx + 1, start_point.horizontal});
-                }
-            }
-
-
-            // TODO: Empty split
             [[nodiscard]] std::unique_ptr<Pane<T>> split_vertical(T new_content) {
                 Pos new_dims = {dimensions.vertical, dimensions.horizontal / 2} ;
                 if (dimensions.horizontal % 2) { new_dims.horizontal + 1; }

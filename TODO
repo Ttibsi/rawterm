@@ -2,6 +2,7 @@
 - function to get cursor location (termios?)
      - windows has a getcursorlocation function 
 - look into background colour (each cell individually)
+
 - Update docs with operators
 - Update changelog
 - update readme with 4.0 changelog

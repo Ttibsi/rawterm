@@ -54,6 +54,42 @@ namespace rawterm {
 
     void Cursor::load_cursor_position() { std::cout << "\x1B[u" << std::flush; }
 
+    std::optional<Pos> Cursor::get_raw_location() {
+#if __linux__
+        std::cout << "\x1B[6n" << std::flush;
+
+        std::string response;
+        char input;
+        while (std::cin.get(input)) {
+            if (input == 'R') {
+                break;
+            }
+            response += input;
+        }
+
+        std::size_t found = response.find(';');
+        if (found != std::string::npos) {
+            std::string row_str = response.substr(2, found - 2);
+            std::string col_str = response.substr(found + 1);
+
+            return Pos{std::stoi(row_str), std::stoi(col_str)};
+        }
+        
+#elif _WIN32
+        // TODO: Test windows cursor location code
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        COORD cursorPosition;
+
+        if (GetConsoleScreenBufferInfo(hConsole, &csbi)) {
+            cursorPosition = csbi.dwCursorPosition;
+            return Pos{cursorPosition.Y + 1, cursorPosition.X + 1};
+        }
+#endif
+
+        return {};
+    }
+
     void Cursor::cursor_block_blink() { std::cout << "\1\x1B[1 q\2" << std::flush; }
 
     void Cursor::cursor_block() { std::cout << "\1\x1B[2 q\2" << std::flush; }

@@ -20,7 +20,7 @@ int main() {
     std::cout << rawterm::inverse("Hello world!\r\n");
 
     // Wait for user input
-    rawterm::process_keypress();
+    auto k = rawterm::process_keypress();
 
     rawterm::exit_alt_screen();
     return 0;

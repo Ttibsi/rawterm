@@ -1,6 +1,8 @@
 #ifndef RAWTERM_CURSOR_H
 #define RAWTERM_CURSOR_H
 
+#include <optional>
+
 #include "core.h"
 
 namespace rawterm {
@@ -17,6 +19,7 @@ namespace rawterm {
 
         static void save_cursor_position();
         static void load_cursor_position();
+        static std::optional<Pos> get_raw_location();
         static void cursor_block_blink();
         static void cursor_block();
         static void cursor_underscore_blink();

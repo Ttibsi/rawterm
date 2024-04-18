@@ -1,4 +1,9 @@
 - Finish `Pane` 
+    - closing a pane 
+        - each pane contains shared_ptr to it's parent?
+        - follow the parent back and change that pane's dimensions on close()
+        - check it's the only shared_ptr to prevent a pane having multiple children and weird redrawing
+- Poll for key input
 - function to get cursor location (termios?)
      - windows has a getcursorlocation function 
 

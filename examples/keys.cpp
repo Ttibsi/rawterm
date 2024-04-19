@@ -31,14 +31,15 @@ int main() {
         rawterm::Key k = rawterm::process_keypress();
         if (k == rawterm::Key('q', rawterm::Mod::None)) {
             break;
+        } else if (k.isValid()) {
+
+            std::string mods = "[";
+            while (!(k.mod.empty())) mods += " " + rawterm::to_string(k.getMod());
+            mods += " ]";
+
+            std::cout << "Key{ code: " << k.code << ", mods: " << mods
+                << ", raw: " << k.raw << "}\r\n";
         }
-
-        std::string mods = "[";
-        while (!(k.mod.empty())) mods += " " + rawterm::to_string(k.getMod());
-        mods += " ]";
-
-        std::cout << "Key{ code: " << k.code << ", mods: " << mods
-            << ", raw: " << k.raw << "}\r\n";
     }
 
     rawterm::exit_alt_screen();

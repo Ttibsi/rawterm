@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "core.h"
 #include "cursor.h"
 
@@ -12,10 +14,18 @@ namespace rawterm {
         }
     }
 
-    bool Key::isCharInput() {
+    const bool Key::isCharInput() {
         return std::isprint(static_cast<unsigned char>(code)) &&
                code != ' ' && (mod.empty() || mod[0] == Mod::Shift);
     }
+
+    const bool Key::isValid() {
+        auto it = std::find(mod.begin(),mod.end(), Mod::Unknown);
+
+        if (it == mod.end()) { return true; }
+        return false;
+    }
+
 
     void disable_raw_mode() {
         #if __linux__
@@ -108,9 +118,23 @@ namespace rawterm {
         #endif
 
         std::string characters = std::string(32, '\0');
-        if (read(STDIN_FILENO, characters.data(), 32) < 0) {
-            std::perror(
-                "ERROR: something went wrong during reading user input: ");
+        int pollResult = poll(&detail::fd, 1, 0);
+
+        // input available
+        if (pollResult > 0) {
+            if (read(STDIN_FILENO, characters.data(), 32) < 0) {
+                std::perror(
+                    "ERROR: something went wrong during reading user input: ");
+                return Key( ' ', rawterm::Mod::Unknown, "" );
+            }
+
+        // no input found
+        } else if (pollResult == 0) {
+            return Key( ' ', rawterm::Mod::Unknown, "" );
+
+        // Error
+        } else {
+            std::perror("ERROR: Polling error");
             return Key( ' ', rawterm::Mod::Unknown, "" );
         }
 
@@ -471,6 +495,13 @@ namespace rawterm {
             return Key( ' ', rawterm::Mod::Backspace, raw );
         }
         return Key( ' ', rawterm::Mod::Unknown, raw );
+    }
+
+    [[nodiscard]] rawterm::Key wait_for_input() {
+        while (true) {
+            auto k = process_keypress();
+            if (k.isValid()) { return k; }
+        }
     }
 
     [[nodiscard]] const rawterm::Pos get_term_size() {

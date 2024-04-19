@@ -25,7 +25,7 @@ int main() {
         }
     }
 
-    rawterm::process_keypress();
+    auto k = rawterm::wait_for_input();
     rawterm::exit_alt_screen();
     return 0;
 }

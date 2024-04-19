@@ -1,6 +1,7 @@
 #ifndef RAWTERM_CORE_H
 #define RAWTERM_CORE_H
 
+#include <array>
 #include <cctype>
 #include <cmath>
 #include <csignal>
@@ -10,6 +11,7 @@
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <poll.h>
 #include <sstream>
 #include <string>
 #include <unistd.h>
@@ -33,6 +35,9 @@ namespace rawterm {
         #endif
         inline bool sigtstp_called = false;
         inline bool sigcont_called = false;
+
+        // Used for polling in process_keypress()
+        inline pollfd fd {STDIN_FILENO, POLLIN};
     } // namespace detail
 
     enum struct Mod {
@@ -61,7 +66,8 @@ namespace rawterm {
             code(c), mod(std::deque<Mod>{m}), raw(r) {}
 
         [[nodiscard]] rawterm::Mod getMod();
-        [[nodiscard]] bool isCharInput();
+        [[nodiscard]] const bool isCharInput();
+        [[nodiscard]] const bool isValid();
 
         [[nodiscard]] bool operator==(const Key& other) const {
             if (other.mod.empty() || other.mod == std::deque<Mod>{Mod::None}) {
@@ -132,6 +138,7 @@ namespace rawterm {
     void sigtstp_handler(std::function<void(void)>);
     void sigcont_handler(std::function<void(void)>);
     [[nodiscard]] const rawterm::Key process_keypress();
+    [[nodiscard]] rawterm::Key wait_for_input();
     [[nodiscard]] const rawterm::Pos get_term_size();
     [[nodiscard]] std::string set_terminal_title(const std::string&);
     void clear_screen();

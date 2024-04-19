@@ -98,12 +98,14 @@ int main() {
     panes[1]->set_pane_background(rawterm::Colors::lime);
     for (auto&& p: panes) { p->draw(); };
 
-    auto k = rawterm::process_keypress();
+    auto k = rawterm::wait_for_input();
+
     panes.push_back(panes[1]->split_horizontal());
     panes[2]->set_pane_background(rawterm::Colors::red);
 
     for (auto&& p: panes) { p->draw(); };
-    k = rawterm::process_keypress();
+
+    k = rawterm::wait_for_input();
 
     rawterm::exit_alt_screen();
     return 0;

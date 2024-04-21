@@ -87,26 +87,27 @@ int main() {
     for (auto&& line: lryics_1) { line = rawterm::set_foreground(line, rawterm::Colors::red); }
     for (auto&& line: lryics_2) { line = rawterm::set_foreground(line, rawterm::Colors::blue); }
 
-    std::vector<rawterm::pane_t<>> panes = {};
-    panes.push_back(rawterm::Pane<>::make({1,1}, term_size, lryics_1));
-
-    panes.push_back(
-        panes[0]->split_vertical(std::vector(lryics_2.begin(), lryics_2.begin() + term_size.vertical))
-    );
-
-    panes[0]->set_pane_background(rawterm::Colors::azure);
-    panes[1]->set_pane_background(rawterm::Colors::lime);
-    for (auto&& p: panes) { p->draw(); };
+    auto pane_mgr = rawterm::PaneManager();
+    auto x = std::vector(lryics_2.begin(), lryics_2.begin() + term_size.vertical);
+    pane_mgr.set_content(x);
+    pane_mgr.set_pane_background(rawterm::Colors::azure);
 
     auto k = rawterm::wait_for_input();
-
-    panes.push_back(panes[1]->split_horizontal());
-    panes[2]->set_pane_background(rawterm::Colors::red);
-
-    for (auto&& p: panes) { p->draw(); };
+    pane_mgr.split_horizontal(lryics_1); // TODO: off by 1
+    pane_mgr.set_pane_background(rawterm::Colors::lime);
 
     k = rawterm::wait_for_input();
+    pane_mgr.switch_active(); // TODO: This isn't working
+    k = rawterm::wait_for_input();
+    pane_mgr.split_vertical();
+    pane_mgr.set_pane_background(rawterm::Colors::red);
 
+    // TODO: This block segfaults - probably for the same reason the first switch_active crashes
+    k = rawterm::wait_for_input();
+    pane_mgr.switch_active(); // take pane 2
+    pane_mgr.close_active();
+
+    k = rawterm::wait_for_input();
     rawterm::exit_alt_screen();
     return 0;
 }

@@ -1,6 +1,8 @@
 #ifndef RAWTERM_EXTRAS_PANE_H
 #define RAWTERM_EXTRAS_PANE_H
-
+ 
+#include <cassert>
+#include <cstdlib>
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -13,14 +15,17 @@
 
 namespace rawterm {
     namespace detail {
+        enum class Split { None, Down, Right };
+
         // template<typename T = std::vector<std::string> >
         struct Pane {
             std::optional<unsigned int> active_id;
-            const Pos origin;
-            const Pos dimensions;
+            Pos origin;
+            Pos dimensions;
             std::vector<std::string> content; // TODO: Template this?
             Cursor cur;
             std::optional<Color> background_color;
+            Split split_direction = Split::None; 
 
             Pane* parent = nullptr;
             std::unique_ptr<Pane> left = nullptr;
@@ -36,6 +41,7 @@ namespace rawterm {
                 active_id(id), origin(new_origin), dimensions(dims), content(new_content), cur(cur), background_color(col) {}
 
             void clear() {
+                if (detail::is_debug()) { return; }
                 Pos end = origin + dimensions;
 
                 for (int i = origin.vertical; i < end.vertical; i++) {
@@ -53,6 +59,8 @@ namespace rawterm {
             }
 
             void draw() {
+                if (detail::is_debug()) { return; }
+
                 clear();
                 cur.move(origin);
 
@@ -96,6 +104,41 @@ namespace rawterm {
                 }
             }
 
+            struct Closed_Pane {
+                detail::Pane* pane;
+                Pos old_dims;
+            };
+
+            Closed_Pane close_node(detail::Pane* n, bool left = false) {
+                detail::Pane* parent = n->parent;
+                if (parent == root.get()) {
+                    root = std::move(left ? parent->right : parent->left);
+                }
+
+                if (left) {
+                    parent->active_id = parent->right->active_id;
+                    parent->content = parent->right->content;
+                    parent->background_color = parent->right->background_color;
+                } else {
+                    parent->right = std::move(n->right); //TODO: fix
+
+                    detail::Pane* l = parent->left.get();
+                    while (!(l->active_id.has_value())) { l = l->left.get(); }
+
+                    parent->active_id = l->active_id;
+                    parent->content = l->content;
+                    parent->background_color = l->background_color;
+                }
+
+                auto k = wait_for_input();
+
+                parent->cur.move(parent->origin);
+                parent->left = nullptr;
+                parent->right = nullptr;
+
+                return {parent, n->dimensions};
+            }
+
         public:
             PaneManager() : root(std::make_unique<detail::Pane>(1)), count(1) {
                 active_pane = root.get();
@@ -123,10 +166,12 @@ namespace rawterm {
 
                 Pos split_start = {
                     active_pane->origin.vertical,
-                    new_dims.horizontal + 1
+                    new_dims.horizontal + (odd_split ? 2 : 1)
                 };
-    
+
+                // Needs to be before creating child leaves
                 count++;
+                active_pane->split_direction = detail::Split::Right;
 
                 active_pane->left = std::make_unique<detail::Pane>(
                     active_pane->active_id.value(),
@@ -146,7 +191,10 @@ namespace rawterm {
                     active_pane->background_color
                 );
 
+                active_pane->left->parent = active_pane;
+                active_pane->right->parent = active_pane;
                 active_pane->active_id = {};
+
                 active_pane->left->draw();
                 active_pane->right->draw();
                 active_pane = active_pane->right.get();
@@ -154,6 +202,7 @@ namespace rawterm {
                 return count;
             }
 
+            // TODO: this copies instead of moves?
             const unsigned int  split_horizontal(std::vector<std::string> t) {
                 Pos new_dims = {
                     active_pane->dimensions.vertical / 2,
@@ -163,11 +212,13 @@ namespace rawterm {
                 if (active_pane->dimensions.vertical % 2) { odd_split = true; }
 
                 Pos split_start = {
-                    new_dims.vertical + 1,
+                    new_dims.vertical + (odd_split ? 2 : 1),
                     active_pane->origin.horizontal,
                 };
 
+                // Needs to be before creating child leaves
                 count++;
+                active_pane->split_direction = detail::Split::Down;
 
                 active_pane->left = std::make_unique<detail::Pane>(
                     active_pane->active_id.value(),
@@ -187,12 +238,14 @@ namespace rawterm {
                     active_pane->background_color
                 );
 
+                active_pane->left->parent = active_pane;
+                active_pane->right->parent = active_pane;
                 active_pane->active_id = {};
+
                 active_pane->left->draw();
                 active_pane->right->draw();
                 active_pane = active_pane->right.get();
 
-                count++;
                 return count;
             }
 
@@ -200,38 +253,108 @@ namespace rawterm {
             const unsigned int split_horizontal() { return split_horizontal(std::vector<std::string>()); }
 
             const unsigned int close_active() {
-                bool left_node = false;
-                if (active_pane->parent->left.get() == active_pane) { left_node = true; }
+                if (active_pane == root.get()) { return 0; }
 
-                if (left_node) {
-                    active_pane->parent->active_id = active_pane->parent->right->active_id;
-                    active_pane->parent->content = active_pane->parent->right->content;
-                    active_pane->parent->background_color = active_pane->parent->right->background_color;
-                } else {
-                    active_pane->parent->active_id = active_pane->parent->left->active_id;
-                    active_pane->parent->content = active_pane->parent->left->content;
-                    active_pane->parent->background_color = active_pane->parent->left->background_color;
+                detail::Pane* p = active_pane;
+                bool left = (p->parent->left.get() == p);
+
+                if (p->parent == root.get()) {
+                    if (left) {
+                        if (p->parent->right != nullptr) { root = std::move(p->parent->right); }
+                    } else {
+                        if (p->parent->left != nullptr) { root = std::move(p->parent->left); }
+                    }
                 }
 
-                active_pane = active_pane->parent;
-                active_pane->draw();
+                Pos closing_dims = p->dimensions;
+                detail::Split direction = p->split_direction;
+
+               if (left) {
+                    detail::Pane* n = p->right.get();
+                    while (!(n->active_id.has_value())) { n = n->right.get(); }
+                    n->dimensions += (direction == detail::Split::Down ? closing_dims.vertical : closing_dims.horizontal);
+                } else {
+                    detail::Pane* n = p->left.get();
+                    while (!(n->active_id.has_value())) { n = n->left.get(); }
+                    n->dimensions += (direction == detail::Split::Down ? closing_dims.vertical : closing_dims.horizontal);
+                }
+
+                assert(root->dimensions == get_term_size());
+                active_pane = p;
+                draw_all();
 
                 count--;
                 return count;
+
+
+                // Closed_Pane ret = {};
+                //
+                // // Close the correct node
+                // if (p->parent->left.get() == p) {
+                //     ret = close_node(p, true);
+                // } else {
+                //    while (p->left != nullptr) {
+                //         p = p->left.get();
+                //     } 
+                //     ret = close_node(p, false);
+                // }
+                //
+                //
+                // p = ret.pane;
+                // int old_vertical = ret.old_dims.vertical;
+                // int old_horizontal = ret.old_dims.horizontal;
+                //
+                // // TODO: What if it's the size of the terminal (the old root)
+                // if (p->split_direction == detail::Split::Down) {
+                //     recursive_search(p, [old_vertical](detail::Pane* n){
+                //         if (n->dimensions.vertical + old_vertical > get_term_size().vertical) {
+                //             n->origin.vertical -= (old_vertical / 2);
+                //         } else {
+                //             n->dimensions.vertical += (old_vertical / 2);
+                //         }
+                //
+                //         return false;
+                //     });
+                // } else if (p->split_direction == detail::Split::Right) {
+                //     recursive_search(p, [old_horizontal](detail::Pane* n){
+                //         if (n->dimensions.horizontal + old_horizontal > get_term_size().horizontal) {
+                //             n->origin.horizontal -= (old_horizontal / 2);
+                //         } else {
+                //             n->dimensions.horizontal += (old_horizontal / 2);
+                //         }
+                //
+                //         return false;
+                //     });
+                // }
+                // 
+                // active_pane = p;
+                // draw_all();
+                //
+                // count--;
+                // return count;
             }
 
             void switch_active(unsigned int pane_idx) {
                 recursive_search(root.get(), [pane_idx](detail::Pane* n){
                     return n->active_id == pane_idx;
                 });
+                
+                active_pane->draw();
             }
 
             void switch_active() {
-                switch_active(active_pane->active_id.value() + 1);
+                if (active_pane->active_id.value() == count) {
+                    switch_active(active_pane->active_id.value() - 1);
+                } else {
+                    switch_active(active_pane->active_id.value() + 1);
+                }
+                active_pane->cur.reset();
             }
 
             void draw_all() {
                 detail::Pane* p = active_pane;
+                clear_screen();
+                p->cur.move({1,1});
 
                 recursive_search(root.get(), [](detail::Pane* n){
                     n->draw();

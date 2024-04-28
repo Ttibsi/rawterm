@@ -24,6 +24,8 @@ namespace rawterm {
     [[nodiscard]] std::string reset_background() { return "\x1B[49m"; }
 
     void set_terminal_background(const Color& col) {
+        if (detail::is_debug()) { return; }
+
         rawterm::Cursor::save_cursor_position();
         rawterm::Pos term_size = rawterm::get_term_size();
 

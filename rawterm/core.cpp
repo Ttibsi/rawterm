@@ -1,9 +1,20 @@
 #include <algorithm>
+#include <cstdlib>
 
 #include "core.h"
 #include "cursor.h"
 
 namespace rawterm {
+    namespace detail {
+        [[nodiscard]] const bool is_debug() {
+            auto raw_env_var = std::getenv("RAWTERM_DEBUG");
+            if (raw_env_var == nullptr) { return false; }
+
+            const std::array<std::string, 3> values = {"1", "true", "TRUE"};
+            return std::find(values.begin(), values.end(), raw_env_var) != values.end();
+        }
+
+    } // namespace detail
     rawterm::Mod Key::getMod() {
         if (mod.empty()) {
             return rawterm::Mod::None;
@@ -75,8 +86,14 @@ namespace rawterm {
         #endif
     }
 
-    void enter_alt_screen() { std::cout << "\x1B[?1049h" << std::flush; }
-    void exit_alt_screen() { std::cout << "\x1B[?1049l" << std::flush; }
+    void enter_alt_screen() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\x1B[?1049h" << std::flush; 
+    }
+    void exit_alt_screen() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\x1B[?1049l" << std::flush; 
+    }
 
     bool is_signals_enabled = false;
     void enable_signals() {
@@ -522,35 +539,52 @@ namespace rawterm {
 
     [[nodiscard]] std::string set_terminal_title(const std::string& title) { return "\u001b]0;" + title + '\a'; }
 
-    void clear_screen() { std::cout << "\x1B[2J\x1B[H"; }
+    void clear_screen() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\x1B[2J\x1B[H"; 
+    }
 
-    void clear_line() { std::cout << "\x1B[2K\r"; }
+    void clear_line() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\x1B[2K\r"; 
+    }
 
-    void clear_line_from() { std::cout << "\x1B[0K"; }
+    void clear_line_from() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\x1B[0K"; 
+    }
 
-    void clear_line_until() { std::cout << "\x1B[1K"; }
+    void clear_line_until() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\x1B[1K"; 
+    }
 
     void clear_screen_until(const Pos& pos) {
+        if (detail::is_debug()) { return; }
         std::cout << "\x1B[s\x1B[" << std::to_string(pos.vertical) << ';'
                   << std::to_string(pos.horizontal) << "H\x1B[1J\x1B[u";
     }
 
     void clear_screen_from(const Pos& pos) {
+        if (detail::is_debug()) { return; }
         std::cout << "\x1B[s\x1B[" << std::to_string(pos.vertical) << ';'
                   << std::to_string(pos.horizontal) << "H\x1B[0J\x1B[u";
     }
 
     void clear_line(const Pos& pos) {
+        if (detail::is_debug()) { return; }
         std::cout << "\x1B[s\x1B[" << std::to_string(pos.vertical)
                   << "H\x1B[2K\x1B[u";
     }
 
     void clear_line_until(const Pos& pos) {
+        if (detail::is_debug()) { return; }
         std::cout << "\x1B[s\x1B[" << std::to_string(pos.vertical) << ';'
                   << std::to_string(pos.horizontal) << "H\x1B[1K\x1B[u";
     }
 
     void clear_line_from(const Pos& pos) {
+        if (detail::is_debug()) { return; }
         std::cout << "\x1B[s\x1B[" << std::to_string(pos.vertical) << ';'
                   << std::to_string(pos.horizontal) << "H\x1B[0K\x1B[u";
     }

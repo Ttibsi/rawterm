@@ -92,19 +92,21 @@ int main() {
     pane_mgr.set_content(x);
     pane_mgr.set_pane_background(rawterm::Colors::azure);
 
-    auto k = rawterm::wait_for_input();
-    pane_mgr.split_horizontal(lryics_1); // TODO: off by 1
+    // Open a second pane, green bg, red text, under the first
+    // auto k = rawterm::wait_for_input();
+    pane_mgr.split_horizontal(lryics_1);
     pane_mgr.set_pane_background(rawterm::Colors::lime);
 
-    k = rawterm::wait_for_input();
-    pane_mgr.switch_active(); // TODO: This isn't working
-    k = rawterm::wait_for_input();
+    // Open a third pane to the right of the first, red bg, not text
+    // k = rawterm::wait_for_input();
+    pane_mgr.switch_active(1);
     pane_mgr.split_vertical();
     pane_mgr.set_pane_background(rawterm::Colors::red);
 
-    // TODO: This block segfaults - probably for the same reason the first switch_active crashes
-    k = rawterm::wait_for_input();
+    // close the green pane at the bottom of the screen
+    auto k = rawterm::wait_for_input();
     pane_mgr.switch_active(); // take pane 2
+    k = rawterm::wait_for_input();
     pane_mgr.close_active();
 
     k = rawterm::wait_for_input();

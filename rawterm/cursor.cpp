@@ -2,6 +2,7 @@
 
 namespace rawterm {
     void Cursor::reset() {
+        if (detail::is_debug()) { return; }
         std::cout << "\x1B[" << std::to_string(vertical) << ';'
                   << std::to_string(horizontal) << 'H' << std::flush;
     }
@@ -11,32 +12,44 @@ namespace rawterm {
         // These save the given position to the cursor object
         vertical = pos.vertical;
         horizontal = pos.vertical;
+
+        if (detail::is_debug()) { return; }
         
         std::cout << "\x1B[" << std::to_string(pos.vertical) << ';'
                   << std::to_string(pos.horizontal) << 'H' << std::flush;
     }
 
     void Cursor::move_up(int in = 1) {
+        if (detail::is_debug()) { return; }
+
         vertical--;
         std::cout << "\x1b[" + std::to_string(in) + "A" << std::flush; 
     }
 
     void Cursor::move_down(int in = 1) {
+        if (detail::is_debug()) { return; }
+
         vertical++;
         std::cout << "\x1b[" + std::to_string(in) + "B" << std::flush; 
     }
 
     void Cursor::move_right(int in = 1) {
+        if (detail::is_debug()) { return; }
+
         horizontal++;
         std::cout << "\x1b[" + std::to_string(in) + "C" << std::flush; 
     }
 
     void Cursor::move_left(int in = 1) {
+        if (detail::is_debug()) { return; }
+
         horizontal--;
         std::cout << "\x1b[" + std::to_string(in) + "D" << std::flush; 
     }
 
     void Cursor::offset_cursor(Pos offset) {
+        if (detail::is_debug()) { return; }
+
         if (offset.horizontal < 0) {
             std::cout << "\x1B[" << -offset.horizontal << 'D';
         } else if (offset.horizontal > 0) {
@@ -50,9 +63,15 @@ namespace rawterm {
         }
     }
 
-    void Cursor::save_cursor_position() { std::cout << "\x1B[s" << std::flush; }
+    void Cursor::save_cursor_position() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\x1B[s" << std::flush; 
+    }
 
-    void Cursor::load_cursor_position() { std::cout << "\x1B[u" << std::flush; }
+    void Cursor::load_cursor_position() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\x1B[u" << std::flush; 
+    }
 
     std::optional<Pos> Cursor::get_raw_location() {
 #if __linux__
@@ -90,20 +109,45 @@ namespace rawterm {
         return {};
     }
 
-    void Cursor::cursor_block_blink() { std::cout << "\1\x1B[1 q\2" << std::flush; }
+    void Cursor::cursor_block_blink() {
+        if (detail::is_debug()) { return; }
 
-    void Cursor::cursor_block() { std::cout << "\1\x1B[2 q\2" << std::flush; }
+        std::cout << "\1\x1B[1 q\2" << std::flush; 
+    }
 
-    void Cursor::cursor_underscore_blink() { std::cout << "\1\x1B[3 q\2" << std::flush; }
+    void Cursor::cursor_block() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\1\x1B[2 q\2" << std::flush; 
+    }
 
-    void Cursor::cursor_underscore() { std::cout << "\1\x1B[4 q\2" << std::flush; }
+    void Cursor::cursor_underscore_blink() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\1\x1B[3 q\2" << std::flush; 
+    }
 
-    void Cursor::cursor_pipe_blink() { std::cout << "\1\x1B[5 q\2" << std::flush; }
+    void Cursor::cursor_underscore() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\1\x1B[4 q\2" << std::flush; 
+    }
 
-    void Cursor::cursor_pipe() { std::cout << "\1\x1B[6 q\6" << std::flush; }
+    void Cursor::cursor_pipe_blink() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\1\x1B[5 q\2" << std::flush; 
+    }
 
-    void Cursor::cursor_hide() { std::cout << "\x1B[?25l" << std::flush; }
+    void Cursor::cursor_pipe() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\1\x1B[6 q\6" << std::flush; 
+    }
 
-    void Cursor::cursor_show() { std::cout << "\x1B[?25h" << std::flush; }
+    void Cursor::cursor_hide() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\x1B[?25l" << std::flush; 
+    }
+
+    void Cursor::cursor_show() {
+        if (detail::is_debug()) { return; }
+        std::cout << "\x1B[?25h" << std::flush; 
+    }
 
 }

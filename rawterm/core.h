@@ -38,6 +38,9 @@ namespace rawterm {
 
         // Used for polling in process_keypress()
         inline pollfd fd {STDIN_FILENO, POLLIN};
+
+        // used for debugging
+        [[nodiscard]] const bool is_debug();
     } // namespace detail
 
     enum struct Mod {

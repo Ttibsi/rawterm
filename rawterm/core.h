@@ -87,6 +87,10 @@ namespace rawterm {
         int vertical;
         int horizontal;
 
+        [[nodiscard]] constexpr bool partial_cmp(const Pos& rhs) {
+            return this->vertical == rhs.vertical || this->horizontal == rhs.horizontal;
+        }
+
         friend std::ostream& operator<<(std::ostream& os, const Pos& p) {
             return os << "Pos{" << p.vertical << ", " << p.horizontal << "}";
         }
@@ -120,6 +124,13 @@ namespace rawterm {
             return *this;
         }
 
+        [[nodiscard]] constexpr bool operator> (const Pos& other) const {
+            return this->vertical > other.vertical || this->horizontal > other.horizontal;
+        }
+
+        [[nodiscard]] constexpr bool operator<(const Pos& other) const {
+            return this->vertical < other.vertical || this->horizontal < other.horizontal;
+        }
     };
 
     // TODO: constexpr std array
@@ -155,6 +166,7 @@ namespace rawterm {
     void clear_line_until(const Pos&);
     void clear_line_from(const Pos&);
     [[nodiscard]] const std::string to_string(const Mod&);
+    [[nodiscard]] const int stripped_length(const std::string& txt);
 
 } // namespace rawterm
 

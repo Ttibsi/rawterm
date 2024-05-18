@@ -5,7 +5,7 @@
 
 #include <rawterm/color.h>
 #include <rawterm/core.h>
-#include <rawterm/extras/pane.h>
+#include <rawterm/extras/pane2.h>
 
 int main() {
     rawterm::enable_raw_mode();
@@ -85,29 +85,33 @@ int main() {
 
     const rawterm::Pos term_size = rawterm::get_term_size();
     for (auto&& line: lryics_1) { line = rawterm::set_foreground(line, rawterm::Colors::red); }
-    for (auto&& line: lryics_2) { line = rawterm::set_foreground(line, rawterm::Colors::blue); }
+    for (auto&& line: lryics_2) { line = rawterm::set_foreground(line, rawterm::Colors::yellow); }
 
-    auto pane_mgr = rawterm::PaneManager();
-    auto x = std::vector(lryics_2.begin(), lryics_2.begin() + term_size.vertical);
-    pane_mgr.set_content(x);
+    auto pane_mgr = rawterm::PaneManager(rawterm::get_term_size());
+    pane_mgr.set_content(std::vector(lryics_2.begin(), lryics_2.begin() + term_size.vertical));
     pane_mgr.set_pane_background(rawterm::Colors::azure);
 
     // Open a second pane, green bg, red text, under the first
-    // auto k = rawterm::wait_for_input();
+    auto k = rawterm::wait_for_input();
     pane_mgr.split_horizontal(lryics_1);
+    pane_mgr.switch_active();
     pane_mgr.set_pane_background(rawterm::Colors::lime);
 
-    // Open a third pane to the right of the first, red bg, not text
-    // k = rawterm::wait_for_input();
-    pane_mgr.switch_active(1);
-    pane_mgr.split_vertical();
+    // Open a third pane to the right of the first, red bg
+    k = rawterm::wait_for_input();
+    pane_mgr.switch_active(2);
+    pane_mgr.split_vertical({"foo", "bar", "baz"});
+    pane_mgr.switch_active();
     pane_mgr.set_pane_background(rawterm::Colors::red);
 
     // close the green pane at the bottom of the screen
-    auto k = rawterm::wait_for_input();
-    pane_mgr.switch_active(); // take pane 2
     k = rawterm::wait_for_input();
+    pane_mgr.switch_active(3);
     pane_mgr.close_active();
+
+    // Create a new pane with the default background
+    k = rawterm::wait_for_input();
+    pane_mgr.split_horizontal({"hello", "world"});
 
     k = rawterm::wait_for_input();
     rawterm::exit_alt_screen();

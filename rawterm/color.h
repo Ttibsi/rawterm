@@ -10,6 +10,9 @@ namespace rawterm {
         std::uint8_t green;
         std::uint8_t blue;
 
+        Color () : red(0), green(0), blue(0) {}
+        Color (int x, int y, int z) : red(x), green(y), blue(z) {}
+
         friend std::ostream& operator<<(std::ostream& os, const Color& c) {
             return os << std::to_string(c.red) + ";" +
                 std::to_string(c.green) + ";" +

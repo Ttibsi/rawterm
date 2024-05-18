@@ -11,10 +11,10 @@ namespace rawterm {
         Cursor(Pos p) : Pos{p} {}
         void reset();
         void move(const Pos&);
-        void move_up(int); 
-        void move_down(int);
-        void move_right(int);
-        void move_left(int);
+        void move_up(int = 1); 
+        void move_down(int = 1);
+        void move_right(int = 1);
+        void move_left(int = 1);
         void offset_cursor(Pos);
 
         static void save_cursor_position();

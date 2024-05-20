@@ -1,0 +1,17 @@
+---
+BasedOnStyle: Chromium
+AlignAfterOpenBracket: AlwaysBreak
+AllowShortIfStatementsOnASingleLine: WithoutElse
+ColumnLimit: '100'
+ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
+Cpp11BracedListStyle: 'true'
+IncludeBlocks: Regroup
+IndentWidth: '4'
+Language: Cpp
+NamespaceIndentation: All
+PointerAlignment: Left
+ReflowComments: 'true'
+SpaceBeforeCpp11BracedList: 'true'
+SpacesInContainerLiterals: 'true'
+Standard: Cpp11
+TabWidth: '4'

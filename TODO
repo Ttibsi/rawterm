@@ -5,9 +5,8 @@
         - follow the parent back and change that pane's dimensions on close()
         - check it's the only shared_ptr to prevent a pane having multiple children and weird redrawing
 
-- clang-format config for 100char lines?
 - Update docs with operators and new functions
-- Update changelog
+- Add doc comments over each function in header for LSP
 - update readme with 4.0 changelog
 
 Check on windows

@@ -12,6 +12,7 @@
 #include <rawterm/cursor.h>
 
 namespace rawterm {
+    template <typename T = std::vector<std::string> >
     class PaneManager {
         private:
             struct Pane {
@@ -19,7 +20,7 @@ namespace rawterm {
                 Pos origin;
                 Pos dimensions;
                 Cursor cur;
-                std::vector<std::string> content = {}; // todo: template this
+                T content = {};
                 std::optional<Color> background_color;
 
                 Pane* parent = nullptr;
@@ -31,7 +32,7 @@ namespace rawterm {
                     id(1), origin({1,1}), dimensions(term_dimensions), cur(Cursor()) {}
 
                 // Splitting ctor
-                Pane(int new_id, Pos new_origin, Pos new_dims, Cursor new_cursor, std::vector<std::string> c, Color color) :
+                Pane(int new_id, Pos new_origin, Pos new_dims, Cursor new_cursor, T c, Color color) :
                     id(new_id), origin(new_origin), dimensions(new_dims), cur(new_cursor), content(c), background_color(color) {}
 
                 void clear() {
@@ -192,7 +193,7 @@ namespace rawterm {
             [[nodiscard]] unsigned int active() { return active_pane->id; }
             [[nodiscard]] Pos get_size() { return active_pane->dimensions; }
 
-            void set_content(std::vector<std::string> new_c) {
+            void set_content(T new_c) {
                 active_pane->content = new_c;
                 active_pane->draw();
             }
@@ -220,7 +221,7 @@ namespace rawterm {
                 for (int idx = 0; idx < count; idx++) { active_pane->move_cur_down(); }
             }
 
-            unsigned int split_vertical(std::vector<std::string> new_c) {
+            unsigned int split_vertical(T new_c) {
                 Pos half_dims = {
                     active_pane->dimensions.vertical,
                     active_pane->dimensions.horizontal / 2
@@ -268,7 +269,7 @@ namespace rawterm {
                 return pane_bank.size();
             }
 
-            unsigned int split_horizontal(std::vector<std::string> new_c) {
+            unsigned int split_horizontal(T new_c) {
                 Pos half_dims = {
                     active_pane->dimensions.vertical / 2,
                     active_pane->dimensions.horizontal

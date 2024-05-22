@@ -7,6 +7,13 @@ header-only library.
 #### Key
 A representation of a key pressed, including held modifier keys. 
 
+Constructors:
+* `Key(char c, Mod m)`
+* `Key(char c, Mod m, std::string r)` 
+
+Overloaded Operators:
+`operator<<`
+
 * `[[nodiscard]] rawterm::Mod getMod();`
 Get the first modifier key using a deque pop
 
@@ -42,6 +49,12 @@ while (true) {
 * A parent class of a Cursor, and used to pass terminal positions around to 
 other functions/methods. Feel free to use this struct to represent positions
 in your own code.
+
+Overloaded Operators:
+* `operator<<`
+* `operator==`
+* `operator+=` (Overloaded for both a Pos and an int)
+* `operator+` (Overloaded for both a Pos and an int)
 
 ### functions
 

@@ -23,20 +23,22 @@ namespace rawterm {
     // Color presets
     namespace Colors {
         inline const Color black{ 0, 0, 0 };
-        inline const Color gray{ 127, 127, 127 };
+        inline const Color gray{ 128, 128, 128 };
+        inline const Color silver{ 192, 192, 192 };
         inline const Color white{ 255, 255, 255 };
+        inline const Color maroon{ 128, 0, 0 };
         inline const Color red{ 255, 0, 0 };
-        inline const Color orange{ 255, 127, 0 };
+        inline const Color olive{ 128,128, 0 };
         inline const Color yellow{ 255, 255, 0 };
-        inline const Color lime{ 127, 255, 0 };
-        inline const Color green{ 0, 255, 0 };
-        inline const Color mint{ 0, 255, 127 };
-        inline const Color cyan{ 0, 255, 255 };
-        inline const Color azure{ 0, 127, 255 };
+        inline const Color green{ 0, 128, 0 };
+        inline const Color lime{ 0, 255, 0 };
+        inline const Color teal{ 0, 128, 128 };
+        inline const Color aqua{ 0, 255, 255 };
+        inline const Color navy{ 0, 0, 128 };
         inline const Color blue{ 0, 0, 255 };
-        inline const Color violet{ 127, 0, 255 };
-        inline const Color purple{ 255, 0, 255 };
-        inline const Color magenta{ 255, 0, 127 };
+        inline const Color purple{ 128, 0, 128 };
+        inline const Color fuchsia{ 255, 0, 255 };
+        inline const Color orange{ 255, 127, 0 };
     } 
 
     [[nodiscard]] std::string set_foreground(const std::string&, const Color);

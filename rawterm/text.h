@@ -25,7 +25,7 @@ namespace rawterm {
     [[nodiscard]] std::string strikethrough(const std::string &s);
     [[nodiscard]] std::wstring strikethrough(const std::wstring &s);
 
-    [[nodiscard]] const char raw_at(const std::string&, std::size_t);
+    [[nodiscard]] const char raw_at(const std::string&, const int);
     [[nodiscard]] const int raw_size(const std::string&);
 }
 

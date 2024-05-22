@@ -24,3 +24,9 @@ Make the given text invisible
 
 * `[[nodiscard]] std::string strikethrough(const std::string &s);`
 * `[[nodiscard]] std::wstring strikethrough(const std::wstring &s);`
+
+* `[[nodiscard]] const char raw_at(const std::string&, const int);`
+Get the position of a character in a string, disregarding ansi escape codes
+
+* `[[nodiscard]] const int raw_size(const std::string&);`
+Get the size of a string, disregarding ansi escape codes

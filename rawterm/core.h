@@ -123,14 +123,6 @@ namespace rawterm {
             this->horizontal += other;
             return *this;
         }
-
-        [[nodiscard]] constexpr bool operator> (const Pos& other) const {
-            return this->vertical > other.vertical || this->horizontal > other.horizontal;
-        }
-
-        [[nodiscard]] constexpr bool operator<(const Pos& other) const {
-            return this->vertical < other.vertical || this->horizontal < other.horizontal;
-        }
     };
 
     // TODO: constexpr std array

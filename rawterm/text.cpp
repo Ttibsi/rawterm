@@ -1,3 +1,5 @@
+#include <regex>
+
 #include "text.h"
 
 namespace rawterm {
@@ -21,4 +23,35 @@ namespace rawterm {
 
     [[nodiscard]] std::string strikethrough(const std::string &s) { return "\x1B[9m" + s + "\x1B[29m"; }
     [[nodiscard]] std::wstring strikethrough(const std::wstring &s) { return L"\x1B[9m" + s + L"\x1B[29m"; }
+
+    [[nodiscard]] const char raw_at(const std::string& str, const int index) {
+        std::regex ansi_escape_code("\x1b\\[[0-9;]*[A-Za-z]");
+        std::smatch match;
+        int visible_index = 0;
+        int pos = 0;
+
+        while (pos < str.length()) {
+            // Check if there's an ANSI escape code at the current position
+            if (std::regex_search(str.begin() + pos, str.end(), match, ansi_escape_code) && match.position() == 0) {
+                // Move position past the ANSI escape code
+                pos += match.length();
+            } else {
+                // If the current visible index matches the target index, return the character
+                if (visible_index == index) {
+                    return str[pos];
+                }
+                // Move to the next character
+                ++visible_index;
+                ++pos;
+            }
+        }
+
+        throw std::out_of_range("Index out of range");
+    }
+
+    [[nodiscard]] const int raw_size(const std::string& str) {
+        std::regex ansi_escape_code("\x1b\\[[0-9;]*[A-Za-z]");
+        std::string cleaned_str = std::regex_replace(str, ansi_escape_code, "");
+        return cleaned_str.length();
+    }
 }

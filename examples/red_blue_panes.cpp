@@ -89,7 +89,7 @@ int main() {
 
     auto pane_mgr = rawterm::PaneManager(rawterm::get_term_size());
     pane_mgr.set_content(std::vector(lryics_2.begin(), lryics_2.begin() + term_size.vertical));
-    pane_mgr.set_pane_background(rawterm::Colors::azure);
+    pane_mgr.set_pane_background(rawterm::Colors::aqua);
 
     // Open a second pane, green bg, red text, under the first
     auto k = rawterm::wait_for_input();

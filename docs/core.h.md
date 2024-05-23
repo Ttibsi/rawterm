@@ -5,11 +5,11 @@ header-only library.
 ### Structs
 
 #### Key
-A representation of a key pressed, including held modifier keys. 
+A representation of a key pressed, including held modifier keys.
 
 Constructors:
 * `Key(char c, Mod m)`
-* `Key(char c, Mod m, std::string r)` 
+* `Key(char c, Mod m, std::string r)`
 
 Overloaded Operators:
 `operator<<`
@@ -23,7 +23,7 @@ Check if the key has a displayable character
 Example usage:
 
 ```cpp
-// assuming rawterm/core.h and rawterm.cursor.h is included 
+// assuming rawterm/core.h and rawterm.cursor.h is included
 auto cur = rawterm::Cursor();
 
 while (true) {
@@ -44,9 +44,9 @@ while (true) {
 ```
 
 #### Pos
-* A representation of a position on the screen. 
+* A representation of a position on the screen.
 * Terminal positions start at 1,1
-* A parent class of a Cursor, and used to pass terminal positions around to 
+* A parent class of a Cursor, and used to pass terminal positions around to
 other functions/methods. Feel free to use this struct to represent positions
 in your own code.
 
@@ -56,12 +56,18 @@ Overloaded Operators:
 * `operator+=` (Overloaded for both a Pos and an int)
 * `operator+` (Overloaded for both a Pos and an int)
 
+Functions:
+
+* `[[nodiscard]] constexpr bool partial_cmp(const Pos&)`
+    - Compare if either dimension of a given Pos matches the corresponding
+    dimension on `this` pos
+
 ### functions
 
 * `void disable_raw_mode();`
 * `[[maybe_unused]] const int enable_raw_mode();`
 Toggle between raw content entry mode for the terminal. Should work on both
-windows and unix systems. This is required for the rawterm to process control 
+windows and unix systems. This is required for the rawterm to process control
 keys and other characters. Calling `disable_raw_mode()` is not required as
 rawterm automatically resets on exit.
 
@@ -70,19 +76,19 @@ Further reading: `https://en.wikipedia.org/wiki/Terminal_mode`
 * `void enter_alt_screen();`
 * `void exit_alt_screen();`
 Terminals have a second buffer screen that most TUI applications make use of
-to draw their interfaces in. 
+to draw their interfaces in.
 
 * `void enable_signals();`
 * `void sigtstp_handler(std::function<void(void)>);`
 * `void sigcont_handler(std::function<void(void)>);`
-On unix-based systems, signals are used to handle functionality such as 
-backgrounding and ctrl+c to kill the app. Rawterm requires explicit 
+On unix-based systems, signals are used to handle functionality such as
+backgrounding and ctrl+c to kill the app. Rawterm requires explicit
 enabling of ctrl-signal handling. You can overload the functions that trigger
 on specific signals. The default functionality is as expected. Calling this
 function on windows does nothing.
 
 * `[[nodiscard]] rawterm::Key process_keypress();`
-Return a Key object based on what the user has entered. Often used within a 
+Return a Key object based on what the user has entered. Often used within a
 while loop to get continual input. Currently, this function blocks the main
 control flow
 
@@ -101,7 +107,7 @@ detail and not defined by Rawterm
 * `void clear_line(const Pos&);`
 * `void clear_line_until(const Pos&);`
 * `void clear_line_from(const Pos&);`
-`from` starts at the cursor and goes to the end of the defined space 
+`from` starts at the cursor and goes to the end of the defined space
 whereas `until` goes from the start of the space up to the cursor.
 
 * `[[nodiscard]] const std::string to_string(const Mod&);`
@@ -127,7 +133,7 @@ int main() {
     rawterm::Cursor c = rawterm::Cursor();
     c.reset();
 
-    // Display text to the screen. This can be done the same as any other 
+    // Display text to the screen. This can be done the same as any other
     // c++ text output. Rawterm provides a series of functions for customising
     // text appearance
     std::cout << rawterm::inverse("Hello world!\r\n");

@@ -1,9 +1,10 @@
-#include "rawterm/color.h"
-#include <iostream>
-
 #include <rawterm/core.h>
 #include <rawterm/cursor.h>
 #include <rawterm/text.h>
+
+#include <iostream>
+
+#include "rawterm/color.h"
 
 int main() {
     // Raw mode automatically gets disabled at the end of the program
@@ -18,7 +19,7 @@ int main() {
     // Set the background colour to grey
     rawterm::set_terminal_background(rawterm::Colors::black);
 
-    // Display text to the screen. This can be done the same as any other 
+    // Display text to the screen. This can be done the same as any other
     // c++ text output. Rawterm provides a series of functions for customising
     // text appearance
     std::cout << rawterm::inverse("Hello world!\r\n");
@@ -29,4 +30,3 @@ int main() {
     rawterm::exit_alt_screen();
     return 0;
 }
-

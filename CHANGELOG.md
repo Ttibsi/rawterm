@@ -1,12 +1,13 @@
 ### v4.0.0
 * Refactor header-only library out into a cmake fetch-content project
 * Added extra constructors and overloads to most classes
-* Added support to disable any output for debugging purposes with 
+* Added support to disable any output for debugging purposes with
 `RAWTERM_DEBUG` environment variable
 
-* `core.h` - `process_keypress()` is now non-blocking, new `wait_for_input()` 
+* `core.h` - `process_keypress()` is now non-blocking, new `wait_for_input()`
 function replaces blocking functionality
 * `core.h` - Added `set_terminal_title()` function
+* `core.h` - Added `partial_cmp()` function to `Pos` struct
 * `color.h` - added function to set full terminal background
 * `cursor.h` - Added `get_raw_location()` for raw terminal cursor location
 * Added proper documentation
@@ -17,7 +18,7 @@ function replaces blocking functionality
 
 * Added new examples:
     * `red_blue_panes.cpp` for pane management
-    * `cursor_position.cpp` for getting the terminal cursor pos
+    * `cursor_position.cpp`
 
 ### v3.0.0
 * Windows support

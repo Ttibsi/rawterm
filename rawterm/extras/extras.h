@@ -7,4 +7,4 @@ namespace rawterm {
     const std::string set_header(const std::string&);
 }
 
-#endif // RAWTERM_EXTRAS_H
+#endif  // RAWTERM_EXTRAS_H

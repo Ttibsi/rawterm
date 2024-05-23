@@ -15,4 +15,3 @@ Overloaded Operators:
 
 Rawterm also provides preset default colors for the base16 color set, under the
 `rawterm::Colors` namespace.
-

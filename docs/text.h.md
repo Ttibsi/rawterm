@@ -1,5 +1,5 @@
 # text.h
-Functions for manipulating the appearance of text in the terminal, with 
+Functions for manipulating the appearance of text in the terminal, with
 overloads for both standard and wide strings.
 
 

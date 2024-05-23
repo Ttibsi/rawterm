@@ -51,4 +51,3 @@ Public methods:
 
 * `void update()`
     - Redraw just the current pane
-

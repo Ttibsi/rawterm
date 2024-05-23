@@ -7,11 +7,11 @@
 
 namespace rawterm {
     struct Cursor : Pos {
-        Cursor() : Pos{1, 1} {}
-        Cursor(Pos p) : Pos{p} {}
+        Cursor() : Pos {1, 1} {}
+        Cursor(Pos p) : Pos {p} {}
         void reset();
         void move(const Pos&);
-        void move_up(int = 1); 
+        void move_up(int = 1);
         void move_down(int = 1);
         void move_right(int = 1);
         void move_left(int = 1);
@@ -29,6 +29,6 @@ namespace rawterm {
         static void cursor_hide();
         static void cursor_show();
     };
-}                                            
+}  // namespace rawterm
 
-#endif // RAWTERM_CURSOR_H
+#endif  // RAWTERM_CURSOR_H

@@ -1,25 +1,21 @@
+#include <rawterm/color.h>
+#include <rawterm/core.h>
+#include <rawterm/extras/pane.h>
+
 #include <memory>
 #include <span>
 #include <string>
 #include <vector>
-
-#include <rawterm/color.h>
-#include <rawterm/core.h>
-#include <rawterm/extras/pane2.h>
 
 int main() {
     rawterm::enable_raw_mode();
     rawterm::enter_alt_screen();
 
     std::vector<std::string> lryics_1 = {
-        "Should Old Acquaintance be forgot,",
-        "and never thought upon;",
-        "The flames of Love extinguished,",
-        "and fully past and gone:",
-        "Is thy sweet Heart now grown so cold,",
-        "that loving Breast of thine;",
-        "That thou canst never once reflect",
-        "On old long syne.",
+        "Should Old Acquaintance be forgot,",    "and never thought upon;",
+        "The flames of Love extinguished,",      "and fully past and gone:",
+        "Is thy sweet Heart now grown so cold,", "that loving Breast of thine;",
+        "That thou canst never once reflect",    "On old long syne.",
     };
 
     std::vector<std::string> lryics_2 = {
@@ -84,12 +80,16 @@ int main() {
     };
 
     const rawterm::Pos term_size = rawterm::get_term_size();
-    for (auto&& line: lryics_1) { line = rawterm::set_foreground(line, rawterm::Colors::red); }
-    for (auto&& line: lryics_2) { line = rawterm::set_foreground(line, rawterm::Colors::yellow); }
+    for (auto&& line : lryics_1) {
+        line = rawterm::set_foreground(line, rawterm::Colors::red);
+    }
+    for (auto&& line : lryics_2) {
+        line = rawterm::set_foreground(line, rawterm::Colors::yellow);
+    }
 
     auto pane_mgr = rawterm::PaneManager(rawterm::get_term_size());
     pane_mgr.set_content(std::vector(lryics_2.begin(), lryics_2.begin() + term_size.vertical));
-    pane_mgr.set_pane_background(rawterm::Colors::azure);
+    pane_mgr.set_pane_background(rawterm::Colors::aqua);
 
     // Open a second pane, green bg, red text, under the first
     auto k = rawterm::wait_for_input();

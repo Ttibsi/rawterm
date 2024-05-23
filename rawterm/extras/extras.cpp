@@ -18,4 +18,4 @@ namespace rawterm {
 
         return ret;
     }
-}
+}  // namespace rawterm

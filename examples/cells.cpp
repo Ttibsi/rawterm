@@ -1,8 +1,8 @@
-#include <iostream>
-
 #include <rawterm/color.h>
 #include <rawterm/core.h>
 #include <rawterm/cursor.h>
+
+#include <iostream>
 
 int main() {
     rawterm::enable_raw_mode();
@@ -16,10 +16,10 @@ int main() {
     for (unsigned int i = 1; i <= term_size.horizontal; i++) {
         for (unsigned int j = 1; j <= term_size.vertical; j++) {
             if (toggle) {
-                std::cout << rawterm::set_background(" ", rawterm::Colors::black); 
+                std::cout << rawterm::set_background(" ", rawterm::Colors::black);
                 toggle = false;
             } else {
-                std::cout << rawterm::set_background(" ", rawterm::Colors::white); 
+                std::cout << rawterm::set_background(" ", rawterm::Colors::white);
                 toggle = true;
             }
         }
@@ -29,4 +29,3 @@ int main() {
     rawterm::exit_alt_screen();
     return 0;
 }
-

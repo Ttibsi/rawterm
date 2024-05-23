@@ -13,4 +13,3 @@ target_link_libraries(hello_world PUBLIC rawterm)
 target_link_libraries(keys PUBLIC rawterm)
 target_link_libraries(raw_escapes PUBLIC rawterm)
 target_link_libraries(red_blue_panes PUBLIC rawterm)
-

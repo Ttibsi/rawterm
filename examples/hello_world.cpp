@@ -1,5 +1,10 @@
+#include <rawterm/core.h>
+#include <rawterm/cursor.h>
+#include <rawterm/text.h>
+
 #include <iostream>
-#include "../rawterm.h"
+
+#include "rawterm/color.h"
 
 int main() {
     // Raw mode automatically gets disabled at the end of the program
@@ -7,18 +12,21 @@ int main() {
 
     rawterm::enter_alt_screen();
 
-    // Set cursor to top left position
-    rawterm::move_cursor({1,1});
+    // Create a cursor object to control the cursor, and reset it's position
+    rawterm::Cursor c = rawterm::Cursor();
+    c.reset();
 
-    // Display text to the screen. This can be done the same as any other 
+    // Set the background colour to grey
+    rawterm::set_terminal_background(rawterm::Colors::black);
+
+    // Display text to the screen. This can be done the same as any other
     // c++ text output. Rawterm provides a series of functions for customising
     // text appearance
     std::cout << rawterm::inverse("Hello world!\r\n");
 
     // Wait for user input
-    rawterm::process_keypress();
+    auto k = rawterm::wait_for_input();
 
     rawterm::exit_alt_screen();
     return 0;
 }
-

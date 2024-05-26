@@ -2,6 +2,7 @@
 * `core.h` - Updated `process_keypress()` to return an `std::optional`
 * `core.h` - `process_keypress()` now throws exceptions instead of relying on
 c-style `perror` error handling
+* `core.h` - Updated `Key` with new char-only constructor
 
 ### v4.0.1
 * Resolved missed compiler warnings

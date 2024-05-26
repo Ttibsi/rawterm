@@ -52,7 +52,7 @@ namespace rawterm {
         return L"\x1B[9m" + s + L"\x1B[29m";
     }
 
-    [[nodiscard]] const char raw_at(const std::string& str, const int index) {
+    [[nodiscard]] char raw_at(const std::string& str, const int index) {
         std::regex ansi_escape_code("\x1b\\[[0-9;]*[A-Za-z]");
         std::smatch match;
         int visible_index = 0;
@@ -79,7 +79,7 @@ namespace rawterm {
         throw std::out_of_range("Index out of range");
     }
 
-    [[nodiscard]] const int raw_size(const std::string& str) {
+    [[nodiscard]] int raw_size(const std::string& str) {
         std::regex ansi_escape_code("\x1b\\[[0-9;]*[A-Za-z]");
         std::string cleaned_str = std::regex_replace(str, ansi_escape_code, "");
         return cleaned_str.length();

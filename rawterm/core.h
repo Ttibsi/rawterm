@@ -38,10 +38,10 @@ namespace rawterm {
         inline bool sigcont_called = false;
 
         // Used for polling in process_keypress()
-        inline pollfd fd {STDIN_FILENO, POLLIN};
+        inline pollfd fd {STDIN_FILENO, POLLIN, POLLOUT};
 
         // used for debugging
-        [[nodiscard]] const bool is_debug();
+        [[nodiscard]] bool is_debug();
     }  // namespace detail
 
     enum struct Mod {
@@ -69,8 +69,8 @@ namespace rawterm {
         Key(char c, Mod m, std::string r) : code(c), mod(std::deque<Mod> {m}), raw(r) {}
 
         [[nodiscard]] rawterm::Mod getMod();
-        [[nodiscard]] const bool isCharInput();
-        [[nodiscard]] const bool isValid();
+        [[nodiscard]] bool isCharInput();
+        [[nodiscard]] bool isValid();
 
         [[nodiscard]] bool operator==(const Key& other) const {
             if (other.mod.empty() || other.mod == std::deque<Mod> {Mod::None}) {
@@ -154,7 +154,7 @@ namespace rawterm {
     void clear_line_until(const Pos&);
     void clear_line_from(const Pos&);
     [[nodiscard]] const std::string to_string(const Mod&);
-    [[nodiscard]] const int stripped_length(const std::string& txt);
+    [[nodiscard]] int stripped_length(const std::string& txt);
 
 }  // namespace rawterm
 

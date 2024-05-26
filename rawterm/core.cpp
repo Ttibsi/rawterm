@@ -7,7 +7,7 @@
 
 namespace rawterm {
     namespace detail {
-        [[nodiscard]] const bool is_debug() {
+        [[nodiscard]] bool is_debug() {
             auto raw_env_var = std::getenv("RAWTERM_DEBUG");
             if (raw_env_var == nullptr) {
                 return false;
@@ -28,12 +28,12 @@ namespace rawterm {
         }
     }
 
-    const bool Key::isCharInput() {
+    bool Key::isCharInput() {
         return std::isprint(static_cast<unsigned char>(code)) && code != ' ' &&
                (mod.empty() || mod[0] == Mod::Shift);
     }
 
-    const bool Key::isValid() {
+    bool Key::isValid() {
         auto it = std::find(mod.begin(), mod.end(), Mod::Unknown);
 
         if (it == mod.end()) {
@@ -652,7 +652,7 @@ namespace rawterm {
         return "";
     }
 
-    [[nodiscard]] const int stripped_length(const std::string& txt) {
+    [[nodiscard]] int stripped_length(const std::string& txt) {
         return 0;
     }
 

@@ -4,6 +4,7 @@
 #include <cstdlib>
 
 #include "cursor.h"
+#include "exceptions.h"
 
 namespace rawterm {
     namespace detail {
@@ -31,15 +32,6 @@ namespace rawterm {
     bool Key::isCharInput() {
         return std::isprint(static_cast<unsigned char>(code)) && code != ' ' &&
                (mod.empty() || mod[0] == Mod::Shift);
-    }
-
-    bool Key::isValid() {
-        auto it = std::find(mod.begin(), mod.end(), Mod::Unknown);
-
-        if (it == mod.end()) {
-            return true;
-        }
-        return false;
     }
 
     void disable_raw_mode() {
@@ -124,7 +116,7 @@ namespace rawterm {
         }
     }
 
-    [[nodiscard]] const rawterm::Key process_keypress() {
+    [[nodiscard]] const std::optional<rawterm::Key> process_keypress() {
 #if __linux__
         // Backgrounding
         std::signal(SIGTSTP, [](int) {
@@ -147,18 +139,16 @@ namespace rawterm {
         // input available
         if (pollResult > 0) {
             if (read(STDIN_FILENO, characters.data(), 32) < 0) {
-                std::perror("ERROR: something went wrong during reading user input: ");
-                return Key(' ', rawterm::Mod::Unknown, "");
+                throw rawterm::KeypressError("An error occured during reading user input");
             }
 
             // no input found
         } else if (pollResult == 0) {
-            return Key(' ', rawterm::Mod::Unknown, "");
+            return {};
 
             // Error
         } else {
-            std::perror("ERROR: Polling error");
-            return Key(' ', rawterm::Mod::Unknown, "");
+            throw rawterm::KeypressError("An unknown error occured");
         }
 
         std::stringstream ss;
@@ -523,11 +513,11 @@ namespace rawterm {
         return Key(' ', rawterm::Mod::Unknown, raw);
     }
 
-    [[nodiscard]] rawterm::Key wait_for_input() {
+    [[nodiscard]] const rawterm::Key wait_for_input() {
         while (true) {
             auto k = process_keypress();
-            if (k.isValid()) {
-                return k;
+            if (k.has_value()) {
+                return k.value();
             }
         }
     }

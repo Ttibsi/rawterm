@@ -14,6 +14,7 @@
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <unordered_set>
@@ -139,8 +140,8 @@ namespace rawterm {
     void enable_signals();
     void sigtstp_handler(std::function<void(void)>);
     void sigcont_handler(std::function<void(void)>);
-    [[nodiscard]] const rawterm::Key process_keypress();
-    [[nodiscard]] rawterm::Key wait_for_input();
+    [[nodiscard]] const std::optional<rawterm::Key> process_keypress();
+    [[nodiscard]] const rawterm::Key wait_for_input();
     [[nodiscard]] const rawterm::Pos get_term_size();
     [[nodiscard]] std::string set_terminal_title(const std::string&);
     void clear_screen();

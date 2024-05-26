@@ -1,3 +1,8 @@
+### v4.0.2
+* `core.h` - Updated `process_keypress()` to return an `std::optional`
+* `core.h` - `process_keypress()` now throws exceptions instead of relying on
+c-style `perror` error handling
+
 ### v4.0.1
 * Resolved missed compiler warnings
 

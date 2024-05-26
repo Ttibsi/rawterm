@@ -1,3 +1,6 @@
+### v4.0.1
+* Resolved missed compiler warnings
+
 ### v4.0.0
 * Refactor header-only library out into a cmake fetch-content project
 * Added extra constructors and overloads to most classes

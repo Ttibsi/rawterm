@@ -26,17 +26,18 @@ int main() {
     std::cout << rawterm::set_header(header) << std::flush;
 
     while (true) {
-        rawterm::Key k = rawterm::process_keypress();
-        if (k == rawterm::Key('q', rawterm::Mod::None)) {
+        auto k = rawterm::process_keypress();
+        if (k.value() == rawterm::Key('q', rawterm::Mod::None)) {
             break;
-        } else if (k.isValid()) {
+        } else if (k.has_value()) {
+            auto key_value = k.value();
             std::string mods = "[";
-            while (!(k.mod.empty()))
-                mods += " " + rawterm::to_string(k.getMod());
+            while (!(key_value.mod.empty()))
+                mods += " " + rawterm::to_string(key_value.getMod());
             mods += " ]";
 
-            std::cout << "Key{ code: " << k.code << ", mods: " << mods << ", raw: " << k.raw
-                      << "}\r\n";
+            std::cout << "Key{ code: " << key_value.code << ", mods: " << mods
+                      << ", raw: " << key_value.raw << "}\r\n";
         }
     }
 

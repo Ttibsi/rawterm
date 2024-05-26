@@ -27,7 +27,7 @@ int main() {
 
     while (true) {
         auto k = rawterm::process_keypress();
-        if (k.value() == rawterm::Key('q', rawterm::Mod::None)) {
+        if (k.value() == rawterm::Key('q')) {
             break;
         } else if (k.has_value()) {
             auto key_value = k.value();

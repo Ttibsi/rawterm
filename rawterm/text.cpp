@@ -56,7 +56,7 @@ namespace rawterm {
         std::regex ansi_escape_code("\x1b\\[[0-9;]*[A-Za-z]");
         std::smatch match;
         int visible_index = 0;
-        int pos = 0;
+        std::size_t pos = 0;
 
         while (pos < str.length()) {
             // Check if there's an ANSI escape code at the current position

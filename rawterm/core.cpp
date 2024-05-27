@@ -641,9 +641,4 @@ namespace rawterm {
 
         return "";
     }
-
-    [[nodiscard]] int stripped_length(const std::string& txt) {
-        return 0;
-    }
-
 }  // namespace rawterm

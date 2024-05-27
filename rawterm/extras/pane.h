@@ -9,6 +9,8 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <string_view>
+#include <type_traits>
 #include <vector>
 
 namespace rawterm {
@@ -60,6 +62,17 @@ namespace rawterm {
                 }
             }
 
+            void line_printer(std::string_view line) {
+                if (line.size() > static_cast<std::size_t>(dimensions.horizontal)) {
+                    line = line.substr(0, dimensions.horizontal);
+                }
+
+                if (background_color.has_value()) {
+                    std::cout << "\x1B[48;2;" << background_color.value();
+                }
+                std::cout << line;
+            }
+
             void draw() {
                 if (detail::is_debug()) {
                     return;
@@ -68,25 +81,34 @@ namespace rawterm {
                 clear();
                 cur.move(origin);
 
-                // TODO: Modify this for termplate type
-                for (int idx = 0; idx < content.size(); idx++) {
-                    if (idx >= dimensions.vertical) {
-                        break;
-                    }
+                if constexpr (std::is_same_v<typename T::value_type, char>) {
+                    std::string line = "";
 
-                    std::string out = content.at(idx);
-                    if (out.size() > dimensions.horizontal) {
-                        out = out.substr(0, dimensions.horizontal);
-                    }
+                    for (int idx = 0; idx < content.size(); idx++) {
+                        if (idx >= dimensions.vertical) {
+                            break;
+                        }
 
-                    if (background_color.has_value()) {
-                        std::cout << "\x1B[48;2;" << background_color.value();
+                        char out = content.at(idx);
+                        line.push_back(out);
+                        if (out == '\n') {
+                            line_printer(line);
+                            cur.move(
+                                {static_cast<int>(origin.vertical + idx + 1), origin.horizontal});
+                            line = "";
+                        }
                     }
-                    std::cout << out;
+                } else {
+                    for (int idx = 0; idx < content.size(); idx++) {
+                        if (idx >= dimensions.vertical) {
+                            break;
+                        }
 
-                    cur.move({origin.vertical + idx + 1, origin.horizontal});
+                        typename T::value_type out = content.at(idx);
+                        line_printer(out);
+                        cur.move({static_cast<int>(origin.vertical + idx + 1), origin.horizontal});
+                    }
                 }
-
                 cur.move(origin);
             }
 

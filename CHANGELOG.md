@@ -1,3 +1,8 @@
+### v4.0.3
+* Resolved missed compiler warnings
+* `extras/pane.h` - Updated `draw()` function to check for char type instead of
+assuming strings on each line
+
 ### v4.0.2
 * `core.h` - Updated `process_keypress()` to return an `std::optional`
 * `core.h` - `process_keypress()` now throws exceptions instead of relying on

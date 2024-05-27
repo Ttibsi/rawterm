@@ -34,8 +34,8 @@ namespace rawterm {
         rawterm::Cursor::save_cursor_position();
         rawterm::Pos term_size = rawterm::get_term_size();
 
-        for (unsigned int v = 0; v < term_size.vertical; v++) {
-            for (unsigned int h = 0; h < term_size.horizontal; h++) {
+        for (int v = 0; v < term_size.vertical; v++) {
+            for (int h = 0; h < term_size.horizontal; h++) {
                 std::cout << "\x1B[48;2;" << col << " "
                           << "\x1B[49m";
             }

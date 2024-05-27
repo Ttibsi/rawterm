@@ -156,7 +156,6 @@ namespace rawterm {
     void clear_line_until(const Pos&);
     void clear_line_from(const Pos&);
     [[nodiscard]] const std::string to_string(const Mod&);
-    [[nodiscard]] int stripped_length(const std::string& txt);
 
 }  // namespace rawterm
 

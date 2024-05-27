@@ -1,3 +1,6 @@
+### v4.0.4
+* `extras/pane.h` - Tweaked location for content to constructors
+
 ### v4.0.3
 * Resolved missed compiler warnings
 * `extras/pane.h` - Updated `draw()` function to check for char type instead of

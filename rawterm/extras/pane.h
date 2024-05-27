@@ -22,7 +22,7 @@ namespace rawterm {
             Pos origin;
             Pos dimensions;
             Cursor cur;
-            T content = {};
+            T content;
             std::optional<Color> background_color;
 
             Pane* parent = nullptr;
@@ -31,7 +31,7 @@ namespace rawterm {
 
             // Initial ctor
             Pane(const Pos& term_dimensions)
-                : id(1), origin({1, 1}), dimensions(term_dimensions), cur(Cursor()) {}
+                : id(1), origin({1, 1}), dimensions(term_dimensions), cur(Cursor()), content(T()) {}
 
             // Splitting ctor
             Pane(int new_id, Pos new_origin, Pos new_dims, Cursor new_cursor, T c, Color color)
@@ -83,23 +83,27 @@ namespace rawterm {
 
                 if constexpr (std::is_same_v<typename T::value_type, char>) {
                     std::string line = "";
+                    int line_count = 0;
 
-                    for (int idx = 0; idx < content.size(); idx++) {
-                        if (idx >= dimensions.vertical) {
-                            break;
-                        }
-
+                    for (int idx = 0; idx < static_cast<int>(content.size()); idx++) {
                         char out = content.at(idx);
                         line.push_back(out);
                         if (out == '\n') {
+                            line_count++;
+                            if (line_count == dimensions.vertical) {
+                                break;
+                            }
+
                             line_printer(line);
                             cur.move(
-                                {static_cast<int>(origin.vertical + idx + 1), origin.horizontal});
+                                {static_cast<int>(origin.vertical + line_count + 1),
+                                 origin.horizontal});
+
                             line = "";
                         }
                     }
                 } else {
-                    for (int idx = 0; idx < content.size(); idx++) {
+                    for (int idx = 0; idx < static_cast<int>(content.size()); idx++) {
                         if (idx >= dimensions.vertical) {
                             break;
                         }
@@ -221,9 +225,9 @@ namespace rawterm {
             std::cout << "Active pane: " << active_pane->id << "\n";
         }
 
-        [[nodiscard]] unsigned int count() { return pane_bank.size(); }
-        [[nodiscard]] unsigned int active() { return active_pane->id; }
-        [[nodiscard]] Pos get_size() { return active_pane->dimensions; }
+        [[nodiscard]] unsigned int count() const { return pane_bank.size(); }
+        [[nodiscard]] unsigned int active() const { return active_pane->id; }
+        [[nodiscard]] const Pos get_size() const { return active_pane->dimensions; }
 
         void set_content(T new_c) {
             active_pane->content = new_c;

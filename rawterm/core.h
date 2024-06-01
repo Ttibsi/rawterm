@@ -108,8 +108,18 @@ namespace rawterm {
             return *this;
         }
 
+        constexpr Pos& operator-=(const Pos& other) {
+            this->vertical -= other.vertical;
+            this->horizontal -= other.horizontal;
+            return *this;
+        }
+
         [[nodiscard]] constexpr Pos operator+(const Pos& other) const {
             return {this->vertical + other.vertical, this->horizontal + other.horizontal};
+        }
+
+        [[nodiscard]] constexpr Pos operator-(const Pos& other) const {
+            return {this->vertical - other.vertical, this->horizontal - other.horizontal};
         }
 
         constexpr Pos& operator+=(const int other) {
@@ -119,8 +129,8 @@ namespace rawterm {
         }
 
         constexpr Pos& operator-=(const int other) {
-            this->vertical += other;
-            this->horizontal += other;
+            this->vertical -= other;
+            this->horizontal -= other;
             return *this;
         }
     };

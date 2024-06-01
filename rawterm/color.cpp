@@ -7,13 +7,13 @@
 #include "cursor.h"
 
 namespace rawterm {
-    [[nodiscard]] std::string set_foreground(const std::string& s, const Color color) {
+    [[nodiscard]] std::string set_foreground(const std::string& s, const Color& color) {
         return "\x1B[38;2;" + std::to_string(color.red) + ';' + std::to_string(color.green) + ';' +
                std::to_string(color.blue) + 'm' + s + "\x1B[39m";
     }
 
     // Set the background colour based on a given Color object
-    [[nodiscard]] std::string set_background(const std::string& s, const Color color) {
+    [[nodiscard]] std::string set_background(const std::string& s, const Color& color) {
         return "\x1B[48;2;" + std::to_string(color.red) + ';' + std::to_string(color.green) + ';' +
                std::to_string(color.blue) + 'm' + s + "\x1B[49m";
     }

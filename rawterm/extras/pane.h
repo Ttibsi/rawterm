@@ -1,6 +1,7 @@
 #include <rawterm/color.h>
 #include <rawterm/core.h>
 #include <rawterm/cursor.h>
+#include <rawterm/text.h>
 
 #include <algorithm>
 #include <array>
@@ -62,8 +63,8 @@ namespace rawterm {
                 }
             }
 
-            void line_printer(std::string_view line) {
-                if (line.size() > static_cast<std::size_t>(dimensions.horizontal)) {
+            void line_printer(std::string& line) {
+                if (raw_size(line) > dimensions.horizontal) {
                     line = line.substr(0, dimensions.horizontal);
                 }
 

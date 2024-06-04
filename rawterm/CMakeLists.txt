@@ -10,3 +10,4 @@ add_library(rawterm STATIC
 )
 
 target_include_directories(rawterm PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
+target_compile_options(rawterm PUBLIC -fexperimental-library)

@@ -1,6 +1,7 @@
 ### v4.0.4
 * `extras/pane.h` - Tweaked location for content to constructors
 * `core.h` - Added `Operator-=` overload to `Pos` class for other Pos objects
+* Resolved miscellaneous compiler warnings
 
 ### v4.0.3
 * Resolved missed compiler warnings

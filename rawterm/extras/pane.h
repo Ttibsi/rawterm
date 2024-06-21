@@ -118,7 +118,7 @@ namespace rawterm {
             }
 
             void move_cur_up() {
-                if (cur.partial_cmp(origin) || cur.partial_cmp(dimensions)) {
+                if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
                     throw std::out_of_range("Cannot move cursor outside of pane dimensions");
                 }
 
@@ -126,7 +126,7 @@ namespace rawterm {
             }
 
             void move_cur_left() {
-                if (cur.partial_cmp(origin) || cur.partial_cmp(dimensions)) {
+                if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
                     throw std::out_of_range("Cannot move cursor outside of pane dimensions");
                 }
 
@@ -134,7 +134,7 @@ namespace rawterm {
             }
 
             void move_cur_right() {
-                if (cur.partial_cmp(origin) || cur.partial_cmp(dimensions)) {
+                if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
                     throw std::out_of_range("Cannot move cursor outside of pane dimensions");
                 }
 
@@ -142,7 +142,7 @@ namespace rawterm {
             }
 
             void move_cur_down() {
-                if (cur.partial_cmp(origin) || cur.partial_cmp(dimensions)) {
+                if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
                     throw std::out_of_range("Cannot move cursor outside of pane dimensions");
                 }
 
@@ -233,6 +233,7 @@ namespace rawterm {
         void set_content(T new_c) {
             active_pane->content = new_c;
             active_pane->draw();
+            active_pane->cur.reset();
         }
 
         void set_pane_background(const Color& col) {

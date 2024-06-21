@@ -402,7 +402,7 @@ namespace rawterm {
                 }
             } else {
                 if (active_pane->is_leaf()) {
-                    active_pane = get_pane(current_pane_id);
+                    active_pane = get_pane(parent_id);
                     remove_from_bank(active_pane->left->id);
                     remove_from_bank(active_pane->right->id);
                     active_pane->kill_children();

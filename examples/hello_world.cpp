@@ -17,7 +17,7 @@ int main() {
     c.reset();
 
     // Set the background colour to grey
-    rawterm::set_terminal_background(rawterm::Colors::black);
+    rawterm::set_terminal_background(rawterm::Colors::gray);
 
     // Display text to the screen. This can be done the same as any other
     // c++ text output. Rawterm provides a series of functions for customising

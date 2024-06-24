@@ -505,7 +505,7 @@ namespace rawterm {
             }
 
             draw_all();
-           active_pane->cur.move(active_pane->origin);
+            active_pane->cur.move(active_pane->origin);
         }
 
         void draw_all() {

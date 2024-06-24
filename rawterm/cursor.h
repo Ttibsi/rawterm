@@ -3,7 +3,7 @@
 
 #include <optional>
 
-#include "core.h"
+#include "screen.h"
 
 namespace rawterm {
     struct Cursor : Pos {

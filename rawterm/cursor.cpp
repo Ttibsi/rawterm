@@ -1,5 +1,7 @@
 #include "cursor.h"
 
+#include "core.h"
+
 namespace rawterm {
     void Cursor::reset() {
         if (detail::is_debug()) {

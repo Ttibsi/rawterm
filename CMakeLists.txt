@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.22)
+set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 project(rawterm LANGUAGES CXX)
 
 add_subdirectory(rawterm)
 
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-    set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 
     add_compile_options("-g")
     add_compile_options("-Wall")

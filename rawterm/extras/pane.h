@@ -1,6 +1,7 @@
 #include <rawterm/color.h>
 #include <rawterm/core.h>
 #include <rawterm/cursor.h>
+#include <rawterm/screen.h>
 #include <rawterm/text.h>
 
 #include <algorithm>
@@ -25,6 +26,7 @@ namespace rawterm {
             Cursor cur;
             T content;
             std::optional<Color> background_color;
+            std::vector<Region> cursor_blacklist_regions;
 
             Pane* parent = nullptr;
             Pane* left = nullptr;
@@ -32,16 +34,29 @@ namespace rawterm {
 
             // Initial ctor
             Pane(const Pos& term_dimensions)
-                : id(1), origin({1, 1}), dimensions(term_dimensions), cur(Cursor()), content(T()) {}
+                : id(1),
+                  origin({1, 1}),
+                  dimensions(term_dimensions),
+                  cur(Cursor()),
+                  content(T()),
+                  cursor_blacklist_regions({}) {}
 
             // Splitting ctor
-            Pane(int new_id, Pos new_origin, Pos new_dims, Cursor new_cursor, T c, Color color)
+            Pane(
+                int new_id,
+                Pos new_origin,
+                Pos new_dims,
+                Cursor new_cursor,
+                T c,
+                Color color,
+                std::vector<Region> regs)
                 : id(new_id),
                   origin(new_origin),
                   dimensions(new_dims),
                   cur(new_cursor),
                   content(c),
-                  background_color(color) {}
+                  background_color(color),
+                  cursor_blacklist_regions(regs) {}
 
             void clear() {
                 if (detail::is_debug()) {
@@ -122,12 +137,24 @@ namespace rawterm {
                     throw std::out_of_range("Cannot move cursor outside of pane dimensions");
                 }
 
+                for (auto&& bl : cursor_blacklist_regions) {
+                    if (bl.contains(cur)) {
+                        return;
+                    }
+                }
+
                 cur.move_up();
             }
 
             void move_cur_left() {
                 if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
                     throw std::out_of_range("Cannot move cursor outside of pane dimensions");
+                }
+
+                for (auto&& bl : cursor_blacklist_regions) {
+                    if (bl.contains(cur)) {
+                        return;
+                    }
                 }
 
                 cur.move_left();
@@ -138,12 +165,24 @@ namespace rawterm {
                     throw std::out_of_range("Cannot move cursor outside of pane dimensions");
                 }
 
+                for (auto&& bl : cursor_blacklist_regions) {
+                    if (bl.contains(cur)) {
+                        return;
+                    }
+                }
+
                 cur.move_right();
             }
 
             void move_cur_down() {
                 if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
                     throw std::out_of_range("Cannot move cursor outside of pane dimensions");
+                }
+
+                for (auto&& bl : cursor_blacklist_regions) {
+                    if (bl.contains(cur)) {
+                        return;
+                    }
                 }
 
                 cur.move_down();
@@ -279,14 +318,36 @@ namespace rawterm {
             Pos split_origin = {
                 active_pane->origin.vertical, half_dims.horizontal + (odd_split ? 2 : 1)};
 
+            std::vector<Region> new_left = {};
+            std::vector<Region> new_right = {};
+
+            for (auto&& r : active_pane->cursor_blacklist_regions) {
+                if (r.top_left.horizontal < active_pane->dimensions.horizontal / 2) {
+                    new_left.emplace_back(
+                        r.top_left,
+                        Pos(r.bottom_right.vertical, std::min(
+                                                         r.bottom_right.horizontal / 2,
+                                                         active_pane->dimensions.horizontal)));
+                }
+
+                if (r.bottom_right.horizontal < active_pane->dimensions.horizontal / 2) {
+                    new_right.emplace_back(
+                        Pos(r.top_left.vertical,
+                            std::max(
+                                r.top_left.horizontal / 2, active_pane->dimensions.horizontal)),
+                        r.bottom_right);
+                }
+            }
+
             pane_bank.emplace_back(
                 pane_bank.size() + 1, active_pane->origin,
                 odd_split ? Pos {half_dims.vertical, half_dims.horizontal + 1} : half_dims,
                 Cursor({1, active_pane->cur.horizontal}), active_pane->content,
-                active_pane->background_color.value());
+                active_pane->background_color.value(), new_left);
 
             pane_bank.emplace_back(
-                pane_bank.size() + 1, split_origin, half_dims, split_origin, new_c, Color());
+                pane_bank.size() + 1, split_origin, half_dims, split_origin, new_c, Color(),
+                new_right);
 
             // Extra indirection needed to ensure we have a pointer to the object,
             // not to a location in the vector
@@ -316,14 +377,36 @@ namespace rawterm {
             Pos split_origin = {
                 half_dims.vertical + (odd_split ? 2 : 1), active_pane->origin.horizontal};
 
+            std::vector<Region> new_left = {};
+            std::vector<Region> new_right = {};
+
+            for (auto&& r : active_pane->cursor_blacklist_regions) {
+                if (r.top_left.horizontal < active_pane->dimensions.horizontal / 2) {
+                    new_left.emplace_back(
+                        r.top_left,
+                        Pos(r.bottom_right.vertical, std::min(
+                                                         r.bottom_right.horizontal / 2,
+                                                         active_pane->dimensions.horizontal)));
+                }
+
+                if (r.bottom_right.horizontal < active_pane->dimensions.horizontal / 2) {
+                    new_right.emplace_back(
+                        Pos(r.top_left.vertical,
+                            std::max(
+                                r.top_left.horizontal / 2, active_pane->dimensions.horizontal)),
+                        r.bottom_right);
+                }
+            }
+
             pane_bank.emplace_back(
                 pane_bank.size() + 1, active_pane->origin,
                 odd_split ? Pos {half_dims.vertical + 1, half_dims.horizontal} : half_dims,
                 Cursor({active_pane->cur.vertical, 1}), active_pane->content,
-                active_pane->background_color.value());
+                active_pane->background_color.value(), new_left);
 
             pane_bank.emplace_back(
-                pane_bank.size() + 1, split_origin, half_dims, split_origin, new_c, Color());
+                pane_bank.size() + 1, split_origin, half_dims, split_origin, new_c, Color(),
+                new_right);
 
             // Extra indirection needed to ensure we have a pointer to the object,
             // not to a location in the vector

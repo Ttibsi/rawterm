@@ -1,3 +1,8 @@
+### v4.0.5
+* Split out the `Pos` struct into `screen.h`
+* Added a `Region` struct for defining a square between two points on the
+screen
+
 ### v4.0.4
 * `extras/pane.h` - Tweaked location for content to constructors
 * `core.h` - Added `Operator-=` overload to `Pos` class for other Pos objects

@@ -138,7 +138,7 @@ namespace rawterm {
                 }
 
                 for (auto&& bl : cursor_blacklist_regions) {
-                    if (bl.contains(cur)) {
+                    if (bl.contains(cur + Pos(-1, 0))) {
                         return;
                     }
                 }
@@ -152,7 +152,7 @@ namespace rawterm {
                 }
 
                 for (auto&& bl : cursor_blacklist_regions) {
-                    if (bl.contains(cur)) {
+                    if (bl.contains(cur + Pos(0, -1))) {
                         return;
                     }
                 }
@@ -166,7 +166,7 @@ namespace rawterm {
                 }
 
                 for (auto&& bl : cursor_blacklist_regions) {
-                    if (bl.contains(cur)) {
+                    if (bl.contains(cur + Pos(0, 1))) {
                         return;
                     }
                 }
@@ -180,7 +180,7 @@ namespace rawterm {
                 }
 
                 for (auto&& bl : cursor_blacklist_regions) {
-                    if (bl.contains(cur)) {
+                    if (bl.contains(cur + Pos(1, 0))) {
                         return;
                     }
                 }
@@ -505,6 +505,7 @@ namespace rawterm {
             }
 
             draw_all();
+           active_pane->cur.move(active_pane->origin);
         }
 
         void draw_all() {
@@ -515,8 +516,6 @@ namespace rawterm {
                     p.draw();
                 }
             });
-
-            active_pane->cur.reset();
         }
 
         void update() {

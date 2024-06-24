@@ -130,6 +130,16 @@ namespace rawterm {
                     }
                 }
                 cur.move(origin);
+                move_cur_out_of_blacklist();
+            }
+
+            void move_cur_out_of_blacklist() {
+                for (auto&& bl : cursor_blacklist_regions) {
+                    while (bl.contains(cur)) {
+                        // TODO: Handle going off the side of the screen
+                        cur += {0, 1};
+                    }
+                }
             }
 
             void move_cur_up() {
@@ -277,6 +287,10 @@ namespace rawterm {
 
         void set_blacklist_region(Region bl) {
             active_pane->cursor_blacklist_regions.push_back(bl);
+
+            while (bl.contains(active_pane->cur)) {
+                active_pane->cur += {1, 0};
+            }
         }
 
         void set_pane_background(const Color& col) {

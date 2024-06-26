@@ -3,7 +3,7 @@
 #include "core.h"
 
 namespace rawterm {
-    void Cursor::reset() {
+    void Cursor::reset() const {
         if (detail::is_debug()) {
             return;
         }
@@ -93,7 +93,7 @@ namespace rawterm {
         std::cout << "\x1B[u" << std::flush;
     }
 
-    std::optional<Pos> Cursor::get_raw_location() {
+    const std::optional<Pos> Cursor::get_raw_location() {
 #if __linux__
         std::cout << "\x1B[6n" << std::flush;
 

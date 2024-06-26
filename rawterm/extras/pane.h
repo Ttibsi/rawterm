@@ -39,7 +39,9 @@ namespace rawterm {
                   dimensions(term_dimensions),
                   cur(Cursor()),
                   content(T()),
-                  cursor_blacklist_regions({}) {}
+                  cursor_blacklist_regions({}) {
+                cur.reset();
+            }
 
             // Splitting ctor
             Pane(
@@ -62,6 +64,7 @@ namespace rawterm {
                 if (detail::is_debug()) {
                     return;
                 }
+                Pos current_pos = cur;
                 Pos end = origin + dimensions;
 
                 for (int i = origin.vertical; i < end.vertical; i++) {
@@ -76,6 +79,7 @@ namespace rawterm {
                         }
                     }
                 }
+                cur = current_pos;
             }
 
             void line_printer(std::string& line) {
@@ -95,6 +99,7 @@ namespace rawterm {
                 }
 
                 clear();
+                Pos cur_pos = cur;
                 cur.move(origin);
 
                 if constexpr (std::is_same_v<typename T::value_type, char>) {
@@ -129,7 +134,8 @@ namespace rawterm {
                         cur.move({static_cast<int>(origin.vertical + idx + 1), origin.horizontal});
                     }
                 }
-                cur.move(origin);
+
+                cur.move(cur_pos);
                 move_cur_out_of_blacklist();
             }
 
@@ -137,7 +143,7 @@ namespace rawterm {
                 for (auto&& bl : cursor_blacklist_regions) {
                     while (bl.contains(cur)) {
                         // TODO: Handle going off the side of the screen
-                        cur += {0, 1};
+                        cur.move_right();
                     }
                 }
             }
@@ -146,8 +152,8 @@ namespace rawterm {
                 cur.move_up();
 
                 for (auto&& bl : cursor_blacklist_regions) {
-                    if (bl.contains(cur + Pos(-1, 0))) {
-                        return;
+                    while (bl.contains(cur)) {
+                        cur.move_up();
                     }
                 }
 
@@ -160,8 +166,8 @@ namespace rawterm {
                 cur.move_left();
 
                 for (auto&& bl : cursor_blacklist_regions) {
-                    if (bl.contains(cur + Pos(0, -1))) {
-                        return;
+                    while (bl.contains(cur)) {
+                        cur.move_left();
                     }
                 }
 
@@ -173,14 +179,14 @@ namespace rawterm {
             void move_cur_right() {
                 cur.move_right();
 
-                if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
-                    throw std::out_of_range("Cannot move cursor outside of pane dimensions");
+                for (auto&& bl : cursor_blacklist_regions) {
+                    while (bl.contains(cur)) {
+                        cur.move_right();
+                    }
                 }
 
-                for (auto&& bl : cursor_blacklist_regions) {
-                    if (bl.contains(cur + Pos(0, 1))) {
-                        return;
-                    }
+                if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
+                    throw std::out_of_range("Cannot move cursor outside of pane dimensions");
                 }
             }
 
@@ -188,8 +194,8 @@ namespace rawterm {
                 cur.move_down();
 
                 for (auto&& bl : cursor_blacklist_regions) {
-                    if (bl.contains(cur + Pos(1, 0))) {
-                        return;
+                    while (bl.contains(cur)) {
+                        cur.move_down();
                     }
                 }
 
@@ -276,12 +282,14 @@ namespace rawterm {
         }
 
         [[nodiscard]] unsigned int count() const { return pane_bank.size(); }
+        [[nodiscard]] const std::string get_cur_pos() const { return active_pane->cur.toStr(); }
         [[nodiscard]] unsigned int active() const { return active_pane->id; }
         [[nodiscard]] const Pos get_size() const { return active_pane->dimensions; }
 
         void set_content(T new_c) {
             active_pane->content = new_c;
             active_pane->draw();
+            active_pane->cur.move(active_pane->origin);
             active_pane->cur.reset();
         }
 
@@ -289,7 +297,7 @@ namespace rawterm {
             active_pane->cursor_blacklist_regions.push_back(bl);
 
             while (bl.contains(active_pane->cur)) {
-                active_pane->cur += {1, 0};
+                active_pane->cur += {0, 1};
             }
         }
 

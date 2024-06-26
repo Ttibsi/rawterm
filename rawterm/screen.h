@@ -2,6 +2,7 @@
 #define RAWTERM_SCREEN_H
 
 #include <iostream>
+#include <string>
 
 namespace rawterm {
     // 0 == vertical == ^v, 1 == horizontal == <>
@@ -20,6 +21,7 @@ namespace rawterm {
         Pos& operator+=(const int other);
         Pos& operator-=(const int other);
         [[nodiscard]] bool partial_cmp(const Pos&);
+        [[nodiscard]] const std::string toStr() const;
     };
 
     struct Region {

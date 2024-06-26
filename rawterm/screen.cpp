@@ -47,9 +47,13 @@ namespace rawterm {
         return this->vertical == rhs.vertical || this->horizontal == rhs.horizontal;
     }
 
+    [[nodiscard]] const std::string Pos::toStr() const {
+        return "Pos(" + std::to_string(vertical) + ", " + std::to_string(horizontal) + ")";
+    }
+
     [[nodiscard]] bool Region::contains(const Pos& cmp) const {
         return cmp.vertical >= top_left.vertical && cmp.vertical <= bottom_right.vertical &&
-               cmp.horizontal >= top_left.horizontal & cmp.horizontal <= bottom_right.horizontal;
+               cmp.horizontal >= top_left.horizontal && cmp.horizontal <= bottom_right.horizontal;
     }
 
     // TODO: Verify that this code actually works/makes sense

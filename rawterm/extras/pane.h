@@ -143,9 +143,7 @@ namespace rawterm {
             }
 
             void move_cur_up() {
-                if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
-                    throw std::out_of_range("Cannot move cursor outside of pane dimensions");
-                }
+                cur.move_up();
 
                 for (auto&& bl : cursor_blacklist_regions) {
                     if (bl.contains(cur + Pos(-1, 0))) {
@@ -153,13 +151,13 @@ namespace rawterm {
                     }
                 }
 
-                cur.move_up();
-            }
-
-            void move_cur_left() {
                 if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
                     throw std::out_of_range("Cannot move cursor outside of pane dimensions");
                 }
+            }
+
+            void move_cur_left() {
+                cur.move_left();
 
                 for (auto&& bl : cursor_blacklist_regions) {
                     if (bl.contains(cur + Pos(0, -1))) {
@@ -167,10 +165,14 @@ namespace rawterm {
                     }
                 }
 
-                cur.move_left();
+                if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
+                    throw std::out_of_range("Cannot move cursor outside of pane dimensions");
+                }
             }
 
             void move_cur_right() {
+                cur.move_right();
+
                 if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
                     throw std::out_of_range("Cannot move cursor outside of pane dimensions");
                 }
@@ -180,14 +182,10 @@ namespace rawterm {
                         return;
                     }
                 }
-
-                cur.move_right();
             }
 
             void move_cur_down() {
-                if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
-                    throw std::out_of_range("Cannot move cursor outside of pane dimensions");
-                }
+                cur.move_down();
 
                 for (auto&& bl : cursor_blacklist_regions) {
                     if (bl.contains(cur + Pos(1, 0))) {
@@ -195,7 +193,9 @@ namespace rawterm {
                     }
                 }
 
-                cur.move_down();
+                if (cur.partial_cmp(origin) || cur.partial_cmp(origin + dimensions)) {
+                    throw std::out_of_range("Cannot move cursor outside of pane dimensions");
+                }
             }
 
             [[nodiscard]] constexpr bool is_leaf() { return (left == nullptr && right == nullptr); }

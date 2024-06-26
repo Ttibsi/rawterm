@@ -9,7 +9,7 @@ namespace rawterm {
     struct Cursor : Pos {
         Cursor() : Pos {1, 1} {}
         Cursor(Pos p) : Pos {p} {}
-        void reset();
+        void reset() const;
         void move(const Pos&);
         void move_up(int = 1);
         void move_down(int = 1);
@@ -19,7 +19,7 @@ namespace rawterm {
 
         static void save_cursor_position();
         static void load_cursor_position();
-        static std::optional<Pos> get_raw_location();
+        static const std::optional<Pos> get_raw_location();
         static void cursor_block_blink();
         static void cursor_block();
         static void cursor_underscore_blink();

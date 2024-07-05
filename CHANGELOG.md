@@ -1,3 +1,7 @@
+### v4.0.6
+* `extras/pane.h` - Added handling for blacklisting Regions from the cursor
+* Fixed a bug with cursor move function (vorlac - #50)
+
 ### v4.0.5
 * Split out the `Pos` struct into `screen.h`
 * Added a `Region` struct for defining a square between two points on the

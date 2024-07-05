@@ -15,7 +15,7 @@ namespace rawterm {
     void Cursor::move(const Pos& pos) {
         // These save the given position to the cursor object
         vertical = pos.vertical;
-        horizontal = pos.vertical;
+        horizontal = pos.horizontal;
 
         if (detail::is_debug()) {
             return;

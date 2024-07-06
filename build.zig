@@ -33,6 +33,7 @@ pub fn build(b: *std.Build) void {
             "rawterm/text.cpp",
         }
     });
+    b.installArtifact(lib);
 
     for (examples) |example| {
         const exec = b.addExecutable(.{

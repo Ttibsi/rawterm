@@ -104,7 +104,7 @@ namespace rawterm {
     void sigtstp_handler(std::function<void(void)>);
     void sigcont_handler(std::function<void(void)>);
     [[nodiscard]] const std::optional<rawterm::Key> process_keypress();
-    [[nodiscard]] const rawterm::Key wait_for_input();
+    const rawterm::Key wait_for_input();
     [[nodiscard]] const rawterm::Pos get_term_size();
     [[nodiscard]] std::string set_terminal_title(const std::string&);
     void clear_screen();

@@ -1,3 +1,8 @@
+### v4.0.7
+* Added zig build option
+* `screen.h` - Added hashing for `Pos` object to use as a key in
+`std::unordered_map` and other hashed objects
+
 ### v4.0.6
 * `extras/pane.h` - Added handling for blacklisting Regions from the cursor
 * Fixed a bug with cursor move function (vorlac - #50)

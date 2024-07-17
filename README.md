@@ -21,6 +21,14 @@ fetchcontent_declare(
 fetchcontent_makeavailable(rawterm)
 ```
 
+Alternatively, if you use `zig` as your build system, you can run
+
+```console
+zig fetch --save=rawterm git+https://github.com/ttibsi/rawterm
+```
+
+This has only been tested with zig 0.13.0
+
 ### New in version: 4.0.0
 * Refactor header-only library out into a cmake fetch-content project
 * Added extra constructors and overloads to most classes
@@ -53,5 +61,6 @@ base character being pressed
 ### Projects Using Rawterm
 * [iris](https://github.com/ttibsi/iris) - Modal terminal text editor
 * [re-view](https://github.com/ttibsi/re-view) - Regex viewer (uses the old header-only library)
+* [gol-tui](https://github.com/ttibsi/gol-tui) - Conway's Game of Life (uses zig build system)
 
 Feel free to add any projects written using rawterm to this list via PR!

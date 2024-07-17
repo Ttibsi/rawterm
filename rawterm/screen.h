@@ -33,4 +33,18 @@ namespace rawterm {
         [[nodiscard]] Region intersect(const Region& other);
     };
 }  // namespace rawterm
+
+namespace std {
+    template <>
+    struct hash<rawterm::Pos> {
+        std::size_t operator()(const rawterm::Pos& pos) const noexcept {
+            std::size_t h1 = std::hash<int> {}(pos.vertical);
+            std::size_t h2 = std::hash<int> {}(pos.horizontal);
+
+            // Combine the hash values (a common approach is to use XOR and bit shifting)
+            return h1 ^ (h2 << 1);
+        }
+    };
+}  // namespace std
+
 #endif  // RAWTERM_SCREEN_H

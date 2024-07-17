@@ -513,7 +513,7 @@ namespace rawterm {
         return Key(' ', rawterm::Mod::Unknown, raw);
     }
 
-    [[nodiscard]] const rawterm::Key wait_for_input() {
+    const rawterm::Key wait_for_input() {
         while (true) {
             auto k = process_keypress();
             if (k.has_value()) {

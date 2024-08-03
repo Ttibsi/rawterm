@@ -282,7 +282,8 @@ namespace rawterm {
         }
 
         [[nodiscard]] unsigned int count() const { return pane_bank.size(); }
-        [[nodiscard]] const std::string get_cur_pos() const { return active_pane->cur.toStr(); }
+        [[nodiscard]] const Pos get_cur_pos() const { return active_pane->cur; }
+        [[nodiscard]] const std::string get_cur_pos_str() const { return active_pane->cur.toStr(); }
         [[nodiscard]] unsigned int active() const { return active_pane->id; }
         [[nodiscard]] const Pos get_size() const { return active_pane->dimensions; }
 

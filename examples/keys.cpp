@@ -43,7 +43,8 @@ int main() {
         }
     }
 
+    // Optional explicit call to exit_alt_screen to return to standard screen.
+    // This will happen even without calling this function explicitly
     rawterm::exit_alt_screen();
-
     return 0;
 }

@@ -12,6 +12,9 @@ namespace rawterm {
 
         Color() : red(0), green(0), blue(0) {}
         Color(int x, int y, int z) : red(x), green(y), blue(z) {}
+        Color(const std::string&);
+
+        const std::string to_hex();
 
         friend std::ostream& operator<<(std::ostream& os, const Color& c) {
             return os << std::to_string(c.red) + ";" + std::to_string(c.green) + ";" +

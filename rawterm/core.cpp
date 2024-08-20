@@ -86,8 +86,10 @@ namespace rawterm {
         if (detail::is_debug()) {
             return;
         }
+        std::atexit(rawterm::exit_alt_screen);
         std::cout << "\x1B[?1049h" << std::flush;
     }
+
     void exit_alt_screen() {
         if (detail::is_debug()) {
             return;

@@ -8,12 +8,16 @@ namespace rawterm {
     const std::string set_header(const std::string& title) {
         rawterm::Pos term_size = rawterm::get_term_size();
         int half_screen_len = (term_size.horizontal / 2) - (title.size() / 2);
+        bool odd = term_size.horizontal % 2;
 
         auto c = rawterm::Cursor();
         c.reset();
 
         std::string ret = rawterm::inverse(std::string(half_screen_len, ' '));
         ret += rawterm::inverse(title);
+        if (odd) {
+            ret += rawterm::inverse(" ");
+        }
         ret += rawterm::inverse(std::string(half_screen_len, ' '));
 
         return ret;

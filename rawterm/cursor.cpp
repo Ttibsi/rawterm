@@ -26,38 +26,38 @@ namespace rawterm {
     }
 
     void Cursor::move_up(int in) {
+        vertical--;
+
         if (detail::is_debug()) {
             return;
         }
-
-        vertical--;
         std::cout << "\x1b[" + std::to_string(in) + "A" << std::flush;
     }
 
     void Cursor::move_down(int in) {
+        vertical++;
+
         if (detail::is_debug()) {
             return;
         }
-
-        vertical++;
         std::cout << "\x1b[" + std::to_string(in) + "B" << std::flush;
     }
 
     void Cursor::move_right(int in) {
+        horizontal++;
+
         if (detail::is_debug()) {
             return;
         }
-
-        horizontal++;
         std::cout << "\x1b[" + std::to_string(in) + "C" << std::flush;
     }
 
     void Cursor::move_left(int in) {
+        horizontal--;
+
         if (detail::is_debug()) {
             return;
         }
-
-        horizontal--;
         std::cout << "\x1b[" + std::to_string(in) + "D" << std::flush;
     }
 

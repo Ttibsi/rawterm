@@ -79,6 +79,12 @@ namespace rawterm {
         throw std::out_of_range("Index out of range");
     }
 
+    [[nodiscard]] std::string raw_str(std::string str) {
+        std::regex ansi_escape_code("\x1b\\[[0-9;]*[A-Za-z]");
+        std::string cleaned_str = std::regex_replace(str, ansi_escape_code, "");
+        return cleaned_str;
+    }
+
     [[nodiscard]] int raw_size(const std::string& str) {
         std::regex ansi_escape_code("\x1b\\[[0-9;]*[A-Za-z]");
         std::string cleaned_str = std::regex_replace(str, ansi_escape_code, "");

@@ -2,6 +2,8 @@
 * Added zig build option
 * `screen.h` - Added hashing for `Pos` object to use as a key in
 `std::unordered_map` and other hashed objects
+* `text.h` - Add `raw_str` function to strip a string of any added ansi escape
+codes
 
 ### v4.0.6
 * `extras/pane.h` - Added handling for blacklisting Regions from the cursor

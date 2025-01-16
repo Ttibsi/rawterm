@@ -26,7 +26,7 @@ namespace rawterm {
     }
 
     void Cursor::move_up(int in) {
-        vertical--;
+        vertical -= in;
 
         if (detail::is_debug()) {
             return;
@@ -35,7 +35,7 @@ namespace rawterm {
     }
 
     void Cursor::move_down(int in) {
-        vertical++;
+        vertical += in;
 
         if (detail::is_debug()) {
             return;
@@ -44,7 +44,7 @@ namespace rawterm {
     }
 
     void Cursor::move_right(int in) {
-        horizontal++;
+        horizontal += in;
 
         if (detail::is_debug()) {
             return;
@@ -53,7 +53,7 @@ namespace rawterm {
     }
 
     void Cursor::move_left(int in) {
-        horizontal--;
+        horizontal -= in;
 
         if (detail::is_debug()) {
             return;

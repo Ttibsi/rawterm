@@ -47,7 +47,7 @@ namespace rawterm {
         return this->vertical == rhs.vertical || this->horizontal == rhs.horizontal;
     }
 
-    [[nodiscard]] const std::string Pos::toStr() const {
+    [[nodiscard]] const std::string Pos::to_str() const {
         return "Pos(" + std::to_string(vertical) + ", " + std::to_string(horizontal) + ")";
     }
 

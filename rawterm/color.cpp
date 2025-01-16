@@ -1,5 +1,6 @@
 #include "color.h"
 
+#include <format>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -18,25 +19,17 @@ namespace rawterm {
             throw std::invalid_argument("Hex code must be 7 characters long including the #");
         }
 
-        std::istringstream ss(hex.substr(1, 2));
-        ss >> std::hex >> red;
-
-        ss.clear();
-        ss.str(hex.substr(3, 2));
-        ss >> std::hex >> green;
-
-        ss.clear();
-        ss.str(hex.substr(5, 2));
-        ss >> std::hex >> blue;
+        red = std::stoi(hex.substr(1, 2), nullptr, 16);
+        green = std::stoi(hex.substr(3, 2), nullptr, 16);
+        blue = std::stoi(hex.substr(5, 2), nullptr, 16);
     }
 
     const std::string Color::to_hex() {
-        std::ostringstream ss;
-        ss << "#" << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << red
-           << std::setw(2) << std::setfill('0') << green << std::setw(2) << std::setfill('0')
-           << blue;
+        std::string r_str = std::format("{:02X}", red);
+        std::string g_str = std::format("{:02X}", green);
+        std::string b_str = std::format("{:02X}", blue);
 
-        return ss.str();
+        return "#" + r_str + g_str + b_str;
     }
 
     [[nodiscard]] std::string set_foreground(const std::string& s, const Color& color) {

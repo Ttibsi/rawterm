@@ -51,4 +51,26 @@ pub fn build(b: *std.Build) void {
 
         b.installArtifact(exec);
     }
+
+    // Tests
+    const test_bin = b.addExecutable(.{
+        .name = "test-exe",
+        .target = b.host,
+    });
+
+    test_bin.linkLibrary(lib);
+    test_bin.root_module.addIncludePath(b.path(""));
+    test_bin.addCSourceFiles(.{
+        .flags = &.{"-g", "-Wall", "-Wextra", "-std=c++20"},
+        .files = &.{
+            "color_test.cpp",
+            "core_test.cpp",
+            "cursor_test.cpp",
+            "main.cpp",
+            "screen_test.cpp",
+            "text_test.cpp",
+        }
+    });
+
+    b.installArtifact(test_bin);
 }

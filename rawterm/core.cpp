@@ -31,7 +31,7 @@ namespace rawterm {
 
     bool Key::isCharInput() {
         return std::isprint(static_cast<unsigned char>(code)) && code != ' ' &&
-               (mod.empty() || mod[0] == Mod::Shift);
+               (mod.empty() || mod[0] == Mod::Shift || mod[0] == Mod::None);
     }
 
     void disable_raw_mode() {
@@ -638,6 +638,8 @@ namespace rawterm {
             case Mod::Tab:
                 return "Tab";
             case Mod::Unknown:
+                [[fallthrough]];
+            default:
                 return "Unknown";
         }
 

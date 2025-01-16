@@ -21,7 +21,7 @@ namespace rawterm {
         Pos& operator+=(const int other);
         Pos& operator-=(const int other);
         [[nodiscard]] bool partial_cmp(const Pos&);
-        [[nodiscard]] const std::string toStr() const;
+        [[nodiscard]] const std::string to_str() const;
     };
 
     struct Region {

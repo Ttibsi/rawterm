@@ -4,12 +4,26 @@ on:
     branches: [ main ]
 jobs:
   pre_commit_run:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-      - run: sudo apt-get install clang-tidy
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - run: sudo apt-get install llvm-18 clang-tidy
       - uses: threeal/cmake-action@v1.3.0
         with:
           run-build: true
+          build-dir: build
+          generator: Ninja
       - uses: pre-commit/action@v3.0.0
+  unit_tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install llvm-18
+      - uses: threeal/cmake-action@v1.3.0
+        with:
+          run-build: true
+          build-dir: build
+          options: RUN_TESTS=true
+          generator: Ninja
+      - run: RAWTERM_DEBUG=1 ./build/tests/test_exe

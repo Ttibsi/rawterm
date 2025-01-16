@@ -2146,7 +2146,7 @@ namespace boost::inline ext::ut::inline v2_1_1 {
                 }
 #endif
 
-                if (not --level_) {
+                if (not--level_) {
                     reporter_.on(events::test_end {.type = test.type, .name = test.name});
                 } else {  // N.B. prev. only root-level tests were signalled on
                           // finish
@@ -2744,8 +2744,7 @@ namespace boost::inline ext::ut::inline v2_1_1 {
 
         template <
             class F,
-            template <class...>
-            class T,
+            template <class...> class T,
             class... Ts,
             type_traits::requires_t<not type_traits::is_range_v<T<Ts...>>> = 0>
         [[nodiscard]] constexpr auto operator|(const F& f, const T<Ts...>& t) {

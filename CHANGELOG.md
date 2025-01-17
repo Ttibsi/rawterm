@@ -1,4 +1,6 @@
 ### v4.0.7
+* `extras/menu.h` - New widget added for adding a vertical scrolling menu
+* Added unit testing in `tests/` directory
 * Added zig build option
 * `screen.h` - Added hashing for `Pos` object to use as a key in
 `std::unordered_map` and other hashed objects

@@ -5,6 +5,6 @@
 
 namespace rawterm {
     const std::string set_header(const std::string&);
-}
+}  // namespace rawterm
 
 #endif  // RAWTERM_EXTRAS_H

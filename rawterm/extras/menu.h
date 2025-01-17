@@ -33,7 +33,9 @@ namespace rawterm {
             }
         }
 
-        std::string_view get_current_opt() const { return opts.at(active_opt); }
+        [[nodiscard]] std::string_view get_current_opt() const { return opts.at(active_opt); }
+
+        void add_opt(std::string new_opt) { opts.push_back(new_opt); }
 
         // NOTE: Should this be protected?
         virtual std::string render() const = 0;

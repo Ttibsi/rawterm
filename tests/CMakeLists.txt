@@ -7,6 +7,7 @@ add_executable(test_exe
     color_test.cpp
     core_test.cpp
     cursor_test.cpp
+    menu_test.cpp
     screen_test.cpp
     text_test.cpp
 )

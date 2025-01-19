@@ -226,18 +226,31 @@ namespace rawterm {
                 return Key('z', rawterm::Mod::Control, raw);
             case '\x1B':
                 // ESCAPE
+                // clang-format off
 
                 // characters[0] is escape char
                 // if characters[1] is equal to a letter (upper or lowercase), it's
                 // left alt+letter if characters[1] is [, it's an arrow key (abcd
-                // after for udrl) if characters[2] is \x31 (1), it can be f5+ f1
-                // \x1B\x4F\x50 f2 \x1B\x4F\x51 f3 \x1B\x4F\x52 f4 \x1B\x4F\x53 f5
-                // \x1B\x5B\x31\x35\x7E f6 \x1B\x5B\x31\x37\x7E f7
-                // \x1B\x5B\x31\x38\x7E f8 \x1B\x5B\x31\x39\x7E f9
-                // \x1B\x5B\x32\x30\x7E f10 \x1B\x5B\x32\x31\x7E f11
-                // \x1B\x5B\x32\x33\x7E f12 \x1B\x5B\x32\x34\x7E delete:
-                // \x1B\x5B\x33\x7E
+                // after for udrl) if characters[2] is \x31 (1), it can be f5+
+                // f1 \x1B\x4F\x50
+                // f2 \x1B\x4F\x51
+                // f3 \x1B\x4F\x52
+                // f4 \x1B\x4F\x53
+                // f5 \x1B\x5B\x31\x35\x7E
+                // f6 \x1B\x5B\x31\x37\x7E
+                // f7 \x1B\x5B\x31\x38\x7E
+                // f8 \x1B\x5B\x31\x39\x7E
+                // f9 \x1B\x5B\x32\x30\x7E
+                // f10 \x1B\x5B\x32\x31\x7E
+                // f11 \x1B\x5B\x32\x33\x7E
+                // f12 \x1B\x5B\x32\x34\x7E
+                // delete: \x1B\x5B\x33\x7E
+                // PGUP: \x1b\x5b\x35\x7e
+                // PGDN: \x1b\x5b\x36\x7e
+                // HOME: \x1b\x5b\x48
+                // END: \x1b\x5b\x34\x7e
 
+                // clang-format on
                 if (raw.size() == 4) {
                     return Key(' ', rawterm::Mod::Escape, raw);  // esc
                 }
@@ -291,7 +304,16 @@ namespace rawterm {
                                     return Key('2', rawterm::Mod::Function, raw);  // f12
                             }
                             break;
+                        case '\x34':
+                            return Key(' ', rawterm::Mod::End, raw);  // end
+                        case '\x35':
+                            return Key(' ', rawterm::Mod::PageUp, raw);  // page up
+                        case '\x36':
+                            return Key(' ', rawterm::Mod::PageDown, raw);  // page down
+                        case '\x48':
+                            return Key(' ', rawterm::Mod::Home, raw);  // Home
                     }
+
                 } else if (raw.size() == 12 && characters[1] == '\x4F') {
                     // FUNCTIONS pt 1
                     switch (characters[2]) {
@@ -467,7 +489,7 @@ namespace rawterm {
             case '\x69':
                 return Key('i', rawterm::Mod::None, raw);
             case '\x6A':
-                return Key('j', rawterm::Mod::None, raw);
+                return Key('j', rawterm::Mod::Insert, raw);
             case '\x6B':
                 return Key('k', rawterm::Mod::None, raw);
             case '\x6C':

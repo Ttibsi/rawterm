@@ -1,7 +1,6 @@
 #include <rawterm/color.h>
 #include <rawterm/core.h>
 #include <rawterm/extras/extras.h>
-// #include <sys/types.h>
 
 #include <cctype>
 #include <iostream>

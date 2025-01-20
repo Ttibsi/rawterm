@@ -1,16 +1,13 @@
 #include <rawterm/color.h>
 #include <rawterm/core.h>
 #include <rawterm/extras/extras.h>
-#include <sys/types.h>
+// #include <sys/types.h>
 
 #include <cctype>
-#include <deque>
-#include <ios>
 #include <iostream>
 
-// This is a demonstration on how `rawterm` works. You can compile this with
-// `./build.sh` and run with `./out/keys`. Any keypress you enter then will
-// show it's output as a Key object in the terminal. Press `q` to quit.
+// This is a demonstration on how `rawterm` works. Any keypress you enter
+//  will show it's output as a Key object in the terminal. Press `q` to quit.
 
 int main() {
     rawterm::enable_raw_mode();

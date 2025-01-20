@@ -489,7 +489,9 @@ namespace rawterm {
             case '\x69':
                 return Key('i', rawterm::Mod::None, raw);
             case '\x6A':
-                return Key('j', rawterm::Mod::Insert, raw);
+                // NOTE: This can also be insert
+                // TODO: Figure out a way for this to be both None and Insert
+                return Key('j', rawterm::Mod::None, raw);
             case '\x6B':
                 return Key('k', rawterm::Mod::None, raw);
             case '\x6C':

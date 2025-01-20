@@ -4,6 +4,7 @@ add_compile_options(-g)
 add_executable(test_exe
     main.cpp # DO not modify
 
+    border_test.cpp
     color_test.cpp
     core_test.cpp
     cursor_test.cpp

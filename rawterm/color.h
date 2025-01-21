@@ -1,7 +1,6 @@
 #ifndef RAWTERM_COLOR_H
 #define RAWTERM_COLOR_H
 
-#include <cstdint>
 #include <string>
 
 namespace rawterm {
@@ -19,6 +18,10 @@ namespace rawterm {
         friend std::ostream& operator<<(std::ostream& os, const Color& c) {
             return os << std::to_string(c.red) + ";" + std::to_string(c.green) + ";" +
                              std::to_string(c.blue) + "m";
+        }
+
+        [[nodiscard]] bool operator==(const Color& other) const {
+            return this->red == other.red && this->blue == other.blue && this->green == other.green;
         }
     };
 

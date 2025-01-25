@@ -2,6 +2,8 @@
 * Added unit testing in `tests/` directory
 * Added zig build option
 * `extras/menu.h` - New widget added for adding a vertical scrolling menu
+* `extras/border.h` - New widget added for drawing borders around a given
+vector of strings
 * `screen.h` - Added hashing for `Pos` object to use as a key in
 `std::unordered_map` and other hashed objects
 * `text.h` - Add `raw_str` function to strip a string of any added ansi escape
@@ -9,7 +11,7 @@ codes
 * Added new examples:
     * `examples/vertical_menu.cpp` for trialing menu.h
     * `examples/game.cpp` porting a simple "collect the coin" game to Rawterm
-
+    * `examples/borders.cpp` for a simple display of how to use border.h
 
 ### v4.0.6
 * `extras/pane.h` - Added handling for blacklisting Regions from the cursor

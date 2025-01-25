@@ -1,6 +1,6 @@
 include_directories(${PROJECT_SOURCE_DIR}/rawterm)
 
-add_executable(border border.cpp)
+add_executable(border borders.cpp)
 add_executable(cells cells.cpp)
 add_executable(colors colors.cpp)
 add_executable(cursor_position cursor_position.cpp)

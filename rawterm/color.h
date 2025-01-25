@@ -44,6 +44,7 @@ namespace rawterm {
         inline const Color purple {128, 0, 128};
         inline const Color fuchsia {255, 0, 255};
         inline const Color orange {255, 127, 0};
+        inline const std::string reset = "\x1b[0m";
     }  // namespace Colors
 
     [[nodiscard]] std::string set_foreground(const std::string&, const Color&);

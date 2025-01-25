@@ -43,4 +43,14 @@ boost::ut::suite<"Screen"> screen_suite = [] {
         expect(intersect.bottom_right.vertical = 5);
         expect(intersect.bottom_right.horizontal = 5);
     };
+
+    "height"_test = [] {
+        auto r = rawterm::Region({1, 1}, {5, 5});
+        expect(r.height() == 4);
+    };
+
+    "width"_test = [] {
+        auto r = rawterm::Region({1, 1}, {5, 5});
+        expect(r.width() == 4);
+    };
 };

@@ -1,9 +1,6 @@
 #ifndef RAWTERM_CORE_H
 #define RAWTERM_CORE_H
 
-#include <poll.h>
-#include <unistd.h>
-
 #include <array>
 #include <cctype>
 #include <cmath>
@@ -20,6 +17,9 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
+#include <poll.h>
+#include <unistd.h>
 
 #if __linux__
 #include <sys/ioctl.h>

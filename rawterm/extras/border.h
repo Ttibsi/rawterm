@@ -1,15 +1,15 @@
 #ifndef RAWTERM_BORDER_H
 #define RAWTERM_BORDER_H
 
-#include <rawterm/color.h>
-#include <rawterm/core.h>
-#include <rawterm/cursor.h>
-#include <rawterm/screen.h>
-
 #include <algorithm>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include <rawterm/color.h>
+#include <rawterm/core.h>
+#include <rawterm/cursor.h>
+#include <rawterm/screen.h>
 
 namespace rawterm {
     struct Border {

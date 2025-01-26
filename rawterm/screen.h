@@ -31,6 +31,8 @@ namespace rawterm {
         Region(const Pos& tl, const Pos& br) : top_left(tl), bottom_right(br) {}
         [[nodiscard]] bool contains(const Pos& cmp) const;
         [[nodiscard]] Region intersect(const Region& other);
+        [[nodiscard]] const int width() const;
+        [[nodiscard]] const int height() const;
     };
 }  // namespace rawterm
 

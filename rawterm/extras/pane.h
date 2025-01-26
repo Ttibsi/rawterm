@@ -1,9 +1,3 @@
-#include <rawterm/color.h>
-#include <rawterm/core.h>
-#include <rawterm/cursor.h>
-#include <rawterm/screen.h>
-#include <rawterm/text.h>
-
 #include <algorithm>
 #include <array>
 #include <functional>
@@ -14,6 +8,12 @@
 #include <string_view>
 #include <type_traits>
 #include <vector>
+
+#include <rawterm/color.h>
+#include <rawterm/core.h>
+#include <rawterm/cursor.h>
+#include <rawterm/screen.h>
+#include <rawterm/text.h>
 
 namespace rawterm {
     template <typename T = std::vector<std::string>>

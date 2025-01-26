@@ -80,4 +80,13 @@ namespace rawterm {
         // Return the intersection region
         return {intersection_top_left, intersection_bottom_right};
     }
+
+    [[nodiscard]] const int Region::width() const {
+        return bottom_right.horizontal - top_left.horizontal;
+    }
+
+    [[nodiscard]] const int Region::height() const {
+        return bottom_right.vertical - top_left.vertical;
+    }
+
 }  // namespace rawterm

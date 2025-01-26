@@ -29,34 +29,20 @@ zig fetch --save=rawterm git+https://github.com/ttibsi/rawterm
 
 This has only been tested with zig 0.13.0
 
-### New in version: 4.0.0
-* Refactor header-only library out into a cmake fetch-content project
-* Added extra constructors and overloads to most classes
-* Added support to disable any output for debugging purposes with
-`RAWTERM_DEBUG` environment variable
-
-* `core.h` - `process_keypress()` is now non-blocking, new `wait_for_input()`
-function replaces blocking functionality
-* `core.h` - Added `set_terminal_title()` function
-* `core.h` - Added `partial_cmp()` function to `Pos` struct
-* `color.h` - added function to set full terminal background
-* `cursor.h` - Added `get_raw_location()` for raw terminal cursor location
-* Added proper documentation
-
-* Added new extras for functionality that wraps other rawterm sequences
-    * Added `set_header()` function
-    * Added `PaneManager` class for handling window splitting and manipulation
-
+### New in version: 4.0.7
+* Added unit testing in `tests/` directory
+* Added zig build option
+* `extras/menu.h` - New widget added for adding a vertical scrolling menu
+* `extras/border.h` - New widget added for drawing borders around a given
+vector of strings
+* `screen.h` - Added hashing for `Pos` object to use as a key in
+`std::unordered_map` and other hashed objects
+* `text.h` - Add `raw_str` function to strip a string of any added ansi escape
+codes
 * Added new examples:
-    * `red_blue_panes.cpp` for pane management
-    * `cursor_position.cpp`
-
-### Be Aware Of:
-* `^m` and `enter` are the same key - they both pass `\x0d` code to the terminal
-* `^i` and `tab` are the same key - they both pass `\x09` code to the terminal
-* left alt and right alt are different keys - only left-alt has been handled
-* `CMD` on macos doesn't return a unique ascii code, and is treated like the
-base character being pressed
+    * `examples/vertical_menu.cpp` for trialing menu.h
+    * `examples/game.cpp` porting a simple "collect the coin" game to Rawterm
+    * `examples/borders.cpp` for a simple display of how to use border.h
 
 ### Projects Using Rawterm
 * [iris](https://github.com/ttibsi/iris) - Modal terminal text editor

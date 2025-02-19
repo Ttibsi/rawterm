@@ -1,10 +1,10 @@
+#include <rawterm/color.h>
 #include <rawterm/core.h>
 #include <rawterm/cursor.h>
 #include <rawterm/text.h>
 
 #include <iostream>
 
-#include "rawterm/color.h"
 
 int main() {
     // Raw mode automatically gets disabled at the end of the program
@@ -27,6 +27,5 @@ int main() {
     // Wait for user input
     auto k = rawterm::wait_for_input();
 
-    rawterm::exit_alt_screen();
     return 0;
 }

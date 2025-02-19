@@ -8,6 +8,7 @@
 
 namespace rawterm {
     namespace detail {
+
         [[nodiscard]] bool is_debug() {
             auto raw_env_var = std::getenv("RAWTERM_DEBUG");
             if (raw_env_var == nullptr) {
@@ -19,6 +20,7 @@ namespace rawterm {
         }
 
     }  // namespace detail
+
     rawterm::Mod Key::getMod() {
         if (mod.empty()) {
             return rawterm::Mod::None;
@@ -103,18 +105,10 @@ namespace rawterm {
         is_signals_enabled = true;
 #endif
     }
-
-    void sigtstp_handler(std::function<void(void)> func) {
-        if (detail::sigtstp_called) {
+    void signal_handler(Signal sig, std::function<void(void)> func) {
+        if (detail::sig_sent == sig) {
             func();
-            detail::sigtstp_called = false;
-        }
-    }
-
-    void sigcont_handler(std::function<void(void)> func) {
-        if (detail::sigcont_called) {
-            func();
-            detail::sigcont_called = false;
+            detail::sig_sent = Signal::NONE;
         }
     }
 
@@ -122,17 +116,20 @@ namespace rawterm {
 #if __linux__
         // Backgrounding
         std::signal(SIGTSTP, [](int) {
-            detail::sigtstp_called = true;
+            detail::sig_sent = Signal::SIG_TSTP;
             rawterm::exit_alt_screen();
             std::raise(SIGSTOP);
         });
 
         // Foregrounding
         std::signal(SIGCONT, [](int) {
-            detail::sigcont_called = true;
+            detail::sig_sent = Signal::SIG_CONT;
             rawterm::enter_alt_screen();
             rawterm::enable_raw_mode();
         });
+
+        // Window resizing
+        std::signal(SIGWINCH, [](int) { detail::sig_sent = Signal::SIG_WINCH; });
 #endif
 
         std::string characters = std::string(32, '\0');

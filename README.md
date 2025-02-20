@@ -27,21 +27,20 @@ zig fetch --save=rawterm git+https://github.com/ttibsi/rawterm
 
 This has only been tested with zig 0.13.0
 
-### Example
+#### Example
 A minimal hello world example looks like this:
 
 ```cpp
-#include <rawterm/color.h>
-#include <rawterm/core.h>
-#include <rawterm/cursor.h>
-#include <rawterm/text.h>
+#include <rawterm/color.h>  // set_terminal_background
+#include <rawterm/core.h>  // enable_raw_mode, enter_alt_screen, wait_for_input
+#include <rawterm/cursor.h>  // Cursor
+#include <rawterm/text.h>  // inverse
 
 #include <iostream>
 
 int main() {
-    // Raw mode automatically gets disabled at the end of the program
+    // Raw mode and alt_screen automatically gets disabled at the end of the program
     rawterm::enable_raw_mode();
-
     rawterm::enter_alt_screen();
 
     // Create a cursor object to control the cursor, and reset it's position

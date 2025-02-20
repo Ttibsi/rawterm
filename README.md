@@ -1,6 +1,6 @@
 # rawterm
 A c++20 library for working with raw mode in a terminal, used for building
-custom TUI applications without the old-school overhead of ncurses. 
+custom TUI applications without the old-school overhead of ncurses.
 Documentation is mostly provided in the `docs/` directory, where every header
 file has a partner mardown file to describe it's methods usecases.
 

@@ -5,7 +5,6 @@
 
 #include <iostream>
 
-
 int main() {
     // Raw mode automatically gets disabled at the end of the program
     rawterm::enable_raw_mode();

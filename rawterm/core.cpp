@@ -1,7 +1,10 @@
 #include "core.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdlib>
+#include <cstring>
+#include <format>
 
 #include "cursor.h"
 #include "exceptions.h"
@@ -99,12 +102,34 @@ namespace rawterm {
         std::cout << "\x1B[?1049l" << std::flush;
     }
 
-    bool is_signals_enabled = false;
-    void enable_signals() {
+    inline bool is_signals_enabled = false;
+    [[nodiscard]] std::thread enable_signals() {
 #if __linux__
         is_signals_enabled = true;
+
+        std::thread thr([] {
+            // Backgrounding
+            std::signal(SIGTSTP, [](int) {
+                detail::sig_sent = Signal::SIG_TSTP;
+                rawterm::exit_alt_screen();
+                std::raise(SIGSTOP);
+            });
+
+            // Foregrounding
+            std::signal(SIGCONT, [](int) {
+                detail::sig_sent = Signal::SIG_CONT;
+                rawterm::enter_alt_screen();
+                rawterm::enable_raw_mode();
+            });
+
+            // Window resizing
+            std::signal(SIGWINCH, [](int) { detail::sig_sent = Signal::SIG_WINCH; });
+        });
+
+        return thr;
 #endif
     }
+
     void signal_handler(Signal sig, std::function<void(void)> func) {
         if (detail::sig_sent == sig) {
             func();
@@ -113,25 +138,6 @@ namespace rawterm {
     }
 
     [[nodiscard]] const std::optional<rawterm::Key> process_keypress() {
-#if __linux__
-        // Backgrounding
-        std::signal(SIGTSTP, [](int) {
-            detail::sig_sent = Signal::SIG_TSTP;
-            rawterm::exit_alt_screen();
-            std::raise(SIGSTOP);
-        });
-
-        // Foregrounding
-        std::signal(SIGCONT, [](int) {
-            detail::sig_sent = Signal::SIG_CONT;
-            rawterm::enter_alt_screen();
-            rawterm::enable_raw_mode();
-        });
-
-        // Window resizing
-        std::signal(SIGWINCH, [](int) { detail::sig_sent = Signal::SIG_WINCH; });
-#endif
-
         std::string characters = std::string(32, '\0');
         int pollResult = poll(&detail::fd, 1, 0);
 
@@ -145,9 +151,14 @@ namespace rawterm {
         } else if (pollResult == 0) {
             return {};
 
+            // interrupted system call -- SIGWINCH interrupting poll()
+        } else if (errno == 4) {
+            return {};
+
             // Error
         } else {
-            throw rawterm::KeypressError("An unknown error occured");
+            throw rawterm::KeypressError(
+                std::format("A poll error occured: {} - {}", errno, std::strerror(errno)));
         }
 
         std::stringstream ss;

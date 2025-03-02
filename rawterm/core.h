@@ -14,6 +14,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -105,7 +106,7 @@ namespace rawterm {
     [[maybe_unused]] int enable_raw_mode();
     void enter_alt_screen();
     void exit_alt_screen();
-    void enable_signals();
+    [[nodiscard]] std::thread enable_signals();
     void signal_handler(Signal, std::function<void(void)>);
     [[nodiscard]] const std::optional<rawterm::Key> process_keypress();
     const rawterm::Key wait_for_input();

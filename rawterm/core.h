@@ -14,6 +14,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -32,13 +33,13 @@
 #include "screen.h"
 
 namespace rawterm {
+    enum class Signal { SIG_TSTP, SIG_CONT, SIG_WINCH, NONE };
 
     namespace detail {
 #if __linux__
         inline termios orig;
 #endif
-        inline bool sigtstp_called = false;
-        inline bool sigcont_called = false;
+        inline Signal sig_sent = Signal::NONE;
 
         // Used for polling in process_keypress()
         inline pollfd fd {STDIN_FILENO, POLLIN, POLLOUT};
@@ -105,9 +106,8 @@ namespace rawterm {
     [[maybe_unused]] int enable_raw_mode();
     void enter_alt_screen();
     void exit_alt_screen();
-    void enable_signals();
-    void sigtstp_handler(std::function<void(void)>);
-    void sigcont_handler(std::function<void(void)>);
+    [[nodiscard]] std::thread enable_signals();
+    void signal_handler(Signal, std::function<void(void)>);
     [[nodiscard]] const std::optional<rawterm::Key> process_keypress();
     const rawterm::Key wait_for_input();
     [[nodiscard]] const rawterm::Pos get_term_size();

@@ -11,7 +11,7 @@
 int main() {
     rawterm::enable_raw_mode();
     rawterm::enter_alt_screen();
-    rawterm::enable_signals();
+    auto signals_thread = rawterm::enable_signals();
 
     rawterm::clear_screen();
 
@@ -42,5 +42,8 @@ int main() {
     // Optional explicit call to exit_alt_screen to return to standard screen.
     // This will happen even without calling this function explicitly
     rawterm::exit_alt_screen();
+
+    // Don't forget to join back to the main thread
+    signals_thread.join();
     return 0;
 }

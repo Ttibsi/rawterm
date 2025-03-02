@@ -1,13 +1,17 @@
 #include "core.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdlib>
+#include <cstring>
+#include <format>
 
 #include "cursor.h"
 #include "exceptions.h"
 
 namespace rawterm {
     namespace detail {
+
         [[nodiscard]] bool is_debug() {
             auto raw_env_var = std::getenv("RAWTERM_DEBUG");
             if (raw_env_var == nullptr) {
@@ -19,6 +23,7 @@ namespace rawterm {
         }
 
     }  // namespace detail
+
     rawterm::Mod Key::getMod() {
         if (mod.empty()) {
             return rawterm::Mod::None;
@@ -97,44 +102,42 @@ namespace rawterm {
         std::cout << "\x1B[?1049l" << std::flush;
     }
 
-    bool is_signals_enabled = false;
-    void enable_signals() {
+    inline bool is_signals_enabled = false;
+    [[nodiscard]] std::thread enable_signals() {
 #if __linux__
         is_signals_enabled = true;
+
+        std::thread thr([] {
+            // Backgrounding
+            std::signal(SIGTSTP, [](int) {
+                detail::sig_sent = Signal::SIG_TSTP;
+                rawterm::exit_alt_screen();
+                std::raise(SIGSTOP);
+            });
+
+            // Foregrounding
+            std::signal(SIGCONT, [](int) {
+                detail::sig_sent = Signal::SIG_CONT;
+                rawterm::enter_alt_screen();
+                rawterm::enable_raw_mode();
+            });
+
+            // Window resizing
+            std::signal(SIGWINCH, [](int) { detail::sig_sent = Signal::SIG_WINCH; });
+        });
+
+        return thr;
 #endif
     }
 
-    void sigtstp_handler(std::function<void(void)> func) {
-        if (detail::sigtstp_called) {
+    void signal_handler(Signal sig, std::function<void(void)> func) {
+        if (detail::sig_sent == sig) {
             func();
-            detail::sigtstp_called = false;
-        }
-    }
-
-    void sigcont_handler(std::function<void(void)> func) {
-        if (detail::sigcont_called) {
-            func();
-            detail::sigcont_called = false;
+            detail::sig_sent = Signal::NONE;
         }
     }
 
     [[nodiscard]] const std::optional<rawterm::Key> process_keypress() {
-#if __linux__
-        // Backgrounding
-        std::signal(SIGTSTP, [](int) {
-            detail::sigtstp_called = true;
-            rawterm::exit_alt_screen();
-            std::raise(SIGSTOP);
-        });
-
-        // Foregrounding
-        std::signal(SIGCONT, [](int) {
-            detail::sigcont_called = true;
-            rawterm::enter_alt_screen();
-            rawterm::enable_raw_mode();
-        });
-#endif
-
         std::string characters = std::string(32, '\0');
         int pollResult = poll(&detail::fd, 1, 0);
 
@@ -148,9 +151,14 @@ namespace rawterm {
         } else if (pollResult == 0) {
             return {};
 
+            // interrupted system call -- SIGWINCH interrupting poll()
+        } else if (errno == 4) {
+            return {};
+
             // Error
         } else {
-            throw rawterm::KeypressError("An unknown error occured");
+            throw rawterm::KeypressError(
+                std::format("A poll error occured: {} - {}", errno, std::strerror(errno)));
         }
 
         std::stringstream ss;

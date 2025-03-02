@@ -10,7 +10,7 @@
 int main() {
     rawterm::enable_raw_mode();
     rawterm::enter_alt_screen();
-    rawterm::enable_signals();
+    auto signals_thread = rawterm::enable_signals();
 
     rawterm::Cursor::cursor_hide();
     rawterm::Cursor cur;
@@ -29,5 +29,6 @@ int main() {
 
     std::ignore = rawterm::wait_for_input();
     rawterm::Cursor::cursor_show();
+    signals_thread.join();
     return 0;
 }

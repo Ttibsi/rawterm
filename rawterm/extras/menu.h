@@ -2,6 +2,7 @@
 #define RAWTERM_MENUS_H
 
 #include <algorithm>
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -15,7 +16,7 @@ namespace rawterm {
         std::vector<std::string> opts = {};
 
        public:
-        int active_opt = 0;
+        std::size_t active_opt = 0;
         Region dims;
 
         Menu(Region r) : dims(r) {};
@@ -50,14 +51,15 @@ namespace rawterm {
 
         std::string render() const override {
             std::string ret = "";
-            const int longest_txt = std::max_element(
-                                        opts.begin(), opts.end(),
-                                        [](const std::string& a, const std::string& b) {
-                                            return a.length() < b.length();
-                                        })
-                                        ->size();
+            const int longest_txt =
+                static_cast<int>(std::max_element(
+                                     opts.begin(), opts.end(),
+                                     [](const std::string& a, const std::string& b) {
+                                         return a.length() < b.length();
+                                     })
+                                     ->size());
 
-            int view_size = std::min(
+            const int view_size = std::min(
                 static_cast<int>(opts.size()),
                 (dims.bottom_right.vertical - dims.top_left.vertical));
 
@@ -69,7 +71,7 @@ namespace rawterm {
                 ret += "\u2510\r\n";
             }
 
-            for (int i = 0; i < view_size; i++) {
+            for (std::size_t i = 0; i < uint32_t(view_size); i++) {
                 // TODO: truncate to region
                 if (i == active_opt) {
                     ret += " " + inverse(opts.at(i)) + "\r\n";

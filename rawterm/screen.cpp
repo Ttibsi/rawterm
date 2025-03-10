@@ -81,12 +81,12 @@ namespace rawterm {
         return {intersection_top_left, intersection_bottom_right};
     }
 
-    [[nodiscard]] int Region::width() const {
-        return bottom_right.horizontal - top_left.horizontal;
+    [[nodiscard]] std::size_t Region::width() const {
+        return std::size_t(bottom_right.horizontal - top_left.horizontal);
     }
 
-    [[nodiscard]] int Region::height() const {
-        return bottom_right.vertical - top_left.vertical;
+    [[nodiscard]] std::size_t Region::height() const {
+        return std::size_t(bottom_right.vertical - top_left.vertical);
     }
 
 }  // namespace rawterm

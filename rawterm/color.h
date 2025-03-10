@@ -9,8 +9,8 @@ namespace rawterm {
         unsigned int green;
         unsigned int blue;
 
-        Color() : red(0), green(0), blue(0) {}
-        Color(int x, int y, int z) : red(x), green(y), blue(z) {}
+        Color() : red(0u), green(0u), blue(0u) {}
+        Color(unsigned int x, unsigned int y, unsigned int z) : red(x), green(y), blue(z) {}
         Color(const std::string&);
 
         const std::string to_hex();

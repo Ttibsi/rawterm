@@ -1,3 +1,16 @@
+#ifndef RAWTERM_PANE_H
+#define RAWTERM_PANE_H
+
+// This pragma block sets this header to be a system header, disabling any
+// warnings from being printed when compiling
+// I don't want to fix the new warnings on this file as I intend one day
+// to come back and rewrite this as it's experimental
+#ifdef __clang__
+#pragma clang system_header
+#else
+#pragma GCC system_header
+#endif
+
 #include <algorithm>
 #include <array>
 #include <functional>
@@ -552,3 +565,4 @@ namespace rawterm {
     };  // class PaneManager
 
 }  // namespace rawterm
+#endif  // RAWTERM_PANE_H

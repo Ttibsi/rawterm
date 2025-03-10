@@ -17,7 +17,7 @@ int main() {
     while (true) {
         std::string seq;
 
-        int ret = read(STDIN_FILENO, seq.data(), 32);
+        long ret = read(STDIN_FILENO, seq.data(), 32);
         if (ret < 0) {
             std::perror("ERROR: something went wrong during reading user input");
             break;
@@ -26,7 +26,7 @@ int main() {
         std::string code;
         for (int i = 0; i < ret; ++i) {
             std::stringstream ss;
-            ss << std::hex << "\\x" << static_cast<unsigned int>(seq[i]);
+            ss << std::hex << "\\x" << static_cast<unsigned char>(seq[i]);
             code += ss.str();
         }
 

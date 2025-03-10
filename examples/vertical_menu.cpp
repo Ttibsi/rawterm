@@ -32,7 +32,7 @@ int main() {
 
         // Reset cursor pos
         cur.move(
-            {vert_menu.dims.top_left.vertical + vert_menu.active_opt - 1,
+            {vert_menu.dims.top_left.vertical + static_cast<int>(vert_menu.active_opt) - 1,
              vert_menu.dims.top_left.horizontal});
     };
 

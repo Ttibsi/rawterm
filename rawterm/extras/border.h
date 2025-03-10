@@ -14,7 +14,7 @@
 namespace rawterm {
     struct Border {
         Region size;
-        int border_padding = 0;
+        std::size_t border_padding = 0;
 
         std::optional<char> border_char;
         std::optional<std::string> border_title;
@@ -30,7 +30,7 @@ namespace rawterm {
         Border(Region size) : size(size), border_char(std::nullopt) {}
         Border(Region size, char border_char) : size(size), border_char(border_char) {}
 
-        Border& set_padding(int padding) {
+        Border& set_padding(std::size_t padding) {
             border_padding = padding;
             return *this;
         }
@@ -50,37 +50,42 @@ namespace rawterm {
                 return "";
             }
 
-            const int truncated_length = size.width() - 2;
+            const std::size_t truncated_length = size.width() - 2;
             if (truncated_length < 4) {
                 return "...";
             }
+
             if (truncated_length >= border_title.value().size()) {
                 return border_title.value();
             }
-            return border_title.value().substr(0, size.width() - 4) + "...";
+
+            return border_title.value().substr(0, static_cast<std::size_t>(size.width() - 4)) +
+                   "...";
         }
 
         [[nodiscard]] std::vector<std::string> render(const std::vector<std::string>* text) const {
             auto trunc_title = truncated_title();
             std::vector<std::string> render = {""};
-            int longest_txt =
+            std::size_t longest_txt =
                 std::max_element(
                     text->begin(), text->end(),
                     [](const std::string& a, const std::string& b) { return a.size() < b.size(); })
                     ->size() +
-                border_padding;
+                std::size_t(border_padding);
+
             if (longest_txt > size.width()) {
                 longest_txt = size.width() - 2;
             }
 
             // Top line
-            const int post_title_len = (longest_txt + border_padding + 2) - trunc_title.size() - 1;
+            const std::size_t post_title_len =
+                static_cast<std::size_t>(longest_txt + border_padding + 2) - trunc_title.size() - 1;
             if (border_char.has_value()) {
                 render.at(0) = border_char.value() + trunc_title;
                 render.at(0) += std::string(post_title_len, border_char.value());
             } else {
                 render.at(0) = CORNER_TL + trunc_title;
-                for (int i = 0; i < post_title_len; i++) {
+                for (std::size_t i = 0; i < post_title_len; i++) {
                     render.at(0) += HORIZONTAL_BAR;
                 }
                 render.at(0) += CORNER_TR;
@@ -96,10 +101,10 @@ namespace rawterm {
                 }
 
                 std::string drawable_text = line;
-                if (line.size() > longest_txt) {
-                    drawable_text = line.substr(0, longest_txt);
+                if (line.size() > static_cast<std::size_t>(longest_txt)) {
+                    drawable_text = line.substr(0, static_cast<std::size_t>(longest_txt));
                 }
-                const int line_buffer = longest_txt - drawable_text.size();
+                const std::size_t line_buffer = longest_txt - drawable_text.size();
                 rendered_line += std::string(border_padding, ' ') + drawable_text +
                                  std::string(border_padding + line_buffer, ' ');
 
@@ -118,7 +123,7 @@ namespace rawterm {
                 btm = std::string(render.at(0).size(), border_char.value());
             } else {
                 btm = CORNER_BL;
-                for (int i = 0; i <= longest_txt + border_padding; i++) {
+                for (std::size_t i = 0; i <= longest_txt + border_padding; i++) {
                     btm += HORIZONTAL_BAR;
                 }
                 btm += CORNER_BR;
@@ -137,20 +142,20 @@ namespace rawterm {
 
             // Check if terminal size is reasonable and early return if not
             const Pos current_term_size = get_term_size();
-            if (current_term_size.vertical < size.height()) {
+            if (current_term_size.vertical < int32_t(size.height())) {
                 return;
-            } else if (current_term_size.horizontal < size.width()) {
+            } else if (current_term_size.horizontal < int32_t(size.width())) {
                 return;
             }
 
             const std::vector<std::string> render_lines = render(text);
-            for (int i = 0; i < render_lines.size(); i++) {
+            for (int i = 0; i < static_cast<int>(render_lines.size()); i++) {
                 cur.move({size.top_left.vertical + i, size.top_left.horizontal});
 
                 if (border_color.has_value()) {
                     std::cout << "\x1b[" << border_color.value();
                 }
-                std::cout << render_lines.at(i) << std::flush;
+                std::cout << render_lines.at(uint32_t(i)) << std::flush;
                 if (border_color.has_value()) {
                     std::cout << Colors::reset;
                 }

@@ -13,8 +13,8 @@ int main() {
     rawterm::Pos term_size = rawterm::get_term_size();
     bool toggle = false;
 
-    for (unsigned int i = 1; i <= term_size.horizontal; i++) {
-        for (unsigned int j = 1; j <= term_size.vertical; j++) {
+    for (int i = 1; i <= term_size.horizontal; i++) {
+        for (int j = 1; j <= term_size.vertical; j++) {
             if (toggle) {
                 std::cout << rawterm::set_background(" ", rawterm::Colors::black);
                 toggle = false;

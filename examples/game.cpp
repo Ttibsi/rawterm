@@ -20,7 +20,7 @@ struct Sprite {
     }
 };
 
-std::vector<Sprite> setupCoins(const int& lvl, const rawterm::Pos& term_size) {
+std::vector<Sprite> setupCoins(const unsigned int& lvl, const rawterm::Pos& term_size) {
     // setup random
     // https://stackoverflow.com/a/7560564
     std::random_device rd;   // obtain a random number from hardware
@@ -30,7 +30,7 @@ std::vector<Sprite> setupCoins(const int& lvl, const rawterm::Pos& term_size) {
 
     std::vector<Sprite> coins = {};
 
-    for (int i = 0; i < lvl + 3; i++) {
+    for (unsigned int i = 0; i < lvl + 3; i++) {
         coins.emplace_back('0', distr_vert(gen), distr_horiz(gen));
     }
 
@@ -80,10 +80,10 @@ int main() {
         }
 
         // Remove collected coin
-        for (int i = 0; i < coins.size(); i++) {
+        for (std::size_t i = 0; i < coins.size(); i++) {
             Sprite* c = &coins.at(i);
             if (player.vert == c->vert && player.horiz == c->horiz) {
-                coins.erase(coins.begin() + i);
+                coins.erase(coins.begin() + static_cast<int>(i));
                 score++;
 
                 // Check for next level

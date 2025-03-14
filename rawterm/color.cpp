@@ -19,9 +19,9 @@ namespace rawterm {
             throw std::invalid_argument("Hex code must be 7 characters long including the #");
         }
 
-        red = std::stoi(hex.substr(1, 2), nullptr, 16);
-        green = std::stoi(hex.substr(3, 2), nullptr, 16);
-        blue = std::stoi(hex.substr(5, 2), nullptr, 16);
+        red = static_cast<unsigned int>(std::stoi(hex.substr(1, 2), nullptr, 16));
+        green = static_cast<unsigned int>(std::stoi(hex.substr(3, 2), nullptr, 16));
+        blue = static_cast<unsigned int>(std::stoi(hex.substr(5, 2), nullptr, 16));
     }
 
     const std::string Color::to_hex() {

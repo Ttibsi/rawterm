@@ -61,10 +61,10 @@ namespace rawterm {
         std::atexit(rawterm::disable_raw_mode);
 
         termios raw = rawterm::detail::orig;
-        raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
-        raw.c_oflag &= ~(OPOST);
+        raw.c_iflag &= ~static_cast<tcflag_t>(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+        raw.c_oflag &= ~static_cast<tcflag_t>(OPOST);
         // raw.c_lflag |= ~(CS8); // Disable to allow term_size reading
-        raw.c_lflag &= ~(ECHO | IEXTEN | ICANON | ISIG);
+        raw.c_lflag &= ~static_cast<tcflag_t>(ECHO | IEXTEN | ICANON | ISIG);
 
         if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
             std::perror("tcsetattr");

@@ -7,7 +7,8 @@
 namespace rawterm {
     const std::string set_header(const std::string& title) {
         rawterm::Pos term_size = rawterm::get_term_size();
-        int half_screen_len = (term_size.horizontal / 2) - (title.size() / 2);
+        std::size_t half_screen_len =
+            static_cast<unsigned int>(term_size.horizontal / 2) - (title.size() / 2);
         bool odd = term_size.horizontal % 2;
 
         auto c = rawterm::Cursor();

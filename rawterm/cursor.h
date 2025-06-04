@@ -11,6 +11,7 @@ namespace rawterm {
         Cursor(Pos p) : Pos {p} {}
         void reset() const;
         void move(const Pos&);
+        void move(const int, const int);
         void move_up(int = 1);
         void move_down(int = 1);
         void move_right(int = 1);

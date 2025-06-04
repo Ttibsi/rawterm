@@ -25,6 +25,10 @@ namespace rawterm {
                   << std::to_string(pos.horizontal) << 'H' << std::flush;
     }
 
+    void Cursor::move(const int vertical, const int horizontal) {
+        move({vertical, horizontal});
+    }
+
     void Cursor::move_up(int in) {
         vertical -= in;
 

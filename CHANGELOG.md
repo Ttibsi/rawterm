@@ -1,3 +1,6 @@
+### v4.0.8
+* Add new Cursor::move overload to accept two integers
+
 ### v4.0.7
 * Added unit testing in `tests/` directory
 * Added zig build option

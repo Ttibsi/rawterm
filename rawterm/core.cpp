@@ -24,6 +24,10 @@ namespace rawterm {
 
     }  // namespace detail
 
+    void Key::addMod(rawterm::Mod m) {
+        mod.push_back(m);
+    }
+
     rawterm::Mod Key::getMod() {
         if (mod.empty()) {
             return rawterm::Mod::None;

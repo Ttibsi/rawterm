@@ -78,6 +78,7 @@ namespace rawterm {
         Key(char c, Mod m) : code(c), mod(std::deque<Mod> {m}) {}
         Key(char c, Mod m, std::string r) : code(c), mod(std::deque<Mod> {m}), raw(r) {}
 
+        void addMod(rawterm::Mod);
         [[nodiscard]] rawterm::Mod getMod();
         [[nodiscard]] bool isCharInput();
         [[nodiscard]] bool isValid();

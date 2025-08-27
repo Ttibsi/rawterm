@@ -79,7 +79,7 @@ namespace rawterm {
 
             // Top line
             const std::size_t post_title_len =
-                static_cast<std::size_t>(longest_txt + border_padding + 2) - trunc_title.size() - 1;
+                static_cast<std::size_t>(size.width() - border_padding) - trunc_title.size();
             if (border_char.has_value()) {
                 render.at(0) = border_char.value() + trunc_title;
                 render.at(0) += std::string(post_title_len, border_char.value());
@@ -104,7 +104,8 @@ namespace rawterm {
                 if (line.size() > static_cast<std::size_t>(longest_txt)) {
                     drawable_text = line.substr(0, static_cast<std::size_t>(longest_txt));
                 }
-                const std::size_t line_buffer = longest_txt - drawable_text.size();
+                const std::size_t line_buffer =
+                    size.width() - drawable_text.size() - border_padding - 2;
                 rendered_line += std::string(border_padding, ' ') + drawable_text +
                                  std::string(border_padding + line_buffer, ' ');
 
@@ -123,7 +124,7 @@ namespace rawterm {
                 btm = std::string(render.at(0).size(), border_char.value());
             } else {
                 btm = CORNER_BL;
-                for (std::size_t i = 0; i <= longest_txt + border_padding; i++) {
+                for (std::size_t i = 0; i <= size.width() - border_padding - 1; i++) {
                     btm += HORIZONTAL_BAR;
                 }
                 btm += CORNER_BR;

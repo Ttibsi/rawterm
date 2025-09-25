@@ -42,6 +42,13 @@ boost::ut::suite<"Border"> border_suite = [] {
         expect(rendered.at(1).size() == 14);
     };
 
+    "render without passed text"_test = [&b] {
+        std::vector<std::string> expected = {"┌────────┐", "└────────┘"};
+        std::vector<std::string> given = {};
+        auto rendered = b.render(&given);
+        expect(rendered == expected);
+    };
+
     "Set title"_test = [&b, &b2] {
         b.set_title("Super long title please");
         expect(b.border_title == "Super long title please");

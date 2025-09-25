@@ -89,9 +89,10 @@ int main() {
     }
 
     auto pane_mgr = rawterm::PaneManager(rawterm::get_term_size());
-    pane_mgr.set_content(std::vector(
-        lryics_2.begin(),
-        lryics_2.begin() + std::min(term_size.vertical, static_cast<int>(lryics_2.size()))));
+    pane_mgr.set_content(
+        std::vector(
+            lryics_2.begin(),
+            lryics_2.begin() + std::min(term_size.vertical, static_cast<int>(lryics_2.size()))));
 
     pane_mgr.set_pane_background(rawterm::Colors::aqua);
 

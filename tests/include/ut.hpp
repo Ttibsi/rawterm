@@ -2118,8 +2118,9 @@ namespace boost::inline ext::ut::inline v2_1_1 {
 
             if (filter_(level_, path_)) {
                 if (not level_++) {
-                    reporter_.on(events::test_begin {
-                        .type = test.type, .name = test.name, .location = test.location});
+                    reporter_.on(
+                        events::test_begin {
+                            .type = test.type, .name = test.name, .location = test.location});
                 } else {
                     reporter_.on(events::test_run {.type = test.type, .name = test.name});
                 }
@@ -2146,13 +2147,14 @@ namespace boost::inline ext::ut::inline v2_1_1 {
                 }
 #endif
 
-                if (not--level_) {
+                if (not --level_) {
                     reporter_.on(events::test_end {.type = test.type, .name = test.name});
                 } else {  // N.B. prev. only root-level tests were signalled on
                           // finish
                     if constexpr (requires {
-                                      reporter_.on(events::test_finish {
-                                          .type = test.type, .name = test.name});
+                                      reporter_.on(
+                                          events::test_finish {
+                                              .type = test.type, .name = test.name});
                                   }) {
                         reporter_.on(events::test_finish {.type = test.type, .name = test.name});
                     }
@@ -2172,14 +2174,16 @@ namespace boost::inline ext::ut::inline v2_1_1 {
             }
 
             if (static_cast<bool>(assertion.expr)) {
-                reporter_.on(events::assertion_pass<TExpr> {
-                    .expr = assertion.expr, .location = assertion.location});
+                reporter_.on(
+                    events::assertion_pass<TExpr> {
+                        .expr = assertion.expr, .location = assertion.location});
                 return true;
             }
 
             ++fails_;
-            reporter_.on(events::assertion_fail<TExpr> {
-                .expr = assertion.expr, .location = assertion.location});
+            reporter_.on(
+                events::assertion_fail<TExpr> {
+                    .expr = assertion.expr, .location = assertion.location});
             return false;
         }
 

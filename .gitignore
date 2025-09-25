@@ -2,3 +2,4 @@ build/
 .cache
 zig-out/
 .zig-cache
+iris.log

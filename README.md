@@ -5,7 +5,7 @@ Documentation is mostly provided in the `docs/` directory, where every header
 file has a partner mardown file to describe it's methods usecases.
 
 ### How to use
-Add the following passage to your CMakeLists.txt file then link to the 
+Add the following passage to your CMakeLists.txt file then link to the
 `rawterm` library using `target_link_libraries`
 
 ```cmake

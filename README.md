@@ -5,9 +5,8 @@ Documentation is mostly provided in the `docs/` directory, where every header
 file has a partner mardown file to describe it's methods usecases.
 
 ### How to use
-As of `v4.0.0`, rawterm can be imported with cmake fetchcontent. Add the
-following passage to your CMakeLists.txt file then link to the `rawterm`
-library using `target_link_libraries`
+Add the following passage to your CMakeLists.txt file then link to the
+`rawterm` library using `target_link_libraries`
 
 ```cmake
 include(FetchContent)
@@ -18,14 +17,6 @@ fetchcontent_declare(
 )
 fetchcontent_makeavailable(rawterm)
 ```
-
-Alternatively, if you use `zig` as your build system, you can run
-
-```console
-zig fetch --save=rawterm git+https://github.com/ttibsi/rawterm
-```
-
-This has only been tested with zig 0.13.0
 
 #### Example
 A minimal hello world example looks like this:

@@ -1,6 +1,7 @@
 ### main/HEAD
 * Add new Cursor::move overload to accept two integers
 * Handle bug in border rendering crashing with no lines of text
+* Removed zig build system
 
 ### v4.0.7
 * Added unit testing in `tests/` directory

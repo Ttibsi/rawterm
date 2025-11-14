@@ -24,12 +24,16 @@ namespace rawterm {
         blue = static_cast<unsigned int>(std::stoi(hex.substr(5, 2), nullptr, 16));
     }
 
-    const std::string Color::to_hex() {
+    [[nodiscard]] const std::string Color::to_hex() const noexcept {
         std::string r_str = std::format("{:02X}", red);
         std::string g_str = std::format("{:02X}", green);
         std::string b_str = std::format("{:02X}", blue);
 
         return "#" + r_str + g_str + b_str;
+    }
+
+    [[nodiscard]] const std::string Color::to_str() const noexcept {
+        return std::to_string(red) + ";" + std::to_string(green) + ";" + std::to_string(blue) + "m";
     }
 
     [[nodiscard]] std::string set_foreground(const std::string& s, const Color& color) {

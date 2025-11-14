@@ -13,7 +13,8 @@ namespace rawterm {
         Color(unsigned int x, unsigned int y, unsigned int z) : red(x), green(y), blue(z) {}
         Color(const std::string&);
 
-        const std::string to_hex();
+        [[nodiscard]] const std::string to_hex() const noexcept;
+        [[nodiscard]] const std::string to_str() const noexcept;
 
         friend std::ostream& operator<<(std::ostream& os, const Color& c) {
             return os << std::to_string(c.red) + ";" + std::to_string(c.green) + ";" +

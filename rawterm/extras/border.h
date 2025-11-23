@@ -11,6 +11,7 @@
 #include <rawterm/core.h>
 #include <rawterm/cursor.h>
 #include <rawterm/screen.h>
+#include <rawterm/text.h>
 
 namespace rawterm {
     struct Border {
@@ -113,7 +114,7 @@ namespace rawterm {
                         drawable_text = line.substr(0, static_cast<std::size_t>(longest_txt));
                     }
                     const std::size_t line_buffer =
-                        size.width() - drawable_text.size() - border_padding - 2;
+                        size.width() - raw_size(drawable_text) - border_padding - 2;
                     rendered_line += std::string(border_padding, ' ') + drawable_text +
                                      std::string(border_padding + line_buffer, ' ');
 

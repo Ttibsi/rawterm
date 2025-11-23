@@ -67,12 +67,18 @@ namespace rawterm {
         [[nodiscard]] std::vector<std::string> render(std::span<std::string> text) const {
             auto trunc_title = truncated_title();
             std::vector<std::string> render = {""};
-            std::size_t longest_txt =
-                std::max_element(
-                    text.begin(), text.end(),
-                    [](const std::string& a, const std::string& b) { return a.size() < b.size(); })
-                    ->size() +
-                std::size_t(border_padding);
+
+            std::size_t longest_txt = 0;
+            if (text.size()) {
+                longest_txt = std::max_element(
+                                  text.begin(), text.end(),
+                                  [](const std::string& a, const std::string& b) {
+                                      return a.size() < b.size();
+                                  })
+                                  ->size();
+            }
+
+            longest_txt += std::size_t(border_padding);
 
             if (longest_txt > size.width()) {
                 longest_txt = size.width() - 2;

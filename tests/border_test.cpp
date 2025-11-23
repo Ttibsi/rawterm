@@ -19,7 +19,7 @@ boost::ut::suite<"Border"> border_suite = [] {
         std::vector<std::string> expected = {"┌─────────┐", "│Lorem i│", "│consect│",
                                              "│Morbi i│",   "│placera│", "└─────────┘"};
 
-        auto rendered = b.render(&text);
+        auto rendered = b.render(text);
         expect(rendered == expected);
         // either end is a box drawing char, which is 3 bytes
         expect(rendered.at(1).size() == 13);
@@ -35,7 +35,7 @@ boost::ut::suite<"Border"> border_suite = [] {
         std::vector<std::string> expected = {"┌────────┐", "│ Lorem i│", "│ consect│",
                                              "│ Morbi i│", "│ placera│", "└────────┘"};
 
-        auto rendered = b.render(&text);
+        auto rendered = b.render(text);
         expect(rendered == expected);
 
         // either end is a box drawing char, which is 3 bytes
@@ -45,7 +45,7 @@ boost::ut::suite<"Border"> border_suite = [] {
     "render without passed text"_test = [&b] {
         std::vector<std::string> expected = {"┌────────┐", "└────────┘"};
         std::vector<std::string> given = {};
-        auto rendered = b.render(&given);
+        auto rendered = b.render(given);
         expect(rendered == expected);
     };
 
@@ -63,14 +63,14 @@ boost::ut::suite<"Border"> border_suite = [] {
     };
 
     "render with padding and title"_test = [&b, &text] {
-        auto rendered = b.render(&text);
+        auto rendered = b.render(text);
         std::string expected = "┌Super...┐";
 
         expect(rendered.at(0) == expected);
     };
 
     "render with title"_test = [&b2, &text] {
-        auto rendered = b2.render(&text);
+        auto rendered = b2.render(text);
         std::string expected = "#Test#####";
 
         expect(rendered.at(0) == expected);
@@ -87,7 +87,7 @@ boost::ut::suite<"Border"> border_suite = [] {
     };
 
     "render with padding, title, color"_test = [&b, &text] {
-        auto rendered = b.render(&text);
+        auto rendered = b.render(text);
         std::string expected = "┌Super...┐";
 
         expect(rendered.at(0) == expected) << rendered.at(0);

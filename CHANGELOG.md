@@ -2,6 +2,7 @@
 * Add new Cursor::move overload to accept two integers
 * Handle bug in border rendering crashing with no lines of text
 * Removed zig build system
+* borders now accept spans instead of enforcing vectors
 
 ### v4.0.7
 * Added unit testing in `tests/` directory

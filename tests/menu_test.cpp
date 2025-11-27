@@ -60,7 +60,7 @@ boost::ut::suite<"Menu"> menu_suite = [] {
 
     "vertical render"_test = [&menu, &options] {
         std::string render = menu.render();
-        const int nl_count = std::count(render.begin(), render.end(), '\n');
-        expect(nl_count == options.size() + 1);
+        const long nl_count = std::count(render.begin(), render.end(), '\n');
+        expect(nl_count == long(options.size()) + 1);
     };
 };

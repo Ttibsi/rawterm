@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <optional>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -10,6 +11,7 @@
 #include <rawterm/core.h>
 #include <rawterm/cursor.h>
 #include <rawterm/screen.h>
+#include <rawterm/text.h>
 
 namespace rawterm {
     struct Border {
@@ -63,17 +65,21 @@ namespace rawterm {
                    "...";
         }
 
-        [[nodiscard]] std::vector<std::string> render(const std::vector<std::string>* text) const {
+        [[nodiscard]] std::vector<std::string> render(std::span<std::string> text) const {
             auto trunc_title = truncated_title();
             std::vector<std::string> render = {""};
-            std::size_t longest_txt = text->empty()
-                                          ? 0
-                                          : std::max_element(
-                                                text->begin(), text->end(),
-                                                [](const std::string& a, const std::string& b) {
-                                                    return a.size() < b.size();
-                                                })->size() +
-                                                std::size_t(border_padding);
+
+            std::size_t longest_txt = 0;
+            if (text.size()) {
+                longest_txt = std::max_element(
+                                  text.begin(), text.end(),
+                                  [](const std::string& a, const std::string& b) {
+                                      return a.size() < b.size();
+                                  })
+                                  ->size();
+            }
+
+            longest_txt += std::size_t(border_padding);
 
             if (longest_txt > size.width()) {
                 longest_txt = size.width() - 2;
@@ -94,8 +100,8 @@ namespace rawterm {
             }
 
             // Drawing text
-            if (!text->empty()) {
-                for (const auto& line : *text) {
+            if (!text.empty()) {
+                for (const auto& line : text) {
                     std::string rendered_line = "";
                     if (border_char.has_value()) {
                         rendered_line.push_back(border_char.value());
@@ -108,7 +114,7 @@ namespace rawterm {
                         drawable_text = line.substr(0, static_cast<std::size_t>(longest_txt));
                     }
                     const std::size_t line_buffer =
-                        size.width() - drawable_text.size() - border_padding - 2;
+                        size.width() - raw_size(drawable_text) - border_padding - 2;
                     rendered_line += std::string(border_padding, ' ') + drawable_text +
                                      std::string(border_padding + line_buffer, ' ');
 
@@ -139,7 +145,7 @@ namespace rawterm {
             return render;
         };
 
-        void draw(Cursor& cur, const std::vector<std::string>* text) const {
+        void draw(Cursor& cur, std::span<std::string> text) const {
             // Disable if rawterm_debug
             if (detail::is_debug()) {
                 return;

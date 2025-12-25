@@ -1,4 +1,6 @@
 ### main/HEAD
+
+### v4.0.8 - 25/Dec/2025
 * Add new Cursor::move overload to accept two integers
 * Handle bug in border rendering crashing with no lines of text
 * Removed zig build system

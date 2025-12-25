@@ -13,7 +13,7 @@ include(FetchContent)
 fetchcontent_declare(
   rawterm
   GIT_REPOSITORY https://github.com/ttibsi/rawterm
-  GIT_TAG        v4.0.7
+  GIT_TAG        v4.0.8
 )
 fetchcontent_makeavailable(rawterm)
 ```
@@ -55,24 +55,15 @@ int main() {
 Please see the (examples)[https://github.com/Ttibsi/rawterm/tree/main/examples]
 directory for more!
 
-### New in version: 4.0.7
-* Added unit testing in `tests/` directory
-* Added zig build option
-* `extras/menu.h` - New widget added for adding a vertical scrolling menu
-* `extras/border.h` - New widget added for drawing borders around a given
-vector of strings
-* `screen.h` - Added hashing for `Pos` object to use as a key in
-`std::unordered_map` and other hashed objects
-* `text.h` - Add `raw_str` function to strip a string of any added ansi escape
-codes
-* Added new examples:
-    * `examples/vertical_menu.cpp` for trialing menu.h
-    * `examples/game.cpp` porting a simple "collect the coin" game to Rawterm
-    * `examples/borders.cpp` for a simple display of how to use border.h
+### New in version: 4.0.8
+* Add new Cursor::move overload to accept two integers
+* Handle bug in border rendering crashing with no lines of text
+* Removed zig build system
+* borders now accept spans instead of enforcing vectors
 
 ### Projects Using Rawterm
 * [iris](https://github.com/ttibsi/iris) - Modal terminal text editor
 * [re-view](https://github.com/ttibsi/re-view) - Regex viewer (uses the old header-only library)
-* [gol-tui](https://github.com/ttibsi/gol-tui) - Conway's Game of Life (uses zig build system)
+* [gol-tui](https://github.com/ttibsi/gol-tui) - Conway's Game of Life
 
 Feel free to add any projects written using rawterm to this list via PR!

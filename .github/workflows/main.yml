@@ -1,3 +1,5 @@
+# TODO: When ubuntu-26.04 is valid on github, use gcc as the default compiler
+# and remove the extra clang installs for anything but clang_unit_tests
 name: main
 on:
   pull_request:
@@ -14,8 +16,10 @@ jobs:
           run-build: true
           build-dir: build
           generator: Ninja
+        env:
+          CXX: /usr/bin/clang++
       - uses: pre-commit/action@v3.0.0
-  unit_tests:
+  clang_unit_tests:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -26,4 +30,19 @@ jobs:
           build-dir: build
           options: RUN_TESTS=true
           generator: Ninja
+        env:
+          CXX: /usr/bin/clang++
+      - run: RAWTERM_DEBUG=1 ./build/tests/test_exe
+  gcc_unit_tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: threeal/cmake-action@v1.3.0
+        with:
+          run-build: true
+          build-dir: build
+          options: RUN_TESTS=true
+          generator: Ninja
+        env:
+          CXX: /usr/bin/g++
       - run: RAWTERM_DEBUG=1 ./build/tests/test_exe

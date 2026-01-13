@@ -11,7 +11,6 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     add_compile_options(-Wextra)
     add_compile_options(-pedantic)
     add_compile_options(-Wconversion)
-    add_compile_options(-Wno-implicit-int-float-conversion)
     add_compile_options(-Wimplicit-fallthrough)
 
     set(CMAKE_CXX_STANDARD 20)

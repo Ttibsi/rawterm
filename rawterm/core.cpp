@@ -142,12 +142,13 @@ namespace rawterm {
     }
 
     [[nodiscard]] const std::optional<rawterm::Key> process_keypress() {
-        std::string characters = std::string(32, '\0');
+        std::string characters = std::string();
         int pollResult = poll(&detail::fd, 1, 0);
 
         // input available
         if (pollResult > 0) {
-            if (read(STDIN_FILENO, characters.data(), 32) < 0) {
+            const int count = read(STDIN_FILENO, characters.data(), 0);
+            if (count < 0) {
                 throw rawterm::KeypressError("An error occured during reading user input");
             }
 

@@ -1,4 +1,5 @@
 ### main/HEAD
+* Update keypress reading logic to better handle copy/paste in the future
 
 ### v4.0.8 - 25/Dec/2025
 * Add new Cursor::move overload to accept two integers

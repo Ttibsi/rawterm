@@ -141,29 +141,47 @@ namespace rawterm {
         }
     }
 
-    [[nodiscard]] const std::optional<rawterm::Key> process_keypress() {
-        std::string characters = std::string();
-        int pollResult = poll(&detail::fd, 1, 0);
+    [[nodiscard]] std::string read_input() {
+        std::vector<char> buffer;
+        buffer.reserve(1024);
+        const int pollResult = poll(&detail::fd, 1, 0);
 
-        // input available
-        if (pollResult > 0) {
-            const int count = read(STDIN_FILENO, characters.data(), 0);
-            if (count < 0) {
+        if (pollResult < 0) {
+            if (errno == EINTR) return {};  // Interrupted by signal
+            throw rawterm::KeypressError(
+                std::format("A poll error occured: {} - {}", errno, std::strerror(errno)));
+        }
+
+        // no input found
+        if (pollResult == 0) {
+            return {};
+        }
+
+        while (true) {
+            std::vector<char> chunk;
+            chunk.reserve(1024);
+
+            const std::size_t bytes_read = read(STDIN_FILENO, chunk.data(), chunk.size());
+
+            if (bytes_read == 0) {
+                break;
+            }  // EOF
+            if (bytes_read < 0) {
+                if (errno == EINTR) continue;  // Interrupted, try again
                 throw rawterm::KeypressError("An error occured during reading user input");
             }
 
-            // no input found
-        } else if (pollResult == 0) {
-            return {};
+            std::cout << "BYTES READ: " << bytes_read << "\n";
+            buffer.insert(buffer.end(), chunk.begin(), chunk.begin() + bytes_read);
+        }
 
-            // interrupted system call -- SIGWINCH interrupting poll()
-        } else if (errno == 4) {
-            return {};
+        return std::string(buffer.begin(), buffer.end());
+    }
 
-            // Error
-        } else {
-            throw rawterm::KeypressError(
-                std::format("A poll error occured: {} - {}", errno, std::strerror(errno)));
+    [[nodiscard]] const std::optional<rawterm::Key> process_keypress() {
+        const std::string characters = read_input();
+        if (!characters.size()) {
+            return {};
         }
 
         std::stringstream ss;

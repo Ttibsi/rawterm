@@ -194,6 +194,9 @@ namespace rawterm {
         return std::string(buffer.begin(), buffer.end());
     }
 
+    // TODO: Possibly update to return a vector<Key> instead?
+    // This will be a breaking change as we'll be updating the core interface
+    // Users will have to iterate over the returned keys
     [[nodiscard]] const std::optional<rawterm::Key> process_keypress() {
         const std::string characters = read_input();
         if (!characters.size()) {

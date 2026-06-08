@@ -9,6 +9,10 @@
 #include "cursor.h"
 #include "exceptions.h"
 
+#if __linux__
+#include <fcntl.h>
+#endif
+
 namespace rawterm {
     namespace detail {
 
@@ -45,6 +49,10 @@ namespace rawterm {
 
     void disable_raw_mode() {
 #if __linux__
+        if (detail::stdin_orig_flags != -1) {
+            fcntl(STDIN_FILENO, F_SETFL, detail::stdin_orig_flags);
+            detail::stdin_orig_flags = -1;
+        }
         if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &rawterm::detail::orig) == -1) {
             Cursor c;
             c.reset();
@@ -72,6 +80,11 @@ namespace rawterm {
 
         if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
             std::perror("tcsetattr");
+        }
+        const int flags = fcntl(STDIN_FILENO, F_GETFL);
+        if (flags != -1) {
+            detail::stdin_orig_flags = flags;
+            fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
         }
         return 0;
 #elif _WIN32
@@ -156,23 +169,26 @@ namespace rawterm {
         if (pollResult == 0) {
             return {};
         }
-
         while (true) {
             std::vector<char> chunk;
-            chunk.reserve(1024);
+            chunk.resize(1024);
 
-            const std::size_t bytes_read = read(STDIN_FILENO, chunk.data(), chunk.size());
+            const int bytes_read = read(STDIN_FILENO, chunk.data(), chunk.size());
 
             if (bytes_read == 0) {
                 break;
             }  // EOF
             if (bytes_read < 0) {
+                if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                    break;
+                }
                 if (errno == EINTR) continue;  // Interrupted, try again
                 throw rawterm::KeypressError("An error occured during reading user input");
             }
 
-            std::cout << "BYTES READ: " << bytes_read << "\n";
-            buffer.insert(buffer.end(), chunk.begin(), chunk.begin() + bytes_read);
+            if (bytes_read) {
+                buffer.insert(buffer.end(), chunk.begin(), chunk.begin() + bytes_read);
+            }
         }
 
         return std::string(buffer.begin(), buffer.end());

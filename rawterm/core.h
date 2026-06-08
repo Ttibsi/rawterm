@@ -38,6 +38,7 @@ namespace rawterm {
     namespace detail {
 #if __linux__
         inline termios orig;
+        inline int stdin_orig_flags = -1;
 #endif
         inline Signal sig_sent = Signal::NONE;
 

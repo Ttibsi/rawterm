@@ -60,15 +60,16 @@ namespace rawterm {
 
         while (pos < str.length()) {
             // Check if there's an ANSI escape code at the current position
-            if (std::regex_search(str.begin() + pos, str.end(), match, ansi_escape_code) &&
+            long longPos = static_cast<long>(pos);
+            if (std::regex_search(str.begin() + longPos, str.end(), match, ansi_escape_code) &&
                 match.position() == 0) {
                 // Move position past the ANSI escape code
-                pos += match.length();
+                pos += static_cast<std::size_t>(match.length());
             } else {
                 // If the current visible index matches the target index, return the
                 // character
                 if (visible_index == index) {
-                    return str[pos];
+                    return str.at(pos);
                 }
                 // Move to the next character
                 ++visible_index;

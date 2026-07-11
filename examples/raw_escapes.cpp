@@ -24,9 +24,9 @@ int main() {
         }
 
         std::string code;
-        for (int i = 0; i < ret; ++i) {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(ret); ++i) {
             std::stringstream ss;
-            ss << std::hex << "\\x" << static_cast<unsigned char>(seq[i]);
+            ss << std::hex << "\\x" << static_cast<unsigned char>(seq.at(i));
             code += ss.str();
         }
 

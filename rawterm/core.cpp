@@ -9,6 +9,10 @@
 #include "cursor.h"
 #include "exceptions.h"
 
+#if __linux__
+#include <fcntl.h>
+#endif
+
 namespace rawterm {
     namespace detail {
 
@@ -45,6 +49,10 @@ namespace rawterm {
 
     void disable_raw_mode() {
 #if __linux__
+        if (detail::stdin_orig_flags != -1) {
+            fcntl(STDIN_FILENO, F_SETFL, detail::stdin_orig_flags);
+            detail::stdin_orig_flags = -1;
+        }
         if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &rawterm::detail::orig) == -1) {
             Cursor c;
             c.reset();
@@ -72,6 +80,11 @@ namespace rawterm {
 
         if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
             std::perror("tcsetattr");
+        }
+        const int flags = fcntl(STDIN_FILENO, F_GETFL);
+        if (flags != -1) {
+            detail::stdin_orig_flags = flags;
+            fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
         }
         return 0;
 #elif _WIN32
@@ -141,28 +154,53 @@ namespace rawterm {
         }
     }
 
-    [[nodiscard]] const std::optional<rawterm::Key> process_keypress() {
-        std::string characters = std::string(32, '\0');
-        int pollResult = poll(&detail::fd, 1, 0);
+    [[nodiscard]] std::string read_input() {
+        std::vector<char> buffer;
+        buffer.reserve(1024);
+        const int pollResult = poll(&detail::fd, 1, 0);
 
-        // input available
-        if (pollResult > 0) {
-            if (read(STDIN_FILENO, characters.data(), 32) < 0) {
+        if (pollResult < 0) {
+            if (errno == EINTR) return {};  // Interrupted by signal
+            throw rawterm::KeypressError(
+                std::format("A poll error occured: {} - {}", errno, std::strerror(errno)));
+        }
+
+        // no input found
+        if (pollResult == 0) {
+            return {};
+        }
+        while (true) {
+            std::vector<char> chunk;
+            chunk.resize(1024);
+
+            const int bytes_read = read(STDIN_FILENO, chunk.data(), chunk.size());
+
+            if (bytes_read == 0) {
+                break;
+            }  // EOF
+            if (bytes_read < 0) {
+                if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                    break;
+                }
+                if (errno == EINTR) continue;  // Interrupted, try again
                 throw rawterm::KeypressError("An error occured during reading user input");
             }
 
-            // no input found
-        } else if (pollResult == 0) {
-            return {};
+            if (bytes_read) {
+                buffer.insert(buffer.end(), chunk.begin(), chunk.begin() + bytes_read);
+            }
+        }
 
-            // interrupted system call -- SIGWINCH interrupting poll()
-        } else if (errno == 4) {
-            return {};
+        return std::string(buffer.begin(), buffer.end());
+    }
 
-            // Error
-        } else {
-            throw rawterm::KeypressError(
-                std::format("A poll error occured: {} - {}", errno, std::strerror(errno)));
+    // TODO: Possibly update to return a vector<Key> instead?
+    // This will be a breaking change as we'll be updating the core interface
+    // Users will have to iterate over the returned keys
+    [[nodiscard]] const std::optional<rawterm::Key> process_keypress() {
+        const std::string characters = read_input();
+        if (!characters.size()) {
+            return {};
         }
 
         std::stringstream ss;

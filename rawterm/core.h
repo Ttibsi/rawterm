@@ -38,11 +38,12 @@ namespace rawterm {
     namespace detail {
 #if __linux__
         inline termios orig;
+        inline int stdin_orig_flags = -1;
 #endif
         inline Signal sig_sent = Signal::NONE;
 
         // Used for polling in process_keypress()
-        inline pollfd fd {STDIN_FILENO, POLLIN, POLLOUT};
+        inline pollfd fd = {STDIN_FILENO, POLLIN, 0};
 
         // used for debugging
         [[nodiscard]] bool is_debug();

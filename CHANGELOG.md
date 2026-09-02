@@ -1,4 +1,5 @@
 ### main/HEAD
+* Refactor `process_keypress()` to reduce allocations when looping
 
 ### v4.0.9 - 28/Jan/2026
 * Remove explicit compiler path from cmake

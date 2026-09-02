@@ -1,6 +1,7 @@
 #include "core.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -142,12 +143,13 @@ namespace rawterm {
     }
 
     [[nodiscard]] const std::optional<rawterm::Key> process_keypress() {
-        std::string characters = std::string(32, '\0');
+        detail::characters.clear();
+        assert(detail::characters.capacity() == 32);
         int pollResult = poll(&detail::fd, 1, 0);
 
         // input available
         if (pollResult > 0) {
-            if (read(STDIN_FILENO, characters.data(), 32) < 0) {
+            if (read(STDIN_FILENO, detail::characters.data(), 32) < 0) {
                 throw rawterm::KeypressError("An error occured during reading user input");
             }
 
@@ -167,14 +169,14 @@ namespace rawterm {
 
         std::stringstream ss;
         ss << std::hex;
-        for (char c : characters.substr(0, characters.find('\0'))) {
+        for (char c : detail::characters.substr(0, detail::characters.find('\0'))) {
             ss << "\\x" << static_cast<int>(static_cast<unsigned char>(c));
         }
         const std::string raw = ss.str();
 
         // TODO: alt-gr, multiple modifier keys?
         // NOTE: https://www.rapidtables.com/code/text/ascii-table.html
-        switch (characters[0]) {
+        switch (detail::characters.at(0)) {
             case '\x01':
                 return Key('a', rawterm::Mod::Control, raw);
             case '\x02':
@@ -240,10 +242,10 @@ namespace rawterm {
                 // ESCAPE
                 // clang-format off
 
-                // characters[0] is escape char
-                // if characters[1] is equal to a letter (upper or lowercase), it's
-                // left alt+letter if characters[1] is [, it's an arrow key (abcd
-                // after for udrl) if characters[2] is \x31 (1), it can be f5+
+                // detail::characters.at(0) is escape char
+                // if detail::characters.at(1) is equal to a letter (upper or lowercase), it's
+                // left alt+letter if detail::characters.at(1) is [, it's an arrow key (abcd
+                // after for udrl) if detail::characters.at(2) is \x31 (1), it can be f5+
                 // f1 \x1B\x4F\x50
                 // f2 \x1B\x4F\x51
                 // f3 \x1B\x4F\x52
@@ -267,18 +269,18 @@ namespace rawterm {
                     return Key(' ', rawterm::Mod::Escape, raw);  // esc
                 }
 
-                if (raw.size() == 8 && asciiLetters.contains(characters[1])) {
-                    Key k = Key(characters[1], rawterm::Mod::Alt_L, raw);
+                if (raw.size() == 8 && asciiLetters.contains(detail::characters.at(1))) {
+                    Key k = Key(detail::characters.at(1), rawterm::Mod::Alt_L, raw);
 
-                    if (characters[1] >= 'A' && characters[1] <= 'Z') {
+                    if (detail::characters.at(1) >= 'A' && detail::characters.at(1) <= 'Z') {
                         k.mod.push_back(rawterm::Mod::Shift);
                     }
 
                     return k;
                 }
-                if (characters[1] == '\x5B') {
+                if (detail::characters.at(1) == '\x5B') {
                     // ARROWS
-                    switch (characters[2]) {
+                    switch (detail::characters.at(2)) {
                         case '\x41':
                             return Key('A', rawterm::Mod::Arrow, raw);  // up
                         case '\x42':
@@ -292,7 +294,7 @@ namespace rawterm {
 
                         // FUNCTIONS pt 2
                         case '\x31':
-                            switch (characters[3]) {
+                            switch (detail::characters.at(3)) {
                                 case '\x35':
                                     return Key('5', rawterm::Mod::Function, raw);  // f5
                                 case '\x37':
@@ -305,7 +307,7 @@ namespace rawterm {
                             break;
 
                         case '\x32':
-                            switch (characters[3]) {
+                            switch (detail::characters.at(3)) {
                                 case '\x30':
                                     return Key('9', rawterm::Mod::Function, raw);  // f9
                                 case '\x31':
@@ -326,9 +328,9 @@ namespace rawterm {
                             return Key(' ', rawterm::Mod::Home, raw);  // Home
                     }
 
-                } else if (raw.size() == 12 && characters[1] == '\x4F') {
+                } else if (raw.size() == 12 && detail::characters.at(1) == '\x4F') {
                     // FUNCTIONS pt 1
-                    switch (characters[2]) {
+                    switch (detail::characters.at(2)) {
                         case '\x50':
                             return Key('1', rawterm::Mod::Function, raw);  // f1
                         case '\x51':

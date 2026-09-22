@@ -65,5 +65,7 @@ directory for more!
 * [iris](https://github.com/ttibsi/iris) - Modal terminal text editor
 * [re-view](https://github.com/ttibsi/re-view) - Regex viewer (uses the old header-only library)
 * [gol-tui](https://github.com/ttibsi/gol-tui) - Conway's Game of Life
+* [timer](https://github.com/ttibsi/timer)
+    - A simple terminal stopwatch written in Swift using C++ FFI to import rawterm
 
 Feel free to add any projects written using rawterm to this list via PR!

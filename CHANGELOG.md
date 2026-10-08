@@ -1,4 +1,5 @@
 ### main/HEAD
+* Update keypress reading logic to better handle copy/paste in the future
 
 ### v4.0.9 - 28/Jan/2026
 * Remove explicit compiler path from cmake

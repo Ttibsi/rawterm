@@ -156,8 +156,7 @@ namespace rawterm {
     }
 
     [[nodiscard]] std::string read_input() {
-        std::vector<char> buffer;
-        buffer.reserve(1024);
+        detail::buffer.erase(detail::buffer.begin(), detail::buffer.end());
         const int pollResult = poll(&detail::fd, 1, 0);
 
         if (pollResult < 0) {
@@ -170,29 +169,29 @@ namespace rawterm {
         if (pollResult == 0) {
             return {};
         }
-        while (true) {
-            std::vector<char> chunk;
-            chunk.resize(1024);
 
-            const int bytes_read = read(STDIN_FILENO, chunk.data(), chunk.size());
+        while (true) {
+            detail::chunk.erase(detail::chunk.begin(), detail::chunk.end());
+            const int bytes_read =
+                read(STDIN_FILENO, detail::chunk.data(), detail::chunk.capacity());
 
             if (bytes_read == 0) {
+                // EOF
                 break;
-            }  // EOF
-            if (bytes_read < 0) {
+            } else if (bytes_read < 0) {
                 if (errno == EAGAIN || errno == EWOULDBLOCK) {
                     break;
                 }
                 if (errno == EINTR) continue;  // Interrupted, try again
                 throw rawterm::KeypressError("An error occured during reading user input");
-            }
-
-            if (bytes_read) {
-                buffer.insert(buffer.end(), chunk.begin(), chunk.begin() + bytes_read);
+            } else {
+                detail::buffer.insert(
+                    detail::buffer.end(), detail::chunk.begin(),
+                    detail::chunk.begin() + bytes_read);
             }
         }
 
-        return std::string(buffer.begin(), buffer.end());
+        return std::string(detail::buffer.begin(), detail::buffer.end());
     }
 
     // TODO: Possibly update to return a vector<Key> instead?
@@ -206,14 +205,14 @@ namespace rawterm {
 
         std::stringstream ss;
         ss << std::hex;
-        for (char c : detail::characters.substr(0, detail::characters.find('\0'))) {
+        for (char c : characters) {
             ss << "\\x" << static_cast<int>(static_cast<unsigned char>(c));
         }
         const std::string raw = ss.str();
 
         // TODO: alt-gr, multiple modifier keys?
         // NOTE: https://www.rapidtables.com/code/text/ascii-table.html
-        switch (detail::characters.at(0)) {
+        switch (characters.at(0)) {
             case '\x01':
                 return Key('a', rawterm::Mod::Control, raw);
             case '\x02':
@@ -279,10 +278,10 @@ namespace rawterm {
                 // ESCAPE
                 // clang-format off
 
-                // detail::characters.at(0) is escape char
-                // if detail::characters.at(1) is equal to a letter (upper or lowercase), it's
-                // left alt+letter if detail::characters.at(1) is [, it's an arrow key (abcd
-                // after for udrl) if detail::characters.at(2) is \x31 (1), it can be f5+
+                // characters.at(0) is escape char
+                // if characters.at(1) is equal to a letter (upper or lowercase), it's
+                // left alt+letter if characters.at(1) is [, it's an arrow key (abcd
+                // after for udrl) if characters.at(2) is \x31 (1), it can be f5+
                 // f1 \x1B\x4F\x50
                 // f2 \x1B\x4F\x51
                 // f3 \x1B\x4F\x52
@@ -306,18 +305,18 @@ namespace rawterm {
                     return Key(' ', rawterm::Mod::Escape, raw);  // esc
                 }
 
-                if (raw.size() == 8 && asciiLetters.contains(detail::characters.at(1))) {
-                    Key k = Key(detail::characters.at(1), rawterm::Mod::Alt_L, raw);
+                if (raw.size() == 8 && asciiLetters.contains(characters.at(1))) {
+                    Key k = Key(characters.at(1), rawterm::Mod::Alt_L, raw);
 
-                    if (detail::characters.at(1) >= 'A' && detail::characters.at(1) <= 'Z') {
+                    if (characters.at(1) >= 'A' && characters.at(1) <= 'Z') {
                         k.mod.push_back(rawterm::Mod::Shift);
                     }
 
                     return k;
                 }
-                if (detail::characters.at(1) == '\x5B') {
+                if (characters.at(1) == '\x5B') {
                     // ARROWS
-                    switch (detail::characters.at(2)) {
+                    switch (characters.at(2)) {
                         case '\x41':
                             return Key('A', rawterm::Mod::Arrow, raw);  // up
                         case '\x42':
@@ -331,7 +330,7 @@ namespace rawterm {
 
                         // FUNCTIONS pt 2
                         case '\x31':
-                            switch (detail::characters.at(3)) {
+                            switch (characters.at(3)) {
                                 case '\x35':
                                     return Key('5', rawterm::Mod::Function, raw);  // f5
                                 case '\x37':
@@ -344,7 +343,7 @@ namespace rawterm {
                             break;
 
                         case '\x32':
-                            switch (detail::characters.at(3)) {
+                            switch (characters.at(3)) {
                                 case '\x30':
                                     return Key('9', rawterm::Mod::Function, raw);  // f9
                                 case '\x31':
@@ -365,9 +364,9 @@ namespace rawterm {
                             return Key(' ', rawterm::Mod::Home, raw);  // Home
                     }
 
-                } else if (raw.size() == 12 && detail::characters.at(1) == '\x4F') {
+                } else if (raw.size() == 12 && characters.at(1) == '\x4F') {
                     // FUNCTIONS pt 1
-                    switch (detail::characters.at(2)) {
+                    switch (characters.at(2)) {
                         case '\x50':
                             return Key('1', rawterm::Mod::Function, raw);  // f1
                         case '\x51':

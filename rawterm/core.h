@@ -41,7 +41,8 @@ namespace rawterm {
         inline int stdin_orig_flags = -1;
 #endif
         inline Signal sig_sent = Signal::NONE;
-        inline std::string characters = std::string(32, '\0');
+        inline std::vector<char> buffer = std::vector<char>(1024);
+        inline std::vector<char> chunk = std::vector<char>(1024);
 
         // Used for polling in process_keypress()
         inline pollfd fd = {STDIN_FILENO, POLLIN, 0};

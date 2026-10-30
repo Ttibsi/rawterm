@@ -21,3 +21,7 @@ repos:
     rev: v1.1.0
     hooks:
     -   id: brie-commit
+  - repo: https://github.com/GideonBear/pre-comet
+    rev: v1.0.0
+    hooks:
+      - id: pre-comet

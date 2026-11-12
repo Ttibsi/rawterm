@@ -103,7 +103,8 @@ namespace rawterm {
 
         std::string response;
         char input;
-        while (std::cin.get(input)) {
+        int pollResult = poll(&detail::fd, 1, 100);
+        while (pollResult > 0 && read(STDIN_FILENO, &input, 1) == 1) {
             if (input == 'R') {
                 break;
             }

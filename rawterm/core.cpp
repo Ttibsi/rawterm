@@ -590,7 +590,6 @@ namespace rawterm {
                 if (characters.at(1) == '\xA3') {
                     return Key("£", rawterm::Mod::Shift, raw);
                 }
-            
         }
         return Key(' ', rawterm::Mod::Unknown, raw);
     }

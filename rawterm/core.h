@@ -79,7 +79,8 @@ namespace rawterm {
 
         Key(char c) : code(std::string(1, c)), mod(std::deque<Mod> {Mod::None}) {}
         Key(char c, Mod m) : code(std::string(1, c)), mod(std::deque<Mod> {m}) {}
-        Key(char c, Mod m, std::string r) : code(std::string(1, c)), mod(std::deque<Mod> {m}), raw(r) {}
+        Key(char c, Mod m, std::string r)
+            : code(std::string(1, c)), mod(std::deque<Mod> {m}), raw(r) {}
         Key(std::string c, Mod m, std::string r) : code(c), mod(std::deque<Mod> {m}), raw(r) {}
 
         void addMod(rawterm::Mod);

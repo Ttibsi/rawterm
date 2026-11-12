@@ -2,7 +2,10 @@
 #include <rawterm/core.h>
 #include <rawterm/cursor.h>
 
+#include <chrono>
 #include <iostream>
+
+using namespace std::chrono;
 
 int main() {
     rawterm::enable_raw_mode();
@@ -12,6 +15,7 @@ int main() {
 
     rawterm::Pos term_size = rawterm::get_term_size();
     bool toggle = false;
+    const time_point<high_resolution_clock> start = high_resolution_clock::now();
 
     for (int i = 1; i <= term_size.horizontal; i++) {
         for (int j = 1; j <= term_size.vertical; j++) {
@@ -25,7 +29,13 @@ int main() {
         }
     }
 
+    const time_point<high_resolution_clock> end = high_resolution_clock::now();
+    const int cell_count = term_size.horizontal * term_size.vertical;
+    const milliseconds ms = duration_cast<milliseconds>(end - start);
+
     auto k = rawterm::wait_for_input();
     rawterm::exit_alt_screen();
+
+    std::cout << "Printed " << cell_count << " cells in " << ms.count() << "ms\n";
     return 0;
 }

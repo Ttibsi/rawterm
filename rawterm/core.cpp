@@ -44,7 +44,7 @@ namespace rawterm {
     }
 
     bool Key::isCharInput() {
-        return std::isprint(static_cast<unsigned char>(code)) && code != ' ' &&
+        return std::isprint(code.at(0)) && !code.empty() &&
                (mod.empty() || mod[0] == Mod::Shift || mod[0] == Mod::None);
     }
 
@@ -209,6 +209,7 @@ namespace rawterm {
             ss << "\\x" << static_cast<int>(static_cast<unsigned char>(c));
         }
         const std::string raw = ss.str();
+        // £ = \xc2\xa3
 
         // TODO: alt-gr, multiple modifier keys?
         // NOTE: https://www.rapidtables.com/code/text/ascii-table.html
@@ -585,6 +586,10 @@ namespace rawterm {
             case '\x7F':
                 // BACKSPACE
                 return Key(' ', rawterm::Mod::Backspace, raw);
+            case '\xC2':
+                if (characters.at(1) == '\xA3') {
+                    return Key("£", rawterm::Mod::Shift, raw);
+                }
         }
         return Key(' ', rawterm::Mod::Unknown, raw);
     }

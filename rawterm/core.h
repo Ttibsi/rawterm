@@ -73,13 +73,15 @@ namespace rawterm {
     };
 
     struct Key {
-        char code;
+        std::string code;
         std::deque<rawterm::Mod> mod;
         std::string raw;
 
-        Key(char c) : code(c), mod(std::deque<Mod> {Mod::None}) {}
-        Key(char c, Mod m) : code(c), mod(std::deque<Mod> {m}) {}
-        Key(char c, Mod m, std::string r) : code(c), mod(std::deque<Mod> {m}), raw(r) {}
+        Key(char c) : code(std::string(1, c)), mod(std::deque<Mod> {Mod::None}) {}
+        Key(char c, Mod m) : code(std::string(1, c)), mod(std::deque<Mod> {m}) {}
+        Key(char c, Mod m, std::string r)
+            : code(std::string(1, c)), mod(std::deque<Mod> {m}), raw(r) {}
+        Key(std::string c, Mod m, std::string r) : code(c), mod(std::deque<Mod> {m}), raw(r) {}
 
         void addMod(rawterm::Mod);
         [[nodiscard]] rawterm::Mod getMod();

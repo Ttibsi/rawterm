@@ -44,7 +44,7 @@ namespace rawterm {
     }
 
     bool Key::isCharInput() const {
-        return std::isprint(code.at(0)) && !isSpace() &&
+        return code.size() == 1 && std::isprint(code.at(0)) && !isSpace() &&
                (mod.empty() || mod[0] == Mod::Shift || mod[0] == Mod::None);
     }
 

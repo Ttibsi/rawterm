@@ -56,4 +56,84 @@ boost::ut::suite<"Core"> core_suite = [] {
             expect(k.isSpace() == false);
         };
     };
+
+    "key op=="_test = [] {
+        should("Match identical unmodified keys") = [] {
+            const rawterm::Key a('c');
+            const rawterm::Key b('c');
+            expect(a == b);
+        };
+
+        should("Treat None and an empty modifier list as equivalent") = [] {
+            rawterm::Key a('c');
+            rawterm::Key b('c');
+            b.mod.clear();
+            expect(a == b);
+            expect(b == a);
+        };
+
+        should("Treat None and an empty modifier list as equivalent in either operand") = [] {
+            rawterm::Key a('c');
+            rawterm::Key b('c');
+            a.mod.clear();
+            expect(a == b);
+            expect(b == a);
+        };
+
+        should("Treat None and empty modifiers as equivalent") = [] {
+            rawterm::Key a('c');
+            rawterm::Key b('c');
+            b.mod.clear();
+            expect(a == b);
+            expect(b == a);
+        };
+
+        should("Match identical modified keys") = [] {
+            const rawterm::Key a('C', rawterm::Mod::Shift);
+            const rawterm::Key b('C', rawterm::Mod::Shift);
+            expect(a == b);
+        };
+
+        should("Not match different codes") = [] {
+            const rawterm::Key a('c');
+            const rawterm::Key b('d');
+            expect(!(a == b));
+        };
+
+        should("Not match different modifiers") = [] {
+            const rawterm::Key a('c', rawterm::Mod::Shift);
+            const rawterm::Key b('c', rawterm::Mod::Arrow);
+            expect(!(a == b));
+        };
+
+        should("Ignore raw when code and modifiers match") = [] {
+            const rawterm::Key a("x", rawterm::Mod::Shift, "raw-a");
+            const rawterm::Key b("x", rawterm::Mod::Shift, "raw-b");
+            expect(a == b);
+        };
+
+        should("Compare multi-character codes") = [] {
+            const rawterm::Key a("£", rawterm::Mod::Shift, "");
+            const rawterm::Key b("£", rawterm::Mod::Shift, "");
+            const rawterm::Key c("€", rawterm::Mod::Shift, "");
+            expect(a == b);
+            expect(!(a == c));
+        };
+
+        should("Treat None as equivalent to empty modifiers in either operand") = [] {
+            rawterm::Key none('c');
+            rawterm::Key empty('c');
+            empty.mod.clear();
+            expect(none == empty);
+            expect(empty == none);
+        };
+
+        should("Reject an empty modifier list on a modified key") = [] {
+            rawterm::Key modified('c', rawterm::Mod::Shift);
+            rawterm::Key empty('c');
+            empty.mod.clear();
+            expect(!(modified == empty));
+            expect(!(empty == modified));
+        };
+    };
 };

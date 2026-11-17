@@ -172,7 +172,7 @@ namespace rawterm {
 
         while (true) {
             detail::chunk.erase(detail::chunk.begin(), detail::chunk.end());
-            const int bytes_read =
+            const ssize_t bytes_read =
                 read(STDIN_FILENO, detail::chunk.data(), detail::chunk.capacity());
 
             if (bytes_read == 0) {

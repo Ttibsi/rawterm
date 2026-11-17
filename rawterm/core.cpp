@@ -43,9 +43,23 @@ namespace rawterm {
         }
     }
 
-    bool Key::isCharInput() {
-        return std::isprint(code.at(0)) && !code.empty() &&
+    bool Key::isCharInput() const {
+        return std::isprint(code.at(0)) && !isSpace() &&
                (mod.empty() || mod[0] == Mod::Shift || mod[0] == Mod::None);
+    }
+
+    bool Key::isSpace() const {
+        static constexpr std::array<char, 6> ws = {' ', '\n', '\r', '\t', '\v', '\f'};
+
+        auto cmp = [&](const char c) { return c == code.at(0); };
+        return std::any_of(ws.begin(), ws.end(), cmp);
+    }
+
+    std::optional<char> Key::getCode() const {
+        if (code.size() != 1) {
+            return std::nullopt;
+        }
+        return code.at(0);
     }
 
     void disable_raw_mode() {

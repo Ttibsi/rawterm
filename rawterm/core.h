@@ -85,8 +85,10 @@ namespace rawterm {
 
         void addMod(rawterm::Mod);
         [[nodiscard]] rawterm::Mod getMod();
-        [[nodiscard]] bool isCharInput();
-        [[nodiscard]] bool isValid();
+        [[nodiscard]] bool isCharInput() const;
+        [[nodiscard]] bool isValid() const;
+        [[nodiscard]] bool isSpace() const;
+        [[nodiscard]] std::optional<char> getCode() const;
 
         [[nodiscard]] bool operator==(const Key& other) const {
             if (other.mod.empty() || other.mod == std::deque<Mod> {Mod::None}) {

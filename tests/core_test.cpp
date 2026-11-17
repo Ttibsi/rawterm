@@ -26,7 +26,7 @@ boost::ut::suite<"Core"> core_suite = [] {
 
         should("Be a capital char") = [] {
             auto k = rawterm::Key('C', rawterm::Mod::Shift);
-            expect(k.isCharInput() == true);
+            expect(k.isCharInput() == true) << k.code << " " << rawterm::to_string(k.mod[0]);
         };
 
         should("Be an arrow") = [] {
@@ -37,6 +37,23 @@ boost::ut::suite<"Core"> core_suite = [] {
         should("Not be a char") = [] {
             auto k = rawterm::Key(' ', rawterm::Mod::Escape);
             expect(k.isCharInput() == false);
+        };
+    };
+
+    "isSpace"_test = [] {
+        should("Be a space") = [] {
+            auto k = rawterm::Key(' ', rawterm::Mod::Space);
+            expect(k.isSpace() == true);
+        };
+
+        should("Not be a space") = [] {
+            auto k = rawterm::Key('4', rawterm::Mod::None);
+            expect(k.isSpace() == false);
+        };
+
+        should("Code has multiple chars") = [] {
+            auto k = rawterm::Key("£", rawterm::Mod::Shift, "");
+            expect(k.isSpace() == false);
         };
     };
 };
